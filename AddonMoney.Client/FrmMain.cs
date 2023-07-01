@@ -39,11 +39,14 @@ namespace AddonMoney.Client
                 {
                     var tasks = new List<Task>();
                     var now = GetGMT7Now();
+
                     var start = now.Hour >= 3 && now.Hour < 14 ? 0 : _services.Count / 2;
                     var end = now.Hour >= 3 && now.Hour < 14 ? _services.Count / 2 : _services.Count;
-                    for (int i = start; i < end; i++)
+
+                    for (int i = 0; i < _services.Count; i++)
                     {
-                        tasks.Add(Run(_services[i]));
+                        if (start <= i && i < end) tasks.Add(Run(_services[i]));
+                        else tasks.Add(_services[i].Close());
                     }
                     await Task.WhenAll(tasks);
                     tasks.Clear();

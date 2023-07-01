@@ -152,16 +152,16 @@ namespace ChromeDriverLibrary
                 myDriver.Driver?.Dispose();
                 await Task.Delay(1000).ConfigureAwait(false);
             }
-
             catch { }
-            if (myDriver.IsDeleteProfile && Directory.Exists(myDriver.ProfileDir))
-            {
-                try
-                {
-                    Directory.Delete(myDriver.ProfileDir, true);
-                }
-                catch { }
-            }
+
+            //if (myDriver.IsDeleteProfile && Directory.Exists(myDriver.ProfileDir))
+            //{
+            //    try
+            //    {
+            //        Directory.Delete(myDriver.ProfileDir, true);
+            //    }
+            //    catch { }
+            //}
         }
 
         public static void KillAllChromes()

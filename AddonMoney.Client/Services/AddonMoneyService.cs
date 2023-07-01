@@ -101,5 +101,18 @@ namespace AddonMoney.Client.Services
                 return account;
             }
         }
+
+        public async Task Close()
+        {
+            try
+            {
+                if (_driver?.Driver == null) return;
+                await Task.Run(() => _driver.Close());
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Got exception while closing profile {_profile}.", ex);
+            }
+        }
     }
 }
