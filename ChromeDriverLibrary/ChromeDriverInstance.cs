@@ -1,0 +1,182 @@
+﻿using OpenQA.Selenium.Chrome;
+using SeleniumUndetectedChromeDriver;
+using System.Diagnostics;
+
+namespace ChromeDriverLibrary
+{
+    public class ChromeDriverInstance
+    {
+        private static readonly object _lockUserDir = new();
+
+        public static MyChromeDriver GetInstance(int positionX,
+            int positionY,
+            bool isMaximize = false,
+            string? proxy = null,
+            bool isHeadless = true,
+            List<string>? extensionPaths = null,
+            bool disableImg = true,
+            bool privateMode = true,
+            string? userDataDir = null,
+            string? profile = null,
+            bool isDeleteProfile = true,
+            bool keepOneWindow = false,
+            CancellationToken? token = null)
+        {
+            MyChromeDriver myDriver = new();
+            if (userDataDir == null)
+            {
+                myDriver.ProfileDir = GetUserDir();
+                userDataDir ??= GetUserDir();
+                myDriver.IsDeleteProfile = isDeleteProfile;
+            }
+            else
+            {
+                myDriver.ProfileDir = Path.Combine(userDataDir, profile ?? "Default");
+                myDriver.IsDeleteProfile = isDeleteProfile;
+            }
+            try
+            {
+                token ??= CancellationToken.None;
+                var proxyInfo = new List<string>();
+
+                var options = new ChromeOptions();
+                if (!string.IsNullOrEmpty(proxy))
+                {
+                    var prefix = string.Empty;
+                    if (proxy.Contains("http://") || proxy.Contains("https://"))
+                    {
+                        proxy = proxy.Replace("http://", "");
+                        prefix = "http://";
+                    }
+                    else if (proxy.Contains("socks5://"))
+                    {
+                        proxy = proxy.Replace("socks5://", "");
+                        prefix = "socks5://";
+                    }
+                    else throw new Exception("unsupported proxy type");
+
+                    proxyInfo = proxy.Split(":").ToList();
+                    if (proxyInfo.Count != 2 && proxyInfo.Count != 4) throw new Exception("invalid proxy format");
+
+                    options.AddArgument($"--proxy-server={prefix}{proxyInfo[0]}:{proxyInfo[1]}");
+                }
+
+                var basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+                var extensions = new List<string>();
+                extensions.AddRange(extensionPaths ?? new List<string>());
+                if (proxyInfo.Count == 4) extensions.Add($"{basePath}/chromedriver/proxyauth");
+                if (extensions.Count > 0) options.AddArguments($"--load-extension={string.Join(",", extensions)}");
+
+                if (privateMode) options.AddArgument("--incognito");
+                if (disableImg) options.AddArgument("--blink-settings=imagesEnabled=false");
+                if (!string.IsNullOrWhiteSpace(profile)) options.AddArgument($"--profile-directory={profile}");
+
+                var chromeDriverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "chromedriver", "chromedriver.exe");
+                myDriver.Driver = UndetectedChromeDriver.Create(driverExecutablePath: chromeDriverPath,
+                    userDataDir: userDataDir,
+                    headless: isHeadless,
+                    hideCommandPromptWindow: true,
+                    options: options);
+                if (!isMaximize)
+                {
+                    myDriver.Driver.Manage().Window.Position = new System.Drawing.Point(positionX, positionY);
+                    myDriver.Driver.Manage().Window.Size = new System.Drawing.Size(375, 500);
+                }
+                else
+                {
+                    myDriver.Driver.Manage().Window.Maximize();
+                }
+                Thread.Sleep(3000);
+                if (keepOneWindow)
+                {
+                    while (myDriver.Driver.WindowHandles.Count > 1)
+                    {
+                        myDriver.Driver.Close();
+                        Thread.Sleep(1000);
+                        myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
+                    }
+                }
+                if (proxyInfo.Count == 4)
+                {
+                    myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
+                    myDriver.Driver.GoToUrl("chrome://extensions");
+                    Thread.Sleep(1000);
+                    var findIdScript = "var done = arguments[0];" +
+                        "chrome.management.getAll().then((res) => {" +
+                        "var ext = res.find(item => item.name == 'Proxy Auto Auth' && item.shortName == 'Proxy Auto Auth');" +
+                        "var extId = ext ? ext.id : '';" +
+                        "return done(extId);" +
+                        "});";
+                    var id = (string)myDriver.Driver.ExecuteAsyncScript(findIdScript);
+
+                    myDriver.Driver.GoToUrl($"chrome-extension://{id}/options.html");
+                    myDriver.Driver.FindElement("#login", 30, token.Value);
+                    myDriver.Driver.ExecuteScript($"localStorage['proxy_login'] = '{proxyInfo[2]}';" +
+                    $"localStorage['proxy_password'] = '{proxyInfo[3]}';" +
+                    $"localStorage['proxy_retry'] = '2'");
+                }
+            }
+            catch
+            {
+                Close(myDriver).Wait();
+                throw;
+            }
+            return myDriver;
+        }
+
+        private static string GetUserDir()
+        {
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            var folder = Path.Combine(basePath, "profiles");
+            var container = Path.Combine(folder, Guid.NewGuid().ToString());
+            if (!Directory.Exists(folder))
+            {
+                lock (_lockUserDir)
+                {
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                }
+            }
+            Directory.CreateDirectory(container);
+            return container;
+        }
+
+        public static async Task Close(MyChromeDriver myDriver)
+        {
+            try
+            {
+                myDriver.Driver?.Close();
+                await Task.Delay(1000).ConfigureAwait(false);
+                myDriver.Driver?.Quit();
+                await Task.Delay(1000).ConfigureAwait(false);
+                myDriver.Driver?.Dispose();
+                await Task.Delay(1000).ConfigureAwait(false);
+            }
+
+            catch { }
+            if (myDriver.IsDeleteProfile && Directory.Exists(myDriver.ProfileDir))
+            {
+                try
+                {
+                    Directory.Delete(myDriver.ProfileDir, true);
+                }
+                catch { }
+            }
+        }
+
+        public static void KillAllChromes()
+        {
+            try
+            {
+                var process = new Process();
+                process.StartInfo.FileName = "chromedriver/kill.bat";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+                process.WaitForExit(10000);
+            }
+            catch { }
+        }
+    }
+}
