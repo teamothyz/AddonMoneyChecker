@@ -14,6 +14,7 @@ namespace AddonMoney.Data.Repositories
 
         public async Task<PaginatedList<BalanceInfo>> GetBalanceInfos(int? id = null,
             string? name = null,
+            string? vpsname = null,
             int pageIndex = 1,
             int pageSize = 10)
         {
@@ -26,6 +27,11 @@ namespace AddonMoney.Data.Repositories
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(bal => bal.Name.ToLower().Contains(name.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(vpsname))
+            {
+                query = query.Where(bal => bal.VPS.ToLower().Contains(vpsname.ToLower()));
             }
             var total = await query.CountAsync();
             var items = await query.OrderByDescending(bal => bal.LastUpdate)
@@ -41,7 +47,8 @@ namespace AddonMoney.Data.Repositories
                 .SingleOrDefaultAsync(bal => bal.Id == id);
         }
 
-        public async Task<int> UpdateBalance(int id, string name, int balance, int todayEarn, string profile)
+        public async Task<int> UpdateBalance(int id, string name, int balance, 
+            int todayEarn, string profile, string vps)
         {
             using var transaction = await _dbcontext.Database.BeginTransactionAsync();
             try
@@ -60,10 +67,11 @@ namespace AddonMoney.Data.Repositories
                         Name = name,
                         Balance = balance,
                         TodayEarn = todayEarn,
-                        LastBalance = balance,
-                        LastTodayEarn = todayEarn,
+                        LastBalance = 0,
+                        LastTodayEarn = 0,
                         Profile = profile,
-                        LastUpdate = gmt7Time
+                        LastUpdate = gmt7Time,
+                        VPS = vps
                     };
                     await _dbcontext.AddAsync(currentBalanceInfo);
                     await _dbcontext.SaveChangesAsync();
@@ -79,6 +87,7 @@ namespace AddonMoney.Data.Repositories
                     .SetProperty(bal => bal.Name, bal => name)
                     .SetProperty(bal => bal.LastBalance, bal => currentBalanceInfo.Balance)
                     .SetProperty(bal => bal.LastTodayEarn, bal => currentBalanceInfo.TodayEarn)
+                    .SetProperty(bal => bal.VPS, bal => vps)
                     .SetProperty(bal => bal.LastUpdate, bal => gmt7Time));
                 }
                 await transaction.CommitAsync();

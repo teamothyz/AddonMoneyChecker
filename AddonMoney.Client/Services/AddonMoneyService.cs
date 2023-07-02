@@ -38,7 +38,7 @@ namespace AddonMoney.Client.Services
                     try
                     {
                         _driver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
-                            privateMode: false, isHeadless: false, disableImg: false, token: token,
+                            privateMode: false, isHeadless: false, disableImg: false, token: token, isDeleteProfile: false,
                             keepOneWindow: false, userDataDir: _userDataDir, profile: _profile)).ConfigureAwait(false);
 
                         if (_driver?.Driver == null)

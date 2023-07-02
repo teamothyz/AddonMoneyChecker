@@ -6,26 +6,38 @@ namespace AddonMoney.Client.Services
     public class HostService
     {
         private static string _hostName = null!;
+        private static readonly object _lock = new();
+
+        public static void SetHost(string hostName)
+        {
+            lock (_lock)
+            {
+                _hostName = hostName;
+            }
+        }
 
         public static string GetHostName()
         {
-            if (string.IsNullOrEmpty(_hostName))
+            lock (_lock)
             {
-                string hostName = Dns.GetHostName();
-                string ipAddressString = string.Empty;
-                IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
-                IPAddress[] ipAddresses = hostEntry.AddressList;
-                foreach (IPAddress ipAddress in ipAddresses)
+                if (string.IsNullOrEmpty(_hostName))
                 {
-                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                    string hostName = Dns.GetHostName();
+                    string ipAddressString = string.Empty;
+                    IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
+                    IPAddress[] ipAddresses = hostEntry.AddressList;
+                    foreach (IPAddress ipAddress in ipAddresses)
                     {
-                        ipAddressString = ipAddress.ToString();
-                        break;
+                        if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            ipAddressString = ipAddress.ToString();
+                            break;
+                        }
                     }
+                    _hostName = $"[{hostName}]{ipAddressString}";
                 }
-                _hostName = $"[{hostName}]{ipAddressString}";
+                return _hostName;
             }
-            return _hostName;
         }
     }
 }

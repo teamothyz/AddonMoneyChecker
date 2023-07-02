@@ -24,6 +24,9 @@ namespace AddonMoney.WebApp.Pages.Balance
         [BindProperty(SupportsGet = true)]
         public string IdFilter { get; set; } = null!;
 
+        [BindProperty(SupportsGet = true)]
+        public string VPSFilter { get; set; } = null!;
+
         public PaginatedList<BalanceInfo> BalanceInfos = null!;
 
         public string Error { get; set; } = null!;
@@ -42,7 +45,7 @@ namespace AddonMoney.WebApp.Pages.Balance
                 if (validId) id = idTemp;
                 else IdFilter = null!;
 
-                BalanceInfos = await _balanceInfoRepository.GetBalanceInfos(id, NameFilter, PageIndex, PageSize);
+                BalanceInfos = await _balanceInfoRepository.GetBalanceInfos(id, NameFilter, VPSFilter, PageIndex, PageSize);
             }
             catch (Exception ex)
             {

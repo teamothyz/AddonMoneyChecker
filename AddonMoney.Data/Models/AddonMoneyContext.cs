@@ -18,7 +18,7 @@ namespace AddonMoney.Data.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = new ConfigurationBuilder().AddJsonFile("appsettings.json")
+                var connectionString = new ConfigurationBuilder().AddJsonFile("settings.json")
                     .Build().GetConnectionString("AddonMoneyDB");
                 optionsBuilder.UseSqlServer(connectionString);
             }

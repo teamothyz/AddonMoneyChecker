@@ -1,3 +1,4 @@
+using ChromeDriverLibrary;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -8,6 +9,7 @@ namespace AddonMoney.Client
         [STAThread]
         static void Main()
         {
+            ChromeDriverInstance.KillAllChromes();
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json").Build())

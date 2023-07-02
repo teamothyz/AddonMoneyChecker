@@ -41,6 +41,8 @@
             this.RunStatusTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.ProfileCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.SleepTimeUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
+            this.VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.SuspendLayout();
             // 
             // ProfilesTextBox
@@ -124,7 +126,7 @@
             // StartBtn
             // 
             this.StartBtn.CornerRoundingRadius = -1F;
-            this.StartBtn.Location = new System.Drawing.Point(12, 290);
+            this.StartBtn.Location = new System.Drawing.Point(12, 326);
             this.StartBtn.Name = "StartBtn";
             this.StartBtn.Size = new System.Drawing.Size(90, 25);
             this.StartBtn.StateCommon.Back.Color1 = System.Drawing.Color.GreenYellow;
@@ -138,7 +140,7 @@
             // 
             this.StopBtn.CornerRoundingRadius = -1F;
             this.StopBtn.Enabled = false;
-            this.StopBtn.Location = new System.Drawing.Point(122, 290);
+            this.StopBtn.Location = new System.Drawing.Point(122, 326);
             this.StopBtn.Name = "StopBtn";
             this.StopBtn.Size = new System.Drawing.Size(90, 25);
             this.StopBtn.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
@@ -160,7 +162,7 @@
             // 
             // RunStatusTextBox
             // 
-            this.RunStatusTextBox.Location = new System.Drawing.Point(245, 290);
+            this.RunStatusTextBox.Location = new System.Drawing.Point(245, 326);
             this.RunStatusTextBox.Name = "RunStatusTextBox";
             this.RunStatusTextBox.ReadOnly = true;
             this.RunStatusTextBox.Size = new System.Drawing.Size(93, 23);
@@ -208,11 +210,35 @@
             0});
             this.SleepTimeUpDown.ValueChanged += new System.EventHandler(this.SleepTimeUpDown_ValueChanged);
             // 
+            // kryptonLabel1
+            // 
+            this.kryptonLabel1.Location = new System.Drawing.Point(12, 287);
+            this.kryptonLabel1.Name = "kryptonLabel1";
+            this.kryptonLabel1.Size = new System.Drawing.Size(74, 20);
+            this.kryptonLabel1.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
+            this.kryptonLabel1.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.kryptonLabel1.TabIndex = 25;
+            this.kryptonLabel1.Values.Text = "VPS Name:";
+            // 
+            // VPSNameTextBox
+            // 
+            this.VPSNameTextBox.Location = new System.Drawing.Point(84, 284);
+            this.VPSNameTextBox.Name = "VPSNameTextBox";
+            this.VPSNameTextBox.Size = new System.Drawing.Size(380, 23);
+            this.VPSNameTextBox.StateCommon.Back.Color1 = System.Drawing.Color.White;
+            this.VPSNameTextBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
+            this.VPSNameTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.VPSNameTextBox.TabIndex = 26;
+            this.VPSNameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.VPSNameTextBox.TextChanged += new System.EventHandler(this.VPSNameTextBox_TextChanged);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(478, 327);
+            this.ClientSize = new System.Drawing.Size(478, 361);
+            this.Controls.Add(this.VPSNameTextBox);
+            this.Controls.Add(this.kryptonLabel1);
             this.Controls.Add(this.SleepTimeUpDown);
             this.Controls.Add(this.ProfileCountTextBox);
             this.Controls.Add(this.RunStatusTextBox);
@@ -227,8 +253,8 @@
             this.Controls.Add(this.ProfilesTextBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(494, 366);
-            this.MinimumSize = new System.Drawing.Size(494, 366);
+            this.MaximumSize = new System.Drawing.Size(494, 400);
+            this.MinimumSize = new System.Drawing.Size(494, 400);
             this.Name = "FrmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
@@ -251,5 +277,7 @@
         private Krypton.Toolkit.KryptonTextBox RunStatusTextBox;
         private Krypton.Toolkit.KryptonTextBox ProfileCountTextBox;
         private Krypton.Toolkit.KryptonNumericUpDown SleepTimeUpDown;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel1;
+        private Krypton.Toolkit.KryptonTextBox VPSNameTextBox;
     }
 }

@@ -11,5 +11,7 @@
         public int TodayEarn { get; set; }
         
         public string Profile { get; set; } = null!;
+
+        public string VPS { get; set; } = null!;
     }
 }

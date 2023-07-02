@@ -1,5 +1,6 @@
 ﻿using AddonMoney.Client.Services;
 using AddonMoney.Data.API;
+using ChromeDriverLibrary;
 using Serilog;
 
 namespace AddonMoney.Client
@@ -15,6 +16,7 @@ namespace AddonMoney.Client
         public FrmMain()
         {
             InitializeComponent();
+            VPSNameTextBox.Text = HostService.GetHostName();
             ActiveControl = kryptonLabel5;
         }
 
@@ -89,7 +91,8 @@ namespace AddonMoney.Client
                         Balance = account.Balance,
                         Name= account.Name,
                         TodayEarn = account.TodayEarn,
-                        Profile = account.Profile
+                        Profile = account.Profile,
+                        VPS = HostService.GetHostName()
                     };
                     await ApiService.SendBalance(balanceRq);
                 }
@@ -104,6 +107,7 @@ namespace AddonMoney.Client
         {
             ActiveControl = kryptonLabel5;
             CancellationToken.Cancel();
+            ChromeDriverInstance.KillAllChromes();
         }
 
         private void EnableBtn(bool enable)
@@ -146,6 +150,11 @@ namespace AddonMoney.Client
         private void TopMostCheckBtn_CheckedChanged(object sender, EventArgs e)
         {
             TopMost = TopMostCheckBtn.Checked;
+        }
+
+        private void VPSNameTextBox_TextChanged(object sender, EventArgs e)
+        {
+            HostService.SetHost(VPSNameTextBox.Text);
         }
     }
 }
