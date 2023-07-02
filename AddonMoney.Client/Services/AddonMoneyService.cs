@@ -11,6 +11,7 @@ namespace AddonMoney.Client.Services
         private readonly string _userDataDir = null!;
         private readonly string _profile = null!;
         private DateTime _nextScanTime;
+        private bool _isActive = true;
 
         public string Profile { get { return _profile; } }
 
@@ -23,7 +24,7 @@ namespace AddonMoney.Client.Services
 
         public async Task<AccountInfo?> ScanInfo(CancellationToken token)
         {
-            if (_nextScanTime > FrmMain.GetGMT7Now()) return null;
+            if (_nextScanTime > FrmMain.GetGMT7Now() || !_isActive) return null;
             AccountInfo account = new()
             {
                 Profile = Path.Combine(_userDataDir, _profile)
@@ -57,8 +58,52 @@ namespace AddonMoney.Client.Services
                     }
                 }
 
-                _driver.Driver.GoToUrl("https://addon.money/dashboard/");
-                await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                try
+                {
+                    _isActive = false;
+                    var activeTimes = 0;
+                    var addonId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
+                    _driver.Driver.GoToUrl($"chrome-extension://{addonId}/window.html");
+                    var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+
+                    while (!statusElm.GetAttribute("class").Contains("active"))
+                    {
+                        if (activeTimes == 3) throw new Exception("Can not activate AddonMoney extension");
+                        _driver.Driver.Click("#status-addon", timeout, token);
+                        statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+                        activeTimes++;
+                    }
+                    _isActive = true;
+                }
+                catch (Exception ex)
+                {
+                    if (token.IsCancellationRequested) return null;
+                    Log.Error($"Got exception while checking active extension for {_profile}.", ex);
+                    throw new Exception("AddonMoney extension not active");
+                }
+
+                var gotoWebTimes = 0;
+                while (true)
+                {
+                    try
+                    {
+                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                        _nextScanTime = FrmMain.GetGMT7Now().AddMinutes(FrmMain.TimeSleep);
+                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (token.IsCancellationRequested) return null;
+                        gotoWebTimes++;
+                        if (gotoWebTimes == 3)
+                        {
+                            _nextScanTime = FrmMain.GetGMT7Now().AddMinutes(FrmMain.TimeSleep);
+                            Log.Error($"Got exception while going to addon web for {_profile}.", ex);
+                            throw new Exception("Can not go to Dashboard");
+                        }
+                    }
+                }
 
                 int getDataTimes = 0;
                 while (true)
@@ -85,11 +130,11 @@ namespace AddonMoney.Client.Services
                     }
                     catch
                     {
+                        if (token.IsCancellationRequested) return null; 
                         getDataTimes++;
                         if (getDataTimes == 3) throw;
                     }
                 }
-                _nextScanTime = FrmMain.GetGMT7Now().AddMinutes(FrmMain.TimeSleep);
                 return account;
             }
             catch (Exception ex)

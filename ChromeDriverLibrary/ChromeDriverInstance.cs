@@ -100,16 +100,7 @@ namespace ChromeDriverLibrary
                 if (proxyInfo.Count == 4)
                 {
                     myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
-                    myDriver.Driver.GoToUrl("chrome://extensions");
-                    Thread.Sleep(1000);
-                    var findIdScript = "var done = arguments[0];" +
-                        "chrome.management.getAll().then((res) => {" +
-                        "var ext = res.find(item => item.name == 'Proxy Auto Auth' && item.shortName == 'Proxy Auto Auth');" +
-                        "var extId = ext ? ext.id : '';" +
-                        "return done(extId);" +
-                        "});";
-                    var id = (string)myDriver.Driver.ExecuteAsyncScript(findIdScript);
-
+                    var id = myDriver.Driver.GetExtensionId("Proxy Auto Auth", "Proxy Auto Auth", 15, token.Value);
                     myDriver.Driver.GoToUrl($"chrome-extension://{id}/options.html");
                     myDriver.Driver.FindElement("#login", 30, token.Value);
                     myDriver.Driver.ExecuteScript($"localStorage['proxy_login'] = '{proxyInfo[2]}';" +

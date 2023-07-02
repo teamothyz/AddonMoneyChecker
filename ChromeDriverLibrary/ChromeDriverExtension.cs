@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json.Linq;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumUndetectedChromeDriver;
 
@@ -89,6 +90,23 @@ namespace ChromeDriverLibrary
                 if (DateTime.Now >= endTime) break;
                 Thread.Sleep(200);
             }
+        }
+
+        public static string GetExtensionId(this UndetectedChromeDriver driver, string extName, string shortName, int timeout, CancellationToken token)
+        {
+            var waiter = GetWaiter(driver, timeout);
+            return waiter.Until(webdriver =>
+            {
+                driver.GoToUrl("chrome://extensions");
+                Thread.Sleep(1000);
+                var findIdScript = "var done = arguments[0];" +
+                    "chrome.management.getAll().then((res) => {" +
+                    $"var ext = res.find(item => item.name == '{extName}' && item.shortName == '{shortName}');" +
+                    "var extId = ext ? ext.id : '';" +
+                    "return done(extId);" +
+                    "});";
+                return (string)driver.ExecuteAsyncScript(findIdScript);
+            }, token);
         }
 
         private static bool CompareContent(UndetectedChromeDriver driver, IWebElement element, string content)

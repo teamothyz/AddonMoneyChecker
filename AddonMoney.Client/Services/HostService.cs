@@ -13,6 +13,7 @@ namespace AddonMoney.Client.Services
             lock (_lock)
             {
                 _hostName = hostName;
+                WriteHostName();
             }
         }
 
@@ -22,6 +23,9 @@ namespace AddonMoney.Client.Services
             {
                 if (string.IsNullOrEmpty(_hostName))
                 {
+                    _hostName = ReadHostName();
+                    if (!string.IsNullOrEmpty(_hostName)) return _hostName;
+
                     string hostName = Dns.GetHostName();
                     string ipAddressString = string.Empty;
                     IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
@@ -35,9 +39,35 @@ namespace AddonMoney.Client.Services
                         }
                     }
                     _hostName = $"[{hostName}]{ipAddressString}";
+                    WriteHostName();
                 }
                 return _hostName;
             }
+        }
+
+        private static string ReadHostName()
+        {
+            try
+            {
+                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "hostname.data"));
+                return reader.ReadToEnd().Trim();
+            }
+            catch
+            {
+                return null!;
+            }
+        }
+
+        private static void WriteHostName()
+        {
+            try
+            {
+                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "hostname.data"), false);
+                writer.WriteLine(_hostName);
+                writer.Flush();
+                writer.Close();
+            }
+            catch { }
         }
     }
 }
