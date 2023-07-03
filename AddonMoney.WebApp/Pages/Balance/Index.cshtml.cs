@@ -27,7 +27,7 @@ namespace AddonMoney.WebApp.Pages.Balance
         [BindProperty(SupportsGet = true)]
         public string VPSFilter { get; set; } = null!;
 
-        public PaginatedList<BalanceInfo> BalanceInfos = null!;
+        public PaginatedList<BalanceInfo> BalanceInfos = new();
 
         public string Error { get; set; } = null!;
 

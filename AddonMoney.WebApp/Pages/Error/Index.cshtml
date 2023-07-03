@@ -26,6 +26,15 @@
                 </div>
             </form>
         </div>
+        <div class="col-md-6">
+            <form asp-page="/Error/Index" method="post">
+                <div class="input-group mb-3">
+                    <button class="btn btn-danger" type="submit" onclick="return confirm('Do you want to clear all errors?')">
+                        Clear All Errors
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <table class="table table-striped">

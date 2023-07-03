@@ -21,7 +21,7 @@ namespace AddonMoney.WebApp.Pages.Error
         [BindProperty(SupportsGet = true)]
         public string HostFilter { get; set; } = null!;
 
-        public PaginatedList<ErrorInfo> ErrorInfos = null!;
+        public PaginatedList<ErrorInfo> ErrorInfos = new();
 
         public string Error { get; set; } = null!;
 
@@ -39,6 +39,20 @@ namespace AddonMoney.WebApp.Pages.Error
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception when getting errors list.", ex);
+                Error = ex.Message;
+            }
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPost()
+        {
+            try
+            {
+                await _errorInfoRepository.DeleteAll();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{_logPrefix} Got exception when deleting errors list.", ex);
                 Error = ex.Message;
             }
             return Page();

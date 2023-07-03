@@ -31,6 +31,11 @@ namespace AddonMoney.Data.Repositories
             return new PaginatedList<ErrorInfo>(items, total, pageSize);
         }
 
+        public async Task DeleteAll()
+        {
+            await _dbcontext.ErrorInfos.ExecuteDeleteAsync();
+        }
+
         public async Task AddError(string host, string message)
         {
             DateTime utcNow = DateTime.UtcNow;

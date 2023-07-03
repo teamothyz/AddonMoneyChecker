@@ -179,6 +179,7 @@ namespace AddonMoney.Client.Services
         {
             try
             {
+                _firstAttemp = true;
                 if (_driver?.Driver == null) return;
                 await Task.Run(() => _driver.Close());
             }
