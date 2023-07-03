@@ -64,16 +64,19 @@ namespace AddonMoney.Client.Services
                     var activeTimes = 0;
                     var addonId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
                     _driver.Driver.GoToUrl($"chrome-extension://{addonId}/window.html");
-                    var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
 
+                    var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                     while (!statusElm.GetAttribute("class").Contains("active"))
                     {
                         if (activeTimes == 3) throw new Exception("Can not activate AddonMoney extension");
+                        await Task.Delay(1000, token).ConfigureAwait(false);
                         _driver.Driver.Click("#status-addon", timeout, token);
                         statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         activeTimes++;
                     }
                     _isActive = true;
+                    await Task.Delay(3000, token).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -130,7 +133,7 @@ namespace AddonMoney.Client.Services
                     }
                     catch
                     {
-                        if (token.IsCancellationRequested) return null; 
+                        if (token.IsCancellationRequested) return null;
                         getDataTimes++;
                         if (getDataTimes == 3) throw;
                     }

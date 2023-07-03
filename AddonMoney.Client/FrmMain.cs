@@ -17,6 +17,7 @@ namespace AddonMoney.Client
         {
             InitializeComponent();
             VPSNameTextBox.Text = HostService.GetHostName();
+            ProfilesTextBox.Lines = HostService.ReadUserDataDirs();
             ActiveControl = kryptonLabel5;
         }
 
@@ -34,25 +35,24 @@ namespace AddonMoney.Client
                     _services.Add(new AddonMoneyService(line));
                 }
                 ProfilesTextBox.Lines = lines.ToArray();
+                HostService.WriteUserDataDirs(lines.ToArray());
+
                 CancellationToken = new();
                 EnableBtn(false);
 
                 while (!CancellationToken.IsCancellationRequested)
                 {
-                    var tasks = new List<Task>();
                     var now = GetGMT7Now();
-
-                    var start = now.Hour >= 3 && now.Hour < 14 ? 0 : _services.Count / 2;
-                    var end = now.Hour >= 3 && now.Hour < 14 ? _services.Count / 2 : _services.Count;
+                    var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
+                    var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
 
                     for (int i = 0; i < _services.Count; i++)
                     {
-                        if (start <= i && i < end) tasks.Add(Run(_services[i]));
-                        else tasks.Add(_services[i].Close());
+                        if (start <= i && i < end) await Run(_services[i]);
+                        else await _services[i].Close();
+                        await Task.Delay(10000, CancellationToken.Token);
                     }
-                    await Task.WhenAll(tasks);
-                    tasks.Clear();
-                    await Task.Delay(1000);
+                    await Task.Delay(5000, CancellationToken.Token);
                 }
             }
             catch (Exception ex)

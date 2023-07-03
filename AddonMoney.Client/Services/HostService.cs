@@ -45,6 +45,41 @@ namespace AddonMoney.Client.Services
             }
         }
 
+        public static string[] ReadUserDataDirs()
+        {
+            try
+            {
+                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "userdatadir.data"));
+                var lines = new List<string>();
+                var line = reader.ReadLine();
+                while (line != null)
+                {
+                    lines.Add(line);
+                    line = reader.ReadLine();
+                }
+                return lines.ToArray();
+            }
+            catch
+            {
+                return Array.Empty<string>();
+            }
+        }
+
+        public static void WriteUserDataDirs(string[] data)
+        {
+            try
+            {
+                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "userdatadir.data"), false);
+                foreach (var line in data)
+                {
+                    writer.WriteLine(line);
+                }
+                writer.Flush();
+                writer.Close();
+            }
+            catch { }
+        }
+
         private static string ReadHostName()
         {
             try
