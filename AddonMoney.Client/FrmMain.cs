@@ -50,7 +50,7 @@ namespace AddonMoney.Client
                     {
                         if (start <= i && i < end) await Run(_services[i]);
                         else await _services[i].Close();
-                        await Task.Delay(10000, CancellationToken.Token);
+                        await Task.Delay(3000, CancellationToken.Token);
                     }
                     await Task.Delay(5000, CancellationToken.Token);
                 }

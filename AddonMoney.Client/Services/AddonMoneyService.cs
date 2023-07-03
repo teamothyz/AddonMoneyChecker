@@ -1,4 +1,5 @@
 ﻿using AddonMoney.Client.Models;
+using AddonMoney.Data.API;
 using ChromeDriverLibrary;
 using Serilog;
 using System.Text.RegularExpressions;
@@ -11,7 +12,7 @@ namespace AddonMoney.Client.Services
         private readonly string _userDataDir = null!;
         private readonly string _profile = null!;
         private DateTime _nextScanTime;
-        private bool _isActive = true;
+        private bool _firstAttemp = true;
 
         public string Profile { get { return _profile; } }
 
@@ -24,7 +25,6 @@ namespace AddonMoney.Client.Services
 
         public async Task<AccountInfo?> ScanInfo(CancellationToken token)
         {
-            if (_nextScanTime > FrmMain.GetGMT7Now() || !_isActive) return null;
             AccountInfo account = new()
             {
                 Profile = Path.Combine(_userDataDir, _profile)
@@ -42,49 +42,74 @@ namespace AddonMoney.Client.Services
                             privateMode: false, isHeadless: false, disableImg: false, token: token, isDeleteProfile: false,
                             keepOneWindow: false, userDataDir: _userDataDir, profile: _profile)).ConfigureAwait(false);
 
-                        if (_driver?.Driver == null)
-                        {
-                            await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
-                            createInstanceTimes++;
-                            if (createInstanceTimes == 3) throw new Exception("Create Chrome Driver Instance Failed.");
-                            else continue;
-                        }
+                        if (_driver?.Driver == null) throw new Exception();
+                        else await Task.Delay(5000, token).ConfigureAwait(false);
                     }
                     catch
                     {
                         if (token.IsCancellationRequested) return null;
                         createInstanceTimes++;
-                        if (createInstanceTimes == 3) throw;
+                        if (createInstanceTimes == 3) throw new Exception("Create Chrome Driver Instance Failed.");
                     }
                 }
 
-                try
+                if (_firstAttemp)
                 {
-                    _isActive = false;
-                    var activeTimes = 0;
-                    var addonId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
-                    _driver.Driver.GoToUrl($"chrome-extension://{addonId}/window.html");
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
-                    var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
-                    while (!statusElm.GetAttribute("class").Contains("active"))
+                    try
                     {
-                        if (activeTimes == 3) throw new Exception("Can not activate AddonMoney extension");
-                        await Task.Delay(1000, token).ConfigureAwait(false);
-                        _driver.Driver.Click("#status-addon", timeout, token);
-                        statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
-                        activeTimes++;
+                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                        _firstAttemp = false;
+                        await Task.Delay(1000, token);
                     }
-                    _isActive = true;
-                    await Task.Delay(3000, token).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    if (token.IsCancellationRequested) return null;
-                    Log.Error($"Got exception while checking active extension for {_profile}.", ex);
-                    throw new Exception("AddonMoney extension not active");
+                    catch
+                    {
+                        if (token.IsCancellationRequested) return null;
+                    }
                 }
 
+                var activeTimes = 0;
+                while (true)
+                {
+                    try
+                    {
+                        var addonId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
+                        if (string.IsNullOrWhiteSpace(addonId)) throw new Exception("Can not find add-on Id");
+
+                        _driver.Driver.GoToUrl($"chrome-extension://{addonId}/window.html");
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+
+                        var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+                        if (!statusElm.GetAttribute("class").Contains("active"))
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                            _driver.Driver.Click("#status-addon", timeout, token);
+                            statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                            if (!statusElm.GetAttribute("class").Contains("active")) throw new Exception("Can not activate AddonMoney extension");
+                        }
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (token.IsCancellationRequested) return null;
+                        activeTimes++;
+                        Log.Error($"Got exception while checking active extension for {_profile}.", ex);
+                        if (activeTimes == 3)
+                        {
+                            var errRq = new UpdateErrorRequest
+                            {
+                                Host = HostService.GetHostName(),
+                                Message = "AddonMoney extension not active"
+                            };
+                            await ApiService.SendError(errRq);
+                            break;
+                        }
+                    }
+                }
+
+                if (_nextScanTime > FrmMain.GetGMT7Now()) return null;
                 var gotoWebTimes = 0;
                 while (true)
                 {
