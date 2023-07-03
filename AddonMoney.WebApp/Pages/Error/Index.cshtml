@@ -2,7 +2,7 @@
 @model AddonMoney.WebApp.Pages.Error.IndexModel
 @{
     ViewData["Title"] = "Errors List";
-    string urlParams = $"&HostFilter={Model.HostFilter}";
+    string urlParams = $"&PageSize={Model.PageSize}&HostFilter={Model.HostFilter}";
 }
 
 <div class="container">
@@ -31,7 +31,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>ID</th>
+                @*<th>ID</th>*@
                 <th>Host</th>
                 <th>Message</th>
                 <th>Time</th>
@@ -41,7 +41,7 @@
             @foreach (var balanceInfo in Model.ErrorInfos.Items)
             {
                 <tr>
-                    <td>@balanceInfo.Id</td>
+                    @*<td>@balanceInfo.Id</td>*@
                     <td>@balanceInfo.Host</td>
                     <td>@balanceInfo.Message</td>
                     <td>@balanceInfo.Time</td>

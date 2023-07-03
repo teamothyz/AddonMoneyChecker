@@ -2,7 +2,7 @@
 @model AddonMoney.WebApp.Pages.Balance.IndexModel
 @{
     ViewData["Title"] = "Accounts List";
-    string urlParams = $"&IdFilter={Model.IdFilter}&NameFilter={Model.NameFilter}&VPSFilter={Model.VPSFilter}";
+    string urlParams = $"&PageSize={Model.PageSize}&IdFilter={Model.IdFilter}&NameFilter={Model.NameFilter}&VPSFilter={Model.VPSFilter}";
 }
 
 <div class="container">
@@ -39,7 +39,7 @@
         <div class="col-md-4">
             <form asp-page="/Balance/Index" method="get">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Search by VPS" name="VPSFilter" value="@Model.VPSFilter" />
+                    <input type="text" class="form-control" placeholder="Search by Host" name="VPSFilter" value="@Model.VPSFilter" />
                     <div class="input-group-append">
                         <button class="btn btn-outline-primary" type="submit">Search</button>
                     </div>

@@ -21,8 +21,8 @@ namespace AddonMoney.Data.Repositories
                 query = query.Where(err => err.Host.ToLower().Contains(host.ToLower()));
             }
             var items = await query
-                .OrderBy(err => err.Host)
-                .ThenByDescending(err => err.Time)
+                .OrderByDescending(err => err.Time)
+                .ThenBy(err => err.Host)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
