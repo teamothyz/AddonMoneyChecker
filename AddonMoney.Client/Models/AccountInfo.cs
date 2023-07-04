@@ -10,7 +10,7 @@
 
         public int TodayEarn { get; set; }
 
-        public bool Success { get; set; } = true;
+        public bool Success { get; set; } = false;
 
         public string ErrorMsg { get; set; } = null!;
 

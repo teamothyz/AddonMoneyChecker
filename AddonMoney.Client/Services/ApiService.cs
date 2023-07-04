@@ -12,21 +12,26 @@ namespace AddonMoney.Client.Services
 
         static ApiService()
         {
-            BaseUrl = new ConfigurationBuilder().AddJsonFile("appsettings.json")
+            BaseUrl = new ConfigurationBuilder().AddJsonFile("config.json")
                 .Build()["BaseUrl"] ?? string.Empty;
         }
 
-        public static async Task SendError(UpdateErrorRequest model)
+        public static async Task SendError(string message)
         {
             try
             {
+                var model = new UpdateErrorRequest
+                {
+                    Host = HostService.GetHostName(),
+                    Message = message
+                };
                 using var client = new HttpClient()
                 {
                     Timeout = TimeSpan.FromSeconds(30)
                 };
                 var body = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
                 var res = await client.PostAsync($"{BaseUrl}/api/addonmoney/error", body);
-                if (res.StatusCode != System.Net.HttpStatusCode.OK) 
+                if (res.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     Log.Error($"Send error to server got exception. Data: {JsonConvert.SerializeObject(model)}. Status code: {res.StatusCode}.");
                 }

@@ -29,239 +29,214 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
-            this.ProfilesTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.TimeoutUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
-            this.TopMostCheckBtn = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonLabel5 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonLabel6 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonLabel7 = new Krypton.Toolkit.KryptonLabel();
-            this.StartBtn = new Krypton.Toolkit.KryptonButton();
-            this.StopBtn = new Krypton.Toolkit.KryptonButton();
-            this.kryptonLabel8 = new Krypton.Toolkit.KryptonLabel();
-            this.RunStatusTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.ProfileCountTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.SleepTimeUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
-            this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
-            this.VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.SuspendLayout();
+            ProfilesTextBox = new Krypton.Toolkit.KryptonTextBox();
+            TimeoutUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            TopMostCheckBtn = new Krypton.Toolkit.KryptonCheckBox();
+            kryptonLabel5 = new Krypton.Toolkit.KryptonLabel();
+            kryptonLabel6 = new Krypton.Toolkit.KryptonLabel();
+            kryptonLabel7 = new Krypton.Toolkit.KryptonLabel();
+            StartBtn = new Krypton.Toolkit.KryptonButton();
+            StopBtn = new Krypton.Toolkit.KryptonButton();
+            kryptonLabel8 = new Krypton.Toolkit.KryptonLabel();
+            RunStatusTextBox = new Krypton.Toolkit.KryptonTextBox();
+            ProfileCountTextBox = new Krypton.Toolkit.KryptonTextBox();
+            SleepTimeUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
+            VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
+            SuspendLayout();
             // 
             // ProfilesTextBox
             // 
-            this.ProfilesTextBox.Location = new System.Drawing.Point(12, 12);
-            this.ProfilesTextBox.Multiline = true;
-            this.ProfilesTextBox.Name = "ProfilesTextBox";
-            this.ProfilesTextBox.Size = new System.Drawing.Size(452, 180);
-            this.ProfilesTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ProfilesTextBox.TabIndex = 1;
-            this.ProfilesTextBox.TextChanged += new System.EventHandler(this.ProfilesTextBox_TextChanged);
+            ProfilesTextBox.Location = new Point(12, 12);
+            ProfilesTextBox.Multiline = true;
+            ProfilesTextBox.Name = "ProfilesTextBox";
+            ProfilesTextBox.Size = new Size(452, 180);
+            ProfilesTextBox.StateCommon.Content.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+            ProfilesTextBox.TabIndex = 1;
+            ProfilesTextBox.TextChanged += ProfilesTextBox_TextChanged;
             // 
             // TimeoutUpDown
             // 
-            this.TimeoutUpDown.Location = new System.Drawing.Point(84, 247);
-            this.TimeoutUpDown.Maximum = new decimal(new int[] {
-            120,
-            0,
-            0,
-            0});
-            this.TimeoutUpDown.Minimum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.TimeoutUpDown.Name = "TimeoutUpDown";
-            this.TimeoutUpDown.Size = new System.Drawing.Size(128, 22);
-            this.TimeoutUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.TimeoutUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.TimeoutUpDown.TabIndex = 2;
-            this.TimeoutUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
-            this.TimeoutUpDown.ValueChanged += new System.EventHandler(this.TimeoutUpDown_ValueChanged);
+            TimeoutUpDown.Location = new Point(84, 247);
+            TimeoutUpDown.Maximum = new decimal(new int[] { 120, 0, 0, 0 });
+            TimeoutUpDown.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
+            TimeoutUpDown.Name = "TimeoutUpDown";
+            TimeoutUpDown.Size = new Size(128, 22);
+            TimeoutUpDown.StateCommon.Content.Color1 = Color.Black;
+            TimeoutUpDown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            TimeoutUpDown.TabIndex = 2;
+            TimeoutUpDown.Value = new decimal(new int[] { 30, 0, 0, 0 });
+            TimeoutUpDown.ValueChanged += TimeoutUpDown_ValueChanged;
             // 
             // TopMostCheckBtn
             // 
-            this.TopMostCheckBtn.Checked = true;
-            this.TopMostCheckBtn.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.TopMostCheckBtn.Location = new System.Drawing.Point(245, 209);
-            this.TopMostCheckBtn.Name = "TopMostCheckBtn";
-            this.TopMostCheckBtn.Size = new System.Drawing.Size(82, 20);
-            this.TopMostCheckBtn.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.TopMostCheckBtn.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.TopMostCheckBtn.TabIndex = 7;
-            this.TopMostCheckBtn.Values.Text = "Ghim App";
-            this.TopMostCheckBtn.CheckedChanged += new System.EventHandler(this.TopMostCheckBtn_CheckedChanged);
+            TopMostCheckBtn.Checked = true;
+            TopMostCheckBtn.CheckState = CheckState.Checked;
+            TopMostCheckBtn.Location = new Point(245, 209);
+            TopMostCheckBtn.Name = "TopMostCheckBtn";
+            TopMostCheckBtn.Size = new Size(82, 20);
+            TopMostCheckBtn.StateCommon.ShortText.Color1 = Color.Black;
+            TopMostCheckBtn.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            TopMostCheckBtn.TabIndex = 7;
+            TopMostCheckBtn.Values.Text = "Ghim App";
+            TopMostCheckBtn.CheckedChanged += TopMostCheckBtn_CheckedChanged;
             // 
             // kryptonLabel5
             // 
-            this.kryptonLabel5.Location = new System.Drawing.Point(12, 247);
-            this.kryptonLabel5.Name = "kryptonLabel5";
-            this.kryptonLabel5.Size = new System.Drawing.Size(66, 20);
-            this.kryptonLabel5.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.kryptonLabel5.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.kryptonLabel5.TabIndex = 16;
-            this.kryptonLabel5.Values.Text = "Time out:";
+            kryptonLabel5.Location = new Point(12, 247);
+            kryptonLabel5.Name = "kryptonLabel5";
+            kryptonLabel5.Size = new Size(66, 20);
+            kryptonLabel5.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel5.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel5.TabIndex = 16;
+            kryptonLabel5.Values.Text = "Time out:";
             // 
             // kryptonLabel6
             // 
-            this.kryptonLabel6.Location = new System.Drawing.Point(12, 26);
-            this.kryptonLabel6.Name = "kryptonLabel6";
-            this.kryptonLabel6.Size = new System.Drawing.Size(6, 2);
-            this.kryptonLabel6.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.kryptonLabel6.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.kryptonLabel6.TabIndex = 17;
-            this.kryptonLabel6.Values.Text = "";
+            kryptonLabel6.Location = new Point(12, 26);
+            kryptonLabel6.Name = "kryptonLabel6";
+            kryptonLabel6.Size = new Size(6, 2);
+            kryptonLabel6.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel6.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel6.TabIndex = 17;
+            kryptonLabel6.Values.Text = "";
             // 
             // kryptonLabel7
             // 
-            this.kryptonLabel7.Location = new System.Drawing.Point(12, 209);
-            this.kryptonLabel7.Name = "kryptonLabel7";
-            this.kryptonLabel7.Size = new System.Drawing.Size(87, 20);
-            this.kryptonLabel7.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.kryptonLabel7.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.kryptonLabel7.TabIndex = 18;
-            this.kryptonLabel7.Values.Text = "User Profiles:";
+            kryptonLabel7.Location = new Point(12, 209);
+            kryptonLabel7.Name = "kryptonLabel7";
+            kryptonLabel7.Size = new Size(87, 20);
+            kryptonLabel7.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel7.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel7.TabIndex = 18;
+            kryptonLabel7.Values.Text = "User Profiles:";
             // 
             // StartBtn
             // 
-            this.StartBtn.CornerRoundingRadius = -1F;
-            this.StartBtn.Location = new System.Drawing.Point(12, 326);
-            this.StartBtn.Name = "StartBtn";
-            this.StartBtn.Size = new System.Drawing.Size(90, 25);
-            this.StartBtn.StateCommon.Back.Color1 = System.Drawing.Color.GreenYellow;
-            this.StartBtn.StateCommon.Back.Color2 = System.Drawing.Color.GreenYellow;
-            this.StartBtn.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.StartBtn.TabIndex = 19;
-            this.StartBtn.Values.Text = "Bắt đầu";
-            this.StartBtn.Click += new System.EventHandler(this.StartBtn_Click);
+            StartBtn.CornerRoundingRadius = -1F;
+            StartBtn.Location = new Point(12, 326);
+            StartBtn.Name = "StartBtn";
+            StartBtn.Size = new Size(90, 25);
+            StartBtn.StateCommon.Back.Color1 = Color.GreenYellow;
+            StartBtn.StateCommon.Back.Color2 = Color.GreenYellow;
+            StartBtn.StateCommon.Content.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            StartBtn.TabIndex = 19;
+            StartBtn.Values.Text = "Bắt đầu";
+            StartBtn.Click += StartBtn_Click;
             // 
             // StopBtn
             // 
-            this.StopBtn.CornerRoundingRadius = -1F;
-            this.StopBtn.Enabled = false;
-            this.StopBtn.Location = new System.Drawing.Point(122, 326);
-            this.StopBtn.Name = "StopBtn";
-            this.StopBtn.Size = new System.Drawing.Size(90, 25);
-            this.StopBtn.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.StopBtn.StateCommon.Back.Color2 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.StopBtn.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.StopBtn.TabIndex = 20;
-            this.StopBtn.Values.Text = "Dừng lại";
-            this.StopBtn.Click += new System.EventHandler(this.StopBtn_Click);
+            StopBtn.CornerRoundingRadius = -1F;
+            StopBtn.Enabled = false;
+            StopBtn.Location = new Point(122, 326);
+            StopBtn.Name = "StopBtn";
+            StopBtn.Size = new Size(90, 25);
+            StopBtn.StateCommon.Back.Color1 = Color.FromArgb(255, 128, 128);
+            StopBtn.StateCommon.Back.Color2 = Color.FromArgb(255, 128, 128);
+            StopBtn.StateCommon.Content.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            StopBtn.TabIndex = 20;
+            StopBtn.Values.Text = "Dừng lại";
+            StopBtn.Click += StopBtn_Click;
             // 
             // kryptonLabel8
             // 
-            this.kryptonLabel8.Location = new System.Drawing.Point(245, 247);
-            this.kryptonLabel8.Name = "kryptonLabel8";
-            this.kryptonLabel8.Size = new System.Drawing.Size(82, 20);
-            this.kryptonLabel8.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.kryptonLabel8.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.kryptonLabel8.TabIndex = 21;
-            this.kryptonLabel8.Values.Text = "Quãng nghỉ:";
+            kryptonLabel8.Location = new Point(245, 247);
+            kryptonLabel8.Name = "kryptonLabel8";
+            kryptonLabel8.Size = new Size(82, 20);
+            kryptonLabel8.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel8.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel8.TabIndex = 21;
+            kryptonLabel8.Values.Text = "Quãng nghỉ:";
             // 
             // RunStatusTextBox
             // 
-            this.RunStatusTextBox.Location = new System.Drawing.Point(245, 326);
-            this.RunStatusTextBox.Name = "RunStatusTextBox";
-            this.RunStatusTextBox.ReadOnly = true;
-            this.RunStatusTextBox.Size = new System.Drawing.Size(93, 23);
-            this.RunStatusTextBox.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.RunStatusTextBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.RunStatusTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.RunStatusTextBox.TabIndex = 22;
-            this.RunStatusTextBox.Text = "Chưa bắt đầu";
-            this.RunStatusTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            RunStatusTextBox.Location = new Point(245, 326);
+            RunStatusTextBox.Name = "RunStatusTextBox";
+            RunStatusTextBox.ReadOnly = true;
+            RunStatusTextBox.Size = new Size(93, 23);
+            RunStatusTextBox.StateCommon.Back.Color1 = Color.FromArgb(255, 255, 128);
+            RunStatusTextBox.StateCommon.Content.Color1 = Color.Black;
+            RunStatusTextBox.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            RunStatusTextBox.TabIndex = 22;
+            RunStatusTextBox.Text = "Chưa bắt đầu";
+            RunStatusTextBox.TextAlign = HorizontalAlignment.Center;
             // 
             // ProfileCountTextBox
             // 
-            this.ProfileCountTextBox.Location = new System.Drawing.Point(105, 209);
-            this.ProfileCountTextBox.Name = "ProfileCountTextBox";
-            this.ProfileCountTextBox.ReadOnly = true;
-            this.ProfileCountTextBox.Size = new System.Drawing.Size(107, 23);
-            this.ProfileCountTextBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.ProfileCountTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.ProfileCountTextBox.TabIndex = 23;
-            this.ProfileCountTextBox.Text = "0";
-            this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            ProfileCountTextBox.Location = new Point(105, 209);
+            ProfileCountTextBox.Name = "ProfileCountTextBox";
+            ProfileCountTextBox.ReadOnly = true;
+            ProfileCountTextBox.Size = new Size(107, 23);
+            ProfileCountTextBox.StateCommon.Content.Color1 = Color.Black;
+            ProfileCountTextBox.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            ProfileCountTextBox.TabIndex = 23;
+            ProfileCountTextBox.Text = "0";
+            ProfileCountTextBox.TextAlign = HorizontalAlignment.Center;
             // 
             // SleepTimeUpDown
             // 
-            this.SleepTimeUpDown.Location = new System.Drawing.Point(336, 247);
-            this.SleepTimeUpDown.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.SleepTimeUpDown.Minimum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.SleepTimeUpDown.Name = "SleepTimeUpDown";
-            this.SleepTimeUpDown.Size = new System.Drawing.Size(128, 22);
-            this.SleepTimeUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.SleepTimeUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.SleepTimeUpDown.TabIndex = 24;
-            this.SleepTimeUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
-            this.SleepTimeUpDown.ValueChanged += new System.EventHandler(this.SleepTimeUpDown_ValueChanged);
+            SleepTimeUpDown.Location = new Point(336, 247);
+            SleepTimeUpDown.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
+            SleepTimeUpDown.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
+            SleepTimeUpDown.Name = "SleepTimeUpDown";
+            SleepTimeUpDown.Size = new Size(128, 22);
+            SleepTimeUpDown.StateCommon.Content.Color1 = Color.Black;
+            SleepTimeUpDown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            SleepTimeUpDown.TabIndex = 24;
+            SleepTimeUpDown.Value = new decimal(new int[] { 60, 0, 0, 0 });
+            SleepTimeUpDown.ValueChanged += SleepTimeUpDown_ValueChanged;
             // 
             // kryptonLabel1
             // 
-            this.kryptonLabel1.Location = new System.Drawing.Point(12, 287);
-            this.kryptonLabel1.Name = "kryptonLabel1";
-            this.kryptonLabel1.Size = new System.Drawing.Size(74, 20);
-            this.kryptonLabel1.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
-            this.kryptonLabel1.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.kryptonLabel1.TabIndex = 25;
-            this.kryptonLabel1.Values.Text = "VPS Name:";
+            kryptonLabel1.Location = new Point(12, 287);
+            kryptonLabel1.Name = "kryptonLabel1";
+            kryptonLabel1.Size = new Size(74, 20);
+            kryptonLabel1.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel1.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel1.TabIndex = 25;
+            kryptonLabel1.Values.Text = "VPS Name:";
             // 
             // VPSNameTextBox
             // 
-            this.VPSNameTextBox.Location = new System.Drawing.Point(84, 284);
-            this.VPSNameTextBox.Name = "VPSNameTextBox";
-            this.VPSNameTextBox.Size = new System.Drawing.Size(380, 23);
-            this.VPSNameTextBox.StateCommon.Back.Color1 = System.Drawing.Color.White;
-            this.VPSNameTextBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.VPSNameTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.VPSNameTextBox.TabIndex = 26;
-            this.VPSNameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.VPSNameTextBox.TextChanged += new System.EventHandler(this.VPSNameTextBox_TextChanged);
+            VPSNameTextBox.Location = new Point(84, 284);
+            VPSNameTextBox.Name = "VPSNameTextBox";
+            VPSNameTextBox.Size = new Size(380, 23);
+            VPSNameTextBox.StateCommon.Back.Color1 = Color.White;
+            VPSNameTextBox.StateCommon.Content.Color1 = Color.Black;
+            VPSNameTextBox.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            VPSNameTextBox.TabIndex = 26;
+            VPSNameTextBox.TextAlign = HorizontalAlignment.Center;
+            VPSNameTextBox.TextChanged += VPSNameTextBox_TextChanged;
             // 
             // FrmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(478, 361);
-            this.Controls.Add(this.VPSNameTextBox);
-            this.Controls.Add(this.kryptonLabel1);
-            this.Controls.Add(this.SleepTimeUpDown);
-            this.Controls.Add(this.ProfileCountTextBox);
-            this.Controls.Add(this.RunStatusTextBox);
-            this.Controls.Add(this.kryptonLabel8);
-            this.Controls.Add(this.StopBtn);
-            this.Controls.Add(this.StartBtn);
-            this.Controls.Add(this.kryptonLabel7);
-            this.Controls.Add(this.kryptonLabel6);
-            this.Controls.Add(this.kryptonLabel5);
-            this.Controls.Add(this.TopMostCheckBtn);
-            this.Controls.Add(this.TimeoutUpDown);
-            this.Controls.Add(this.ProfilesTextBox);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(494, 400);
-            this.MinimumSize = new System.Drawing.Size(494, 400);
-            this.Name = "FrmMain";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
-            this.TopMost = true;
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(478, 361);
+            Controls.Add(VPSNameTextBox);
+            Controls.Add(kryptonLabel1);
+            Controls.Add(SleepTimeUpDown);
+            Controls.Add(ProfileCountTextBox);
+            Controls.Add(RunStatusTextBox);
+            Controls.Add(kryptonLabel8);
+            Controls.Add(StopBtn);
+            Controls.Add(StartBtn);
+            Controls.Add(kryptonLabel7);
+            Controls.Add(kryptonLabel6);
+            Controls.Add(kryptonLabel5);
+            Controls.Add(TopMostCheckBtn);
+            Controls.Add(TimeoutUpDown);
+            Controls.Add(ProfilesTextBox);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MaximumSize = new Size(494, 400);
+            MinimumSize = new Size(494, 400);
+            Name = "FrmMain";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
+            TopMost = true;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

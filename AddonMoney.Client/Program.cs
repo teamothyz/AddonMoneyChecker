@@ -12,7 +12,7 @@ namespace AddonMoney.Client
             ChromeDriverInstance.KillAllChromes();
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json").Build())
+                .AddJsonFile("config.json").Build())
 
                 .Enrich.FromLogContext()
                 .CreateLogger();

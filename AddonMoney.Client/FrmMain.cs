@@ -8,7 +8,7 @@ namespace AddonMoney.Client
     public partial class FrmMain : Form
     {
         public static int Timeout { get; private set; } = 30;
-        public static int TimeSleep { get; private set; } = 30;
+        public static int TimeSleep { get; private set; } = 60;
 
         private CancellationTokenSource CancellationToken = null!;
         private readonly List<AddonMoneyService> _services = new();
@@ -40,15 +40,24 @@ namespace AddonMoney.Client
                 CancellationToken = new();
                 EnableBtn(false);
 
+                var nextScan = DateTime.UtcNow;
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    var needToScan = nextScan <= DateTime.UtcNow;
+                    if (needToScan)
+                    {
+                        nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
+                        _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
+                        ChromeDriverInstance.KillAllChromes();
+                    }
+
                     var now = GetGMT7Now();
                     var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
                     var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
 
                     for (int i = 0; i < _services.Count; i++)
                     {
-                        if (start <= i && i < end) await Run(_services[i]);
+                        if (start <= i && i < end) await Run(needToScan, _services[i]);
                         else await _services[i].Close();
                         await Task.Delay(3000, CancellationToken.Token);
                     }
@@ -67,29 +76,18 @@ namespace AddonMoney.Client
             }
         }
 
-        private async Task Run(AddonMoneyService service)
+        private async Task Run(bool needToScan, AddonMoneyService service)
         {
             try
             {
-                var account = await Task.Run(async () => await service.ScanInfo(CancellationToken.Token));
-                if (account == null) return;
-
-                if (!account.Success)
-                {
-                    var errRq = new UpdateErrorRequest
-                    {
-                        Host = HostService.GetHostName(),
-                        Message = account.ErrorMsg
-                    };
-                    await ApiService.SendError(errRq);
-                }
-                else
+                var account = await Task.Run(async () => await service.ScanInfo(needToScan, CancellationToken.Token));
+                if (account.Success)
                 {
                     var balanceRq = new UpdateBalanceRequest
                     {
                         Id = account.Id,
                         Balance = account.Balance,
-                        Name= account.Name,
+                        Name = account.Name,
                         TodayEarn = account.TodayEarn,
                         Profile = account.Profile,
                         VPS = HostService.GetHostName()
