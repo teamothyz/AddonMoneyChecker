@@ -57,8 +57,12 @@ namespace AddonMoney.Client
 
                     for (int i = 0; i < _services.Count; i++)
                     {
+                        if (!(start <= i && i < end)) await _services[i].Close();
+                        await Task.Delay(1000, CancellationToken.Token);
+                    }
+                    for (int i = 0; i < _services.Count; i++)
+                    {
                         if (start <= i && i < end) await Run(needToScan, _services[i]);
-                        else await _services[i].Close();
                         await Task.Delay(3000, CancellationToken.Token);
                     }
                     await Task.Delay(5000, CancellationToken.Token);

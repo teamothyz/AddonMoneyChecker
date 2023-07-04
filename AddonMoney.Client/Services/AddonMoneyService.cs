@@ -68,7 +68,7 @@ namespace AddonMoney.Client.Services
 
                         Log.Error($"Got exception while creating driver for {_profile}.", ex);
                         createInstanceTimes++;
-                        if (createInstanceTimes == 3) throw;
+                        if (createInstanceTimes == 2) throw;
                     }
                 }
             }
@@ -98,7 +98,7 @@ namespace AddonMoney.Client.Services
                         if (token.IsCancellationRequested) return;
                         Log.Error($"Got exception while going to addon web for {_profile}.", ex);
                         gotoWebTimes++;
-                        if (gotoWebTimes == 3)
+                        if (gotoWebTimes == 2)
                         {
                             await ApiService.SendError($"Can not go to Dashboard for {_profile}.");
                             return;
@@ -136,7 +136,7 @@ namespace AddonMoney.Client.Services
                         if (token.IsCancellationRequested) return;
                         Log.Error($"Got exception while getting balance in the addon web for {_profile}.", ex);
                         getDataTimes++;
-                        if (getDataTimes == 3) throw;
+                        if (getDataTimes == 2) throw;
                     }
                 }
             }
@@ -180,7 +180,8 @@ namespace AddonMoney.Client.Services
                         if (token.IsCancellationRequested) return;
                         Log.Error($"Got exception while checking active extension for {_profile}.", ex);
                         activeTimes++;
-                        if (activeTimes == 3) throw;
+                        if (activeTimes == 2) throw;
+                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
                     }
                 }
             }
