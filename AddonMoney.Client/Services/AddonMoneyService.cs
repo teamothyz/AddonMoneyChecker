@@ -10,6 +10,7 @@ namespace AddonMoney.Client.Services
         private MyChromeDriver _driver = null!;
         private readonly string _userDataDir = null!;
         private readonly string _profile = null!;
+        private string _extensionId = null!;
 
         public string Profile { get { return _profile; } }
 
@@ -23,7 +24,7 @@ namespace AddonMoney.Client.Services
         {
             AccountInfo account = new()
             {
-                Profile = Path.Combine(_userDataDir, _profile),
+                Profile = _profile,
                 Success = false
             };
             try
@@ -61,6 +62,7 @@ namespace AddonMoney.Client.Services
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
                         else await Task.Delay(5000, token).ConfigureAwait(false);
+                        _driver.Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(FrmMain.Timeout);
                     }
                     catch (Exception ex)
                     {
@@ -84,31 +86,11 @@ namespace AddonMoney.Client.Services
         {
             try
             {
-                var gotoWebTimes = 0;
-                while (true)
-                {
-                    try
-                    {
-                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
-                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (token.IsCancellationRequested) return;
-                        Log.Error($"Got exception while going to addon web for {_profile}.", ex);
-                        gotoWebTimes++;
-                        if (gotoWebTimes == 2)
-                        {
-                            await ApiService.SendError($"Can not go to Dashboard for {_profile}.");
-                            return;
-                        }
-                    }
-                }
-
                 int getDataTimes = 0;
                 while (true)
                 {
+                    GotoUrl("https://addon.money/dashboard/", token);
+                    await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
                     try
                     {
                         var accountNameElm = _driver.Driver.FindElement(".account-name", timeout, token);
@@ -152,16 +134,19 @@ namespace AddonMoney.Client.Services
             try
             {
                 var activeTimes = 0;
+                if (string.IsNullOrWhiteSpace(_extensionId))
+                {
+                    _extensionId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
+                    if (string.IsNullOrWhiteSpace(_extensionId)) throw new Exception("Can not find add-on Id");
+                }
+                
                 while (true)
                 {
+                    GotoUrl($"chrome-extension://{_extensionId}/window.html", token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
                     try
                     {
-                        var addonId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
-                        if (string.IsNullOrWhiteSpace(addonId)) throw new Exception("Can not find add-on Id");
-
-                        _driver.Driver.GoToUrl($"chrome-extension://{addonId}/window.html");
-                        await Task.Delay(1000, token).ConfigureAwait(false);
-
                         var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         if (!statusElm.GetAttribute("class").Contains("active"))
                         {
@@ -181,7 +166,7 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while checking active extension for {_profile}.", ex);
                         activeTimes++;
                         if (activeTimes == 2) throw;
-                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                        GotoUrl("https://addon.money/dashboard/", token);
                     }
                 }
             }
@@ -189,6 +174,26 @@ namespace AddonMoney.Client.Services
             {
                 Log.Error($"Got exception while activating extension for {_profile}.", ex);
                 await ApiService.SendError($"Got exception while activating extension for {_profile}. Error: {ex.Message}.");
+            }
+        }
+
+        private async void GotoUrl(string url, CancellationToken token)
+        {
+            try
+            {
+                _driver.Driver.GoToUrl(url);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("The HTTP request to the remote WebDriver server for URL")
+                    || ex.Message.Contains("no such window"))
+                {
+                    await Close();
+                    await Task.Delay(5000, token);
+                    await CreateDriverTask(token);
+                    await ActivateAddonTask(FrmMain.Timeout, token);
+                }
+                throw;
             }
         }
 
