@@ -15,7 +15,16 @@
         </div>
     }
 
-    <div class="row">
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <strong>Today Earn: @Model.TotalEarn</strong>
+        </div>
+        <div class="col-md-6">
+            <strong>Total Balance: @Model.TotalBalance</strong>
+        </div>
+    </div>
+
+    <div class="row mt-3">
         <div class="col-md-4">
             <form asp-page="/Balance/Index" method="get">
                 <div class="input-group mb-3">

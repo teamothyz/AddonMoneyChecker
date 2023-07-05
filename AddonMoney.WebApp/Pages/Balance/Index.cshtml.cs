@@ -31,6 +31,10 @@ namespace AddonMoney.WebApp.Pages.Balance
 
         public string Error { get; set; } = null!;
 
+        public int TotalEarn { get; set; }
+
+        public int TotalBalance { get; set; }
+
         public IndexModel(BalanceInfoRepository balanceInfoRepository)
         {
             _balanceInfoRepository = balanceInfoRepository;
@@ -46,6 +50,8 @@ namespace AddonMoney.WebApp.Pages.Balance
                 else IdFilter = null!;
 
                 BalanceInfos = await _balanceInfoRepository.GetBalanceInfos(id, NameFilter, VPSFilter, PageIndex, PageSize);
+                TotalEarn = await _balanceInfoRepository.TotalToday();
+                TotalBalance = await _balanceInfoRepository.TotalBalance();
             }
             catch (Exception ex)
             {

@@ -99,5 +99,21 @@ namespace AddonMoney.Data.Repositories
                 throw;
             }
         }
+
+        public async Task<int> TotalToday()
+        {
+            DateTime utcNow = DateTime.UtcNow;
+            TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
+
+            return await _dbcontext.BalanceInfos
+                .Where(b => b.LastUpdate.Date == gmt7Time.Date)
+                .SumAsync(b => b.TodayEarn);
+        }
+
+        public async Task<int> TotalBalance()
+        {
+            return await _dbcontext.BalanceInfos.SumAsync(b => b.Balance);
+        }
     }
 }
