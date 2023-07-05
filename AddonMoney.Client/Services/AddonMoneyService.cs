@@ -29,7 +29,7 @@ namespace AddonMoney.Client.Services
             };
             try
             {
-                await CreateDriverTask(token);
+                await CreateDriverTask(token).ConfigureAwait(false);
                 if (_driver?.Driver == null) return account;
 
                 var timeout = FrmMain.Timeout;
@@ -77,7 +77,7 @@ namespace AddonMoney.Client.Services
             catch (Exception ex)
             {
                 Log.Error($"Got exception while creating web driver for {_profile}.", ex);
-                await ApiService.SendError($"Create chrome driver failed for {_profile}. Error: {ex.Message}.");
+                await ApiService.SendError($"Create chrome driver failed for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
                 _driver = null!;
             }
         }
@@ -125,7 +125,7 @@ namespace AddonMoney.Client.Services
             catch (Exception ex)
             {
                 Log.Error($"Got exception while getting account info for {_profile}.", ex);
-                await ApiService.SendError($"Got exception while getting account info for {_profile}. Error: {ex.Message}.");
+                await ApiService.SendError($"Got exception while getting account info for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
             }
         }
 
@@ -139,7 +139,7 @@ namespace AddonMoney.Client.Services
                     _extensionId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
                     if (string.IsNullOrWhiteSpace(_extensionId)) throw new Exception("Can not find add-on Id");
                 }
-                
+
                 while (true)
                 {
                     GotoUrl($"chrome-extension://{_extensionId}/window.html", token);
@@ -173,7 +173,7 @@ namespace AddonMoney.Client.Services
             catch (Exception ex)
             {
                 Log.Error($"Got exception while activating extension for {_profile}.", ex);
-                await ApiService.SendError($"Got exception while activating extension for {_profile}. Error: {ex.Message}.");
+                await ApiService.SendError($"Got exception while activating extension for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
             }
         }
 
@@ -188,10 +188,10 @@ namespace AddonMoney.Client.Services
                 if (ex.Message.Contains("The HTTP request to the remote WebDriver server for URL")
                     || ex.Message.Contains("no such window"))
                 {
-                    await Close();
-                    await Task.Delay(5000, token);
-                    await CreateDriverTask(token);
-                    await ActivateAddonTask(FrmMain.Timeout, token);
+                    await Close().ConfigureAwait(false);
+                    await Task.Delay(5000, token).ConfigureAwait(false);
+                    await CreateDriverTask(token).ConfigureAwait(false);
+                    await ActivateAddonTask(FrmMain.Timeout, token).ConfigureAwait(false);
                 }
                 throw;
             }
@@ -202,7 +202,7 @@ namespace AddonMoney.Client.Services
             try
             {
                 if (_driver?.Driver == null) return;
-                await Task.Run(() => _driver.Close());
+                await Task.Run(() => _driver.Close()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

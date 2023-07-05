@@ -40,6 +40,7 @@ namespace AddonMoney.Client
                 CancellationToken = new();
                 EnableBtn(false);
 
+                #region Always Check To Enable Extension
                 var nextScan = DateTime.UtcNow;
                 while (!CancellationToken.IsCancellationRequested)
                 {
@@ -57,16 +58,54 @@ namespace AddonMoney.Client
 
                     for (int i = 0; i < _services.Count; i++)
                     {
-                        if (!(start <= i && i < end)) await _services[i].Close();
-                        await Task.Delay(1000, CancellationToken.Token);
+                        if (!(start <= i && i < end)) await _services[i].Close().ConfigureAwait(false);
+                        await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
                     }
                     for (int i = 0; i < _services.Count; i++)
                     {
-                        if (start <= i && i < end) await Run(needToScan, _services[i]);
-                        await Task.Delay(3000, CancellationToken.Token);
+                        if (start <= i && i < end) await Run(needToScan, _services[i]).ConfigureAwait(false);
+                        await Task.Delay(3000, CancellationToken.Token).ConfigureAwait(false);
                     }
-                    await Task.Delay(5000, CancellationToken.Token);
+                    await Task.Delay(5000, CancellationToken.Token).ConfigureAwait(false);
                 }
+                #endregion
+
+                #region Check And Enable Extension Each 15 Minutes
+                //var nextScan = DateTime.UtcNow;
+                //var nextEnable = DateTime.UtcNow;
+
+                //while (!CancellationToken.IsCancellationRequested)
+                //{
+                //    var needToScan = nextScan <= DateTime.UtcNow;
+                //    var needEnable = nextEnable <= DateTime.UtcNow;
+                //    if (needToScan || needEnable)
+                //    {
+                //        nextEnable = DateTime.UtcNow.AddMinutes(15);
+                //        if (needToScan)
+                //        {
+                //            nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
+                //            _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
+                //            ChromeDriverInstance.KillAllChromes();
+                //        }
+
+                //        var now = GetGMT7Now();
+                //        var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
+                //        var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
+
+                //        for (int i = 0; i < _services.Count; i++)
+                //        {
+                //            if (!(start <= i && i < end)) await _services[i].Close();
+                //            await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                //        }
+                //        for (int i = 0; i < _services.Count; i++)
+                //        {
+                //            if (start <= i && i < end) await Run(needToScan, _services[i]).ConfigureAwait(false);
+                //            await Task.Delay(5000, CancellationToken.Token).ConfigureAwait(false);
+                //        }
+                //    }
+                //    await Task.Delay(10000, CancellationToken.Token).ConfigureAwait(false);
+                //}
+                #endregion
             }
             catch (Exception ex)
             {
@@ -84,7 +123,8 @@ namespace AddonMoney.Client
         {
             try
             {
-                var account = await Task.Run(async () => await service.ScanInfo(needToScan, CancellationToken.Token));
+                var account = await Task.Run(async () => await service.ScanInfo(needToScan, CancellationToken.Token)
+                    .ConfigureAwait(false)).ConfigureAwait(false);
                 if (account.Success)
                 {
                     var balanceRq = new UpdateBalanceRequest
@@ -96,7 +136,7 @@ namespace AddonMoney.Client
                         Profile = account.Profile,
                         VPS = HostService.GetHostName()
                     };
-                    await ApiService.SendBalance(balanceRq);
+                    await ApiService.SendBalance(balanceRq).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
