@@ -42,6 +42,17 @@ namespace ChromeDriverLibrary
             }, token);
         }
 
+        public static void SetInnerHtml(this UndetectedChromeDriver driver, IWebElement element, string content, bool needCompare, int timeout, CancellationToken token)
+        {
+            var waiter = GetWaiter(driver, timeout);
+            waiter.Until(webdriver =>
+            {
+                driver.ExecuteScript($"arguments[0].innerHTML = '{content}';", element);
+                if (!needCompare) return true;
+                return CompareContent(driver, element, content);
+            }, token);
+        }
+
         public static void Click(this UndetectedChromeDriver driver, string selector, int timeout, CancellationToken token)
         {
             var waiter = GetWaiter(driver, timeout);

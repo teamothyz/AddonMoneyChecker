@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddonMoney.API", "AddonMone
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddonMoney.WebApp", "AddonMoney.WebApp\AddonMoney.WebApp.csproj", "{C8DCED2D-7522-41C1-BABC-E95DC7C30444}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddonMoney.Transfer", "AddonMoney.Transfer\AddonMoney.Transfer.csproj", "{8563903B-A2E7-4D9C-9A36-3B553E6C237D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptchaResolver", "CaptchaResolver\CaptchaResolver.csproj", "{62677FA4-EF7D-4F66-A640-48D65438221C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{C8DCED2D-7522-41C1-BABC-E95DC7C30444}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8DCED2D-7522-41C1-BABC-E95DC7C30444}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8DCED2D-7522-41C1-BABC-E95DC7C30444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8563903B-A2E7-4D9C-9A36-3B553E6C237D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8563903B-A2E7-4D9C-9A36-3B553E6C237D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8563903B-A2E7-4D9C-9A36-3B553E6C237D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8563903B-A2E7-4D9C-9A36-3B553E6C237D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62677FA4-EF7D-4F66-A640-48D65438221C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62677FA4-EF7D-4F66-A640-48D65438221C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62677FA4-EF7D-4F66-A640-48D65438221C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62677FA4-EF7D-4F66-A640-48D65438221C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

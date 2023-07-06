@@ -1,0 +1,19 @@
+﻿namespace AddonMoney.Transfer.Models
+{
+    public class Account
+    {
+        public static readonly List<Account> Accounts = new();
+
+        public int AccountId { get; set; }
+
+        public string PayeerId { get; set; } = null!;
+
+        public string Phone { get; set; } = null!;
+
+        public string TeleSession { get; set; } = null!;
+
+        public int ApiId { get; set; }
+
+        public string ApiHash { get; set; } = null!;
+    }
+}
