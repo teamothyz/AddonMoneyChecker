@@ -15,5 +15,15 @@
         public int ApiId { get; set; }
 
         public string ApiHash { get; set; } = null!;
+
+        public Account(int accountId, string payeerId, string phone, int apiId, string apiHash)
+        {
+            AccountId = accountId;
+            PayeerId = payeerId;
+            Phone = phone.StartsWith('0') ? "+84" + phone[1..] : phone;
+            TeleSession = $"{phone}.session";
+            ApiId = apiId;
+            ApiHash = apiHash;
+        }
     }
 }

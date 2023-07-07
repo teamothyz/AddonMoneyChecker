@@ -11,18 +11,12 @@ namespace AddonMoney.Transfer.Services
         private static readonly string _logPrefix = "[TransferService]";
         public static int Timeout { get; set; } = 30;
 
-        static TransferService()
-        {
-            CaptchaV2Client.InitKey("84ec96c792c74afc53ff5ff3a4d5c1be", "https://addon.money", "6LeuIL4UAAAAAHgT1ir2kCjOaU6F1UAcTmWiFr5M");
-        }
-
-        public static async Task<bool> Transfer(DriverProfile profile, CancellationToken token)
+        public static async Task<Tuple<bool, string?>> Transfer(DriverProfile profile, CancellationToken token)
         {
             try
             {
-                throw new Exception("abc");
                 var myDriver = await CreateDriver(profile, token).ConfigureAwait(false);
-                if (myDriver?.Driver == null) return false;
+                if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
 
                 myDriver.Driver.GoToUrl("https://addon.money/dashboard/");
                 await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
@@ -37,7 +31,7 @@ namespace AddonMoney.Transfer.Services
                 if (account == null)
                 {
                     Log.Error($"{_logPrefix} Not found account {accountId} from the input data.");
-                    return false;
+                    return new Tuple<bool, string?>(false, $"Not found account {accountId} from the input data");
                 }
 
                 var limit = int.Parse(myDriver.Driver.FindElement(".my-payout-limit b", Timeout, token).Text);
@@ -71,7 +65,7 @@ namespace AddonMoney.Transfer.Services
                 if (code == null)
                 {
                     Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");
-                    return false;
+                    return new Tuple<bool, string?>(false, "Can not find the otp code from telegram");
                 }
 
                 var codeElm = myDriver.Driver.FindElement(@"[name=""code""]", Timeout, token);
@@ -79,12 +73,12 @@ namespace AddonMoney.Transfer.Services
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
-                return true;
+                return new Tuple<bool, string?>(true, null);
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while transfer balance for {profile.Profile}. Error: {ex}");
-                return false;
+                return new Tuple<bool, string?>(false, ex.Message);
             }
         }
 
