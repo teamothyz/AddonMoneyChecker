@@ -13,11 +13,11 @@ namespace AddonMoney.Transfer.Services
 
         public static async Task<Tuple<bool, string?>> Transfer(DriverProfile profile, CancellationToken token)
         {
+            var myDriver = await CreateDriver(profile, token).ConfigureAwait(false);
+            if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
+
             try
             {
-                var myDriver = await CreateDriver(profile, token).ConfigureAwait(false);
-                if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
-
                 myDriver.Driver.GoToUrl("https://addon.money/dashboard/");
                 await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
 
@@ -39,7 +39,7 @@ namespace AddonMoney.Transfer.Services
                 var withdrawAmount = (balance > limit ? limit : balance) / 100 * 100;
                 if (withdrawAmount < 100)
                 {
-                    Log.Error($"{_logPrefix} Not enough balance of {accountId}."); 
+                    Log.Error($"{_logPrefix} Not enough balance of {accountId}.");
                     return new Tuple<bool, string?>(false, $"Not enough balance: {balance}");
                 }
                 myDriver.Driver.Click(@".payeer[for=""payout6""]", Timeout, token);
@@ -78,12 +78,29 @@ namespace AddonMoney.Transfer.Services
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
-                return new Tuple<bool, string?>(true, null);
+
+                var endTime = DateTime.Now.AddSeconds(Timeout);
+                while (endTime > DateTime.Now)
+                {
+                    var status = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).GetAttribute("class");
+                    if (status.Contains("good")) return new Tuple<bool, string?>(true, null);
+                    if (status.Contains("bad"))
+                    {
+                        var msg = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).Text;
+                        return new Tuple<bool, string?>(false, msg);
+                    }
+                    await Task.Delay(3000, token).ConfigureAwait(false);
+                }
+                return new Tuple<bool, string?>(false, $"waiting for result timeout after {Timeout}s");
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while transfer balance for {profile.Profile}. Error: {ex}");
                 return new Tuple<bool, string?>(false, ex.Message);
+            }
+            finally
+            {
+                await ChromeDriverInstance.Close(myDriver);
             }
         }
 

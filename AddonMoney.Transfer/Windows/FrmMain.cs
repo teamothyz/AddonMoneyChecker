@@ -127,6 +127,7 @@ namespace AddonMoney.Transfer.Windows
                 {
                     Invoke(() => MessageBox.Show(this, "Chương trình đã kết thúc", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information));
                     EnableBtn(false);
+                    ChromeDriverInstance.KillAllChromes();
                 }
             });
         }

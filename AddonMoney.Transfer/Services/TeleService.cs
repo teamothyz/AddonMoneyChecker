@@ -15,7 +15,11 @@ namespace AddonMoney.Transfer.Services
         {
             try
             {
-                var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions", account.TeleSession);
+                var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+                    "sessions", 
+                    account.TeleSession.Replace(".session", ""),
+                    account.TeleSession);
+
                 if (!File.Exists(sessionPath)) 
                 {
                     Log.Error($"Not found session file {sessionPath}.");

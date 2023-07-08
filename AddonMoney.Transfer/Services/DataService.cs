@@ -33,6 +33,7 @@ namespace AddonMoney.Transfer.Services
                             proxy.Password = details[3];
                         }
                         proxies.Add(proxy);
+                        line = streamReader.ReadLine();
                     }
                     MyProxy.Proxies.AddRange(proxies);
                     return true;
@@ -65,6 +66,7 @@ namespace AddonMoney.Transfer.Services
                         var appHash = details[4].Trim();
                         var account = new Account(accountId, payeerId, phone, appId, appHash);
                         accounts.Add(account);
+                        line = streamReader.ReadLine();
                     }
                     Account.Accounts.AddRange(accounts);
                     return true;
