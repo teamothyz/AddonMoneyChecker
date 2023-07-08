@@ -9,7 +9,43 @@ namespace AddonMoney.Transfer.Services
         private static readonly object _lockData = new();
         private static readonly object _lockResult = new();
 
-        public static void ReadAccounts(string path)
+        public static bool ReadProxies(string path)
+        {
+            lock (_lockData)
+            {
+                try
+                {
+                    MyProxy.Proxies.Clear();
+                    var proxies = new List<MyProxy>();
+                    using var streamReader = new StreamReader(path);
+                    var line = streamReader.ReadLine();
+                    while (line != null)
+                    {
+                        var details = line.Split(':');
+                        var proxy = new MyProxy
+                        {
+                            Host = details[0].Trim(),
+                            Port = Convert.ToInt32(details[1])
+                        };
+                        if (details.Length == 4)
+                        {
+                            proxy.Username = details[2];
+                            proxy.Password = details[3];
+                        }
+                        proxies.Add(proxy);
+                    }
+                    MyProxy.Proxies.AddRange(proxies);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"{_logPrefix} Got exception while reading proxies file. {ex}");
+                    return false;
+                }
+            }
+        }
+
+        public static bool ReadAccounts(string path)
         {
             lock (_lockData)
             {
@@ -31,10 +67,12 @@ namespace AddonMoney.Transfer.Services
                         accounts.Add(account);
                     }
                     Account.Accounts.AddRange(accounts);
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     Log.Error($"{_logPrefix} Got exception while reading accounts file. {ex}");
+                    return false;
                 }
             }
         }

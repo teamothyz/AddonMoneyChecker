@@ -3,6 +3,7 @@ using Serilog;
 using System.Text.RegularExpressions;
 using TL;
 using WTelegram;
+using xNetStandard;
 
 namespace AddonMoney.Transfer.Services
 {
@@ -10,12 +11,54 @@ namespace AddonMoney.Transfer.Services
     {
         private static readonly string _logPrefix = "[TeleService]";
 
-        public static async Task<string?> GetOTP(Account account, DateTime offset, CancellationToken token)
+        public static async Task<string?> GetOTP(Account account, DateTime offset, MyProxy? myProxy, CancellationToken token)
         {
             try
             {
                 var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions", account.TeleSession);
+                if (!File.Exists(sessionPath)) 
+                {
+                    Log.Error($"Not found session file {sessionPath}.");
+                    return null;
+                }
+
                 using var client = new Client(account.ApiId, account.ApiHash, sessionPath);
+                if (myProxy != null)
+                {
+                    if (MyProxy.Type == Models.ProxyType.Socks5)
+                    {
+                        client.TcpHandler = async (address, port) =>
+                        {
+                            if (myProxy.Username != null && myProxy.Password != null)
+                            {
+                                var proxy = new Socks5ProxyClient(myProxy.Host, myProxy.Port, myProxy.Username, myProxy.Password);
+                                return await Task.Run(() => proxy.CreateConnection(address, port));
+                            }
+                            else
+                            {
+                                var proxy = new Socks5ProxyClient(myProxy.Host, myProxy.Port);
+                                return await Task.Run(() => proxy.CreateConnection(address, port));
+                            }
+                        };
+                    }
+                    else if (MyProxy.Type == Models.ProxyType.Http)
+                    {
+                        client.TcpHandler = async (address, port) =>
+                        {
+                            if (myProxy.Username != null && myProxy.Password != null)
+                            {
+                                var proxy = new HttpProxyClient(myProxy.Host, myProxy.Port, myProxy.Username, myProxy.Password);
+                                return await Task.Run(() => proxy.CreateConnection(address, port));
+                            }
+                            else
+                            {
+                                var proxy = new HttpProxyClient(myProxy.Host, myProxy.Port);
+                                return await Task.Run(() => proxy.CreateConnection(address, port));
+                            }
+                        };
+                    }
+                }
+
                 var config = await client.Login(account.Phone).ConfigureAwait(false);
                 if (config != null || client.User == null)
                 {

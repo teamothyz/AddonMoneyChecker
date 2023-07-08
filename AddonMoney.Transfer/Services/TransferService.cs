@@ -37,7 +37,11 @@ namespace AddonMoney.Transfer.Services
                 var limit = int.Parse(myDriver.Driver.FindElement(".my-payout-limit b", Timeout, token).Text);
                 var balance = int.Parse(myDriver.Driver.FindElement("#balance", Timeout, token).Text);
                 var withdrawAmount = (balance > limit ? limit : balance) / 100 * 100;
-
+                if (withdrawAmount < 100)
+                {
+                    Log.Error($"{_logPrefix} Not enough balance of {accountId}."); 
+                    return new Tuple<bool, string?>(false, $"Not enough balance: {balance}");
+                }
                 myDriver.Driver.Click(@".payeer[for=""payout6""]", Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
@@ -61,7 +65,8 @@ namespace AddonMoney.Transfer.Services
                 var sendTime = DateTime.Now;
                 myDriver.Driver.Click("#payout-action", Timeout, token);
 
-                var code = await TeleService.GetOTP(account, sendTime, token);
+                var proxy = MyProxy.GetProxy();
+                var code = await TeleService.GetOTP(account, sendTime, proxy, token);
                 if (code == null)
                 {
                     Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");

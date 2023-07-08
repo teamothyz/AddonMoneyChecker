@@ -47,11 +47,15 @@ namespace AddonMoney.Transfer.Windows
                 Invoke(() => result = dialog.ShowDialog(this));
                 if (result == DialogResult.OK)
                 {
-                    DataService.ReadAccounts(dialog.FileName);
+                    var success = DataService.ReadAccounts(dialog.FileName);
                     Invoke(() =>
                     {
                         AccCountTextBox.Text = Account.Accounts.Count.ToString();
-                        Invoke(() => MessageBox.Show(this, "Đã đọc dữ liệu xong", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information));
+                        Invoke(() =>
+                        {
+                            if (success) MessageBox.Show(this, "Đã đọc dữ liệu xong", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            else MessageBox.Show(this, "Đã đọc dữ liệu thất bại", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        });
                     });
                 }
             });
@@ -65,6 +69,12 @@ namespace AddonMoney.Transfer.Windows
                 try
                 {
                     EnableBtn(true);
+                    if (MyProxy.Type != ProxyType.None && MyProxy.Proxies.Count == 0)
+                    {
+                        Invoke(() => MessageBox.Show(this, "Vui lòng nhập proxies", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error));
+                        return;
+                    }
+
                     var _2captchaKey = _2captchaTextBox.Text.Trim();
                     if (string.IsNullOrWhiteSpace(_2captchaKey))
                     {
@@ -159,12 +169,55 @@ namespace AddonMoney.Transfer.Windows
                 _2captchaTextBox.ReadOnly = isRun;
                 StopBtn.Enabled = isRun;
                 ProfilesTextBox.ReadOnly = isRun;
+                ProxyInputBtn.Enabled = !isRun;
+                NoneProxyRadioBtn.Enabled = !isRun;
+                HTTPProxyRadioBtn.Enabled = !isRun;
+                Socks5ProxyRadioBtn.Enabled = !isRun;
             });
         }
 
         private void ProfilesTextBox_TextChanged(object sender, EventArgs e)
         {
             ProCountTextBox.Text = ProfilesTextBox.Lines.Length.ToString();
+        }
+
+        private async void ProxyInputBtn_Click(object sender, EventArgs e)
+        {
+            ActiveControl = kryptonLabel1;
+            await Task.Run(() =>
+            {
+                var dialog = new OpenFileDialog();
+                var result = DialogResult.Cancel;
+                Invoke(() => result = dialog.ShowDialog(this));
+                if (result == DialogResult.OK)
+                {
+                    var success = DataService.ReadProxies(dialog.FileName);
+                    Invoke(() =>
+                    {
+                        ProxyCountTextBox.Text = MyProxy.Proxies.Count.ToString();
+                        Invoke(() =>
+                        {
+                            if (success) MessageBox.Show(this, "Đã đọc proxies xong", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            else MessageBox.Show(this, "Đã đọc proxies thất bại", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        });
+                    });
+                }
+            });
+        }
+
+        private void NoneProxyRadioBtn_CheckedChanged(object sender, EventArgs e)
+        {
+            MyProxy.Type = ProxyType.None;
+        }
+
+        private void HTTPProxyRadioBtn_CheckedChanged(object sender, EventArgs e)
+        {
+            MyProxy.Type = ProxyType.Http;
+        }
+
+        private void Socks5ProxyRadioBtn_CheckedChanged(object sender, EventArgs e)
+        {
+            MyProxy.Type = ProxyType.Socks5;
         }
     }
 }
