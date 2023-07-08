@@ -85,6 +85,7 @@ namespace AddonMoney.Transfer.Windows
                     DataService.WriteUserDataDirs(lines.ToArray());
                     CaptchaV2Client.InitKey(_2captchaKey, "https://addon.money", "6LeuIL4UAAAAAHgT1ir2kCjOaU6F1UAcTmWiFr5M");
 
+                    _tokenSource = new();
                     var sessionName = $"{DateTime.Now:yyyyMMdd.HHmmss}";
                     var tasks = new List<Task>();
                     foreach (var profile in profiles)

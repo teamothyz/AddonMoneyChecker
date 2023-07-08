@@ -99,13 +99,16 @@ namespace AddonMoney.Transfer.Services
                             .ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
-                        else await Task.Delay(5000, token).ConfigureAwait(false);
                     }
                     catch
                     {
                         if (token.IsCancellationRequested) return null;
                         createInstanceTimes++;
                         if (createInstanceTimes == 2) throw;
+                    }
+                    finally
+                    {
+                        await Task.Delay(5000, token).ConfigureAwait(false);
                     }
                 }
                 return _driver;
@@ -130,6 +133,7 @@ namespace AddonMoney.Transfer.Services
                 {
                     resolveTimes++;
                     if (resolveTimes == 2) throw;
+                    await Task.Delay(1000, token).ConfigureAwait(false);
                 }
             }
         }

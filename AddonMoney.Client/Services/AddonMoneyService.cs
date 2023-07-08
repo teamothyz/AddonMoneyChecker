@@ -11,6 +11,7 @@ namespace AddonMoney.Client.Services
         private readonly string _userDataDir = null!;
         private readonly string _profile = null!;
         private string _extensionId = null!;
+        private readonly object _lock = new();
 
         public string Profile { get { return _profile; } }
 
@@ -18,31 +19,62 @@ namespace AddonMoney.Client.Services
         {
             _profile = Path.GetFileName(profile);
             _userDataDir = Path.GetDirectoryName(profile) ?? null!;
+            Task.Run(() => KeepAlive());
         }
 
-        public async Task<AccountInfo> ScanInfo(bool needToScan, CancellationToken token)
+        private void KeepAlive()
         {
-            AccountInfo account = new()
+            while (true)
             {
-                Profile = _profile,
-                Success = false
-            };
-            try
-            {
-                await CreateDriverTask(token).ConfigureAwait(false);
-                if (_driver?.Driver == null) return account;
-
-                var timeout = FrmMain.Timeout;
-                if (needToScan) await GetDataTask(account, timeout, token).ConfigureAwait(false);
-                else account.Success = false;
-
-                await ActivateAddonTask(timeout, token).ConfigureAwait(false);
-                return account;
+                try
+                {
+                    lock (_lock)
+                    {
+                        _driver?.Driver?.GoToUrl("about:blank");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Keep alive exception of {_profile}. Error: {ex}");
+                }
+                finally
+                {
+                    Task.Delay(15000).Wait();
+                }
             }
-            catch (Exception ex)
+        }
+
+        public AccountInfo ScanInfo(bool needToScan, CancellationToken token)
+        {
+            lock (_lock)
             {
-                Log.Error($"Got exception while scanning info for {_profile}.", ex);
-                return account;
+                AccountInfo account = new()
+                {
+                    Profile = _profile,
+                    Success = false
+                };
+                try
+                {
+                    CreateDriverTask(token).Wait(token);
+                    if (_driver?.Driver == null) return account;
+                    Task.Delay(3000, token).Wait(token);
+
+                    var timeout = FrmMain.Timeout;
+                    if (needToScan)
+                    {
+                        GetDataTask(account, timeout, token).Wait(token);
+                        Task.Delay(3000, token).Wait(token);
+                    }
+                    else account.Success = false;
+
+                    ActivateAddonTask(timeout, token).Wait(token);
+                    return account;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Got exception while scanning info for {_profile}.", ex);
+                    return account;
+                }
             }
         }
 
@@ -61,7 +93,6 @@ namespace AddonMoney.Client.Services
                             keepOneWindow: false, userDataDir: _userDataDir, profile: _profile)).ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
-                        else await Task.Delay(5000, token).ConfigureAwait(false);
                         _driver.Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(FrmMain.Timeout);
                     }
                     catch (Exception ex)
@@ -71,6 +102,10 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while creating driver for {_profile}.", ex);
                         createInstanceTimes++;
                         if (createInstanceTimes == 2) throw;
+                    }
+                    finally
+                    {
+                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -89,10 +124,12 @@ namespace AddonMoney.Client.Services
                 int getDataTimes = 0;
                 while (true)
                 {
-                    GotoUrl("https://addon.money/dashboard/", token);
-                    await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+
                     try
                     {
+                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+
                         var accountNameElm = _driver.Driver.FindElement(".account-name", timeout, token);
                         account.Name = _driver.Driver.GetInnerText(accountNameElm);
 
@@ -119,6 +156,11 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while getting balance in the addon web for {_profile}.", ex);
                         getDataTimes++;
                         if (getDataTimes == 2) throw;
+                        _driver.Driver.GoToUrl("about:blank");
+                    }
+                    finally
+                    {
+                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -138,15 +180,16 @@ namespace AddonMoney.Client.Services
                 {
                     _extensionId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
                     if (string.IsNullOrWhiteSpace(_extensionId)) throw new Exception("Can not find add-on Id");
+                    await Task.Delay(1000, token).ConfigureAwait(false);
                 }
 
                 while (true)
                 {
-                    GotoUrl($"chrome-extension://{_extensionId}/window.html", token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
                     try
                     {
+                        _driver.Driver.GoToUrl($"chrome-extension://{_extensionId}/window.html");
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+
                         var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         if (!statusElm.GetAttribute("class").Contains("active"))
                         {
@@ -166,7 +209,11 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while checking active extension for {_profile}.", ex);
                         activeTimes++;
                         if (activeTimes == 2) throw;
-                        GotoUrl("https://addon.money/dashboard/", token);
+                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                    }
+                    finally
+                    {
+                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -174,26 +221,6 @@ namespace AddonMoney.Client.Services
             {
                 Log.Error($"Got exception while activating extension for {_profile}.", ex);
                 await ApiService.SendError($"Got exception while activating extension for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
-            }
-        }
-
-        private async void GotoUrl(string url, CancellationToken token)
-        {
-            try
-            {
-                _driver.Driver.GoToUrl(url);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("The HTTP request to the remote WebDriver server for URL")
-                    || ex.Message.Contains("no such window"))
-                {
-                    await Close().ConfigureAwait(false);
-                    await Task.Delay(5000, token).ConfigureAwait(false);
-                    await CreateDriverTask(token).ConfigureAwait(false);
-                    await ActivateAddonTask(FrmMain.Timeout, token).ConfigureAwait(false);
-                }
-                throw;
             }
         }
 
@@ -208,7 +235,10 @@ namespace AddonMoney.Client.Services
             {
                 Log.Error($"Got exception while closing profile {_profile}.", ex);
             }
-            finally { _driver = null!; }
+            finally
+            {
+                _driver = null!;
+            }
         }
     }
 }
