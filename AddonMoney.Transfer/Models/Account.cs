@@ -16,7 +16,9 @@
 
         public string ApiHash { get; set; } = null!;
 
-        public Account(int accountId, string payeerId, string phone, int apiId, string apiHash)
+        public MyProxy? Proxy { get; set; } = null!;
+
+        public Account(int accountId, string payeerId, string phone, int apiId, string apiHash, MyProxy? proxy = null)
         {
             AccountId = accountId;
             PayeerId = payeerId;
@@ -24,6 +26,7 @@
             TeleSession = $"{phone}.session";
             ApiId = apiId;
             ApiHash = apiHash;
+            Proxy = proxy;
         }
     }
 }

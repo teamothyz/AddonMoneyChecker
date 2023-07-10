@@ -65,8 +65,7 @@ namespace AddonMoney.Transfer.Services
                 var sendTime = DateTime.Now;
                 myDriver.Driver.Click("#payout-action", Timeout, token);
 
-                var proxy = MyProxy.GetProxy();
-                var code = await TeleService.GetOTP(account, sendTime, proxy, token);
+                var code = await TeleService.GetOTPByPy(account, sendTime, token);
                 if (code == null)
                 {
                     Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");

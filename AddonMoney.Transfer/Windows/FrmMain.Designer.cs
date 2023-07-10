@@ -49,12 +49,12 @@
             this.AccCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.kryptonLabel7 = new Krypton.Toolkit.KryptonLabel();
             this.ProCountTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.ProxyInputBtn = new Krypton.Toolkit.KryptonButton();
             this.ProxyCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.kryptonLabel8 = new Krypton.Toolkit.KryptonLabel();
             this.NoneProxyRadioBtn = new Krypton.Toolkit.KryptonRadioButton();
             this.HTTPProxyRadioBtn = new Krypton.Toolkit.KryptonRadioButton();
             this.Socks5ProxyRadioBtn = new Krypton.Toolkit.KryptonRadioButton();
+            this.kryptonLabel9 = new Krypton.Toolkit.KryptonLabel();
             this.SuspendLayout();
             // 
             // ProfilesTextBox
@@ -146,7 +146,7 @@
             // AccountsInputBtn
             // 
             this.AccountsInputBtn.CornerRoundingRadius = -1F;
-            this.AccountsInputBtn.Location = new System.Drawing.Point(576, 194);
+            this.AccountsInputBtn.Location = new System.Drawing.Point(688, 194);
             this.AccountsInputBtn.Name = "AccountsInputBtn";
             this.AccountsInputBtn.Size = new System.Drawing.Size(100, 30);
             this.AccountsInputBtn.StateCommon.Back.Color1 = System.Drawing.Color.DeepSkyBlue;
@@ -291,19 +291,6 @@
             this.ProCountTextBox.Text = "0";
             this.ProCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // ProxyInputBtn
-            // 
-            this.ProxyInputBtn.CornerRoundingRadius = -1F;
-            this.ProxyInputBtn.Location = new System.Drawing.Point(688, 194);
-            this.ProxyInputBtn.Name = "ProxyInputBtn";
-            this.ProxyInputBtn.Size = new System.Drawing.Size(100, 30);
-            this.ProxyInputBtn.StateCommon.Back.Color1 = System.Drawing.Color.DeepSkyBlue;
-            this.ProxyInputBtn.StateCommon.Back.Color2 = System.Drawing.Color.DeepSkyBlue;
-            this.ProxyInputBtn.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.ProxyInputBtn.TabIndex = 20;
-            this.ProxyInputBtn.Values.Text = "Nhập Proxies";
-            this.ProxyInputBtn.Click += new System.EventHandler(this.ProxyInputBtn_Click);
-            // 
             // ProxyCountTextBox
             // 
             this.ProxyCountTextBox.Location = new System.Drawing.Point(668, 119);
@@ -356,17 +343,26 @@
             this.Socks5ProxyRadioBtn.Values.Text = "Socks5";
             this.Socks5ProxyRadioBtn.CheckedChanged += new System.EventHandler(this.Socks5ProxyRadioBtn_CheckedChanged);
             // 
+            // kryptonLabel9
+            // 
+            this.kryptonLabel9.Location = new System.Drawing.Point(576, 230);
+            this.kryptonLabel9.Name = "kryptonLabel9";
+            this.kryptonLabel9.Size = new System.Drawing.Size(56, 20);
+            this.kryptonLabel9.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.kryptonLabel9.TabIndex = 26;
+            this.kryptonLabel9.Values.Text = "Proxies:";
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.kryptonLabel9);
             this.Controls.Add(this.Socks5ProxyRadioBtn);
             this.Controls.Add(this.HTTPProxyRadioBtn);
             this.Controls.Add(this.NoneProxyRadioBtn);
             this.Controls.Add(this.ProxyCountTextBox);
             this.Controls.Add(this.kryptonLabel8);
-            this.Controls.Add(this.ProxyInputBtn);
             this.Controls.Add(this.ProCountTextBox);
             this.Controls.Add(this.kryptonLabel7);
             this.Controls.Add(this.AccCountTextBox);
@@ -420,11 +416,11 @@
         private Krypton.Toolkit.KryptonTextBox AccCountTextBox;
         private Krypton.Toolkit.KryptonLabel kryptonLabel7;
         private Krypton.Toolkit.KryptonTextBox ProCountTextBox;
-        private Krypton.Toolkit.KryptonButton ProxyInputBtn;
         private Krypton.Toolkit.KryptonTextBox ProxyCountTextBox;
         private Krypton.Toolkit.KryptonLabel kryptonLabel8;
         private Krypton.Toolkit.KryptonRadioButton NoneProxyRadioBtn;
         private Krypton.Toolkit.KryptonRadioButton HTTPProxyRadioBtn;
         private Krypton.Toolkit.KryptonRadioButton Socks5ProxyRadioBtn;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel9;
     }
 }

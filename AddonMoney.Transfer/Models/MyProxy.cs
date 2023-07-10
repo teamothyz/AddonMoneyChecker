@@ -2,23 +2,23 @@
 {
     public class MyProxy
     {
-        public static readonly List<MyProxy> Proxies = new();
+        //public static readonly List<MyProxy> Proxies = new();
 
         public static ProxyType Type { get; set; }
 
-        private static int _proxyIndex = -1;
+        //private static int _proxyIndex = -1;
 
-        public static MyProxy? GetProxy()
-        {
-            lock (Proxies)
-            {
-                if (Type == ProxyType.None || Proxies.Count == 0) return null;
+        //public static MyProxy? GetProxy()
+        //{
+        //    lock (Proxies)
+        //    {
+        //        if (Type == ProxyType.None || Proxies.Count == 0) return null;
 
-                _proxyIndex++;
-                if (_proxyIndex >= Proxies.Count || _proxyIndex < 0) _proxyIndex = 0;
-                return Proxies[_proxyIndex];
-            }
-        }
+        //        _proxyIndex++;
+        //        if (_proxyIndex >= Proxies.Count || _proxyIndex < 0) _proxyIndex = 0;
+        //        return Proxies[_proxyIndex];
+        //    }
+        //}
 
         public string Host { get; set; } = null!;
 
@@ -27,6 +27,18 @@
         public string Username { get; set; } = null!;
 
         public string Password { get; set; } = null!;
+
+        public override string ToString()
+        {
+            var type = Type switch
+            {
+                ProxyType.Http => "http",
+                ProxyType.Socks5 => "socks5",
+                _ => "http"
+            };
+            if (Type == ProxyType.None) return null!;
+            return $"{type}:{Host}:{Port}:{Username}:{Password}";
+        }
     }
 
     public enum ProxyType
