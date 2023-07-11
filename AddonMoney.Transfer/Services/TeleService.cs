@@ -142,27 +142,33 @@ namespace AddonMoney.Transfer.Services
                     input = $"{sessionPath} {account.ApiId} {account.ApiHash} {account.Phone} {offset} {TransferService.Timeout} {proxy}";
                 }
 
-                ProcessStartInfo startInfo = new()
+                using var process = new Process
                 {
-                    FileName = exePath,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = false,
-                    Arguments = input
-                };
-                Process process = new()
-                {
-                    StartInfo = startInfo
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true,
+                        Arguments = input
+                    }
                 };
                 process.Start();
-                await process.WaitForExitAsync(token);
-                var output = await process.StandardOutput.ReadToEndAsync();
-                var matched = Regex.Match(output, "(\\d{6})");
-                if (!matched.Success)
+                var success = process.WaitForExit(TransferService.Timeout + 3);
+                if (!success)
                 {
+                    Log.Error($"{_logPrefix} Timeout while waiting otp for {account.Phone}.");
                     return null;
                 }
-                return matched.Value;
+
+                var output = await process.StandardOutput.ReadToEndAsync();
+                var matched = Regex.Match(output, "(\\d{6})");
+                if (matched.Success && output.ToLower().Contains("code"))
+                {
+                    return matched.Value;
+                }
+                Log.Error($"{_logPrefix} Not found otp for {account.Phone}. Result message: {output}");
+                return null;
             }
             catch (Exception ex)
             {
