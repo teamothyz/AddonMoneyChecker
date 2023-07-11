@@ -21,11 +21,7 @@ namespace AddonMoney.Transfer
             AppConfig.BotUsername = config["Bot"] ?? throw new Exception("Bot username not configured");
 
             ApplicationConfiguration.Initialize();
-            var main = new FrmMain
-            {
-                TopMost = true
-            };
-            Application.Run(main);
+            Application.Run(new FrmMain());
         }
     }
 }

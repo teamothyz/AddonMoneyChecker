@@ -20,6 +20,7 @@ namespace AddonMoney.Transfer.Windows
             _2captchaTextBox.Text = KeyHandler.GetKey() ?? string.Empty;
             ProfilesTextBox.Lines = DataService.ReadUserDataDirs();
             ActiveControl = kryptonLabel1;
+            TopMost = true;
         }
 
         private void ThreadUpDown_ValueChanged(object sender, EventArgs e)
@@ -51,6 +52,7 @@ namespace AddonMoney.Transfer.Windows
                     Invoke(() =>
                     {
                         AccCountTextBox.Text = Account.Accounts.Count.ToString();
+                        ProxyCountTextBox.Text = Account.Accounts.Count(acc => acc.Proxy != null).ToString();
                         Invoke(() =>
                         {
                             if (success) MessageBox.Show(this, "Đã đọc dữ liệu xong", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -179,7 +181,7 @@ namespace AddonMoney.Transfer.Windows
 
         private void ProfilesTextBox_TextChanged(object sender, EventArgs e)
         {
-            ProCountTextBox.Text = ProfilesTextBox.Lines.Length.ToString();
+            ProfileCountTextBox.Text = ProfilesTextBox.Lines.Length.ToString();
         }
 
         //private async void ProxyInputBtn_Click(object sender, EventArgs e)

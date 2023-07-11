@@ -154,7 +154,7 @@ namespace AddonMoney.Transfer.Services
                     }
                 };
                 process.Start();
-                var success = process.WaitForExit(TransferService.Timeout + 3);
+                var success = process.WaitForExit((TransferService.Timeout + 3) * 1000);
                 if (!success)
                 {
                     Log.Error($"{_logPrefix} Timeout while waiting otp for {account.Phone}.");

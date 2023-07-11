@@ -48,7 +48,7 @@
             this.kryptonLabel6 = new Krypton.Toolkit.KryptonLabel();
             this.AccCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.kryptonLabel7 = new Krypton.Toolkit.KryptonLabel();
-            this.ProCountTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.ProfileCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.ProxyCountTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.kryptonLabel8 = new Krypton.Toolkit.KryptonLabel();
             this.NoneProxyRadioBtn = new Krypton.Toolkit.KryptonRadioButton();
@@ -279,17 +279,17 @@
             this.kryptonLabel7.TabIndex = 18;
             this.kryptonLabel7.Values.Text = "Profiles:";
             // 
-            // ProCountTextBox
+            // ProfileCountTextBox
             // 
-            this.ProCountTextBox.Location = new System.Drawing.Point(668, 83);
-            this.ProCountTextBox.Name = "ProCountTextBox";
-            this.ProCountTextBox.ReadOnly = true;
-            this.ProCountTextBox.Size = new System.Drawing.Size(120, 23);
-            this.ProCountTextBox.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.ProCountTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.ProCountTextBox.TabIndex = 19;
-            this.ProCountTextBox.Text = "0";
-            this.ProCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ProfileCountTextBox.Location = new System.Drawing.Point(668, 83);
+            this.ProfileCountTextBox.Name = "ProfileCountTextBox";
+            this.ProfileCountTextBox.ReadOnly = true;
+            this.ProfileCountTextBox.Size = new System.Drawing.Size(120, 23);
+            this.ProfileCountTextBox.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.ProfileCountTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.ProfileCountTextBox.TabIndex = 19;
+            this.ProfileCountTextBox.Text = "0";
+            this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ProxyCountTextBox
             // 
@@ -363,7 +363,7 @@
             this.Controls.Add(this.NoneProxyRadioBtn);
             this.Controls.Add(this.ProxyCountTextBox);
             this.Controls.Add(this.kryptonLabel8);
-            this.Controls.Add(this.ProCountTextBox);
+            this.Controls.Add(this.ProfileCountTextBox);
             this.Controls.Add(this.kryptonLabel7);
             this.Controls.Add(this.AccCountTextBox);
             this.Controls.Add(this.kryptonLabel6);
@@ -415,7 +415,7 @@
         private Krypton.Toolkit.KryptonLabel kryptonLabel6;
         private Krypton.Toolkit.KryptonTextBox AccCountTextBox;
         private Krypton.Toolkit.KryptonLabel kryptonLabel7;
-        private Krypton.Toolkit.KryptonTextBox ProCountTextBox;
+        private Krypton.Toolkit.KryptonTextBox ProfileCountTextBox;
         private Krypton.Toolkit.KryptonTextBox ProxyCountTextBox;
         private Krypton.Toolkit.KryptonLabel kryptonLabel8;
         private Krypton.Toolkit.KryptonRadioButton NoneProxyRadioBtn;
