@@ -8,16 +8,18 @@ namespace AddonMoney.Client
     public partial class FrmMain : Form
     {
         public static int Timeout { get; private set; } = 30;
-        public static int TimeSleep { get; private set; } = 60;
+        public static int TimeSleep { get; private set; } = 30;
 
         private CancellationTokenSource CancellationToken = null!;
-        private readonly List<AddonMoneyService> _services = new();
+        private List<AddonMoneyService> _services = new();
+        private string _proxyPrefix = "http://";
 
         public FrmMain()
         {
             InitializeComponent();
             VPSNameTextBox.Text = HostService.GetHostName();
             ProfilesTextBox.Lines = HostService.ReadUserDataDirs();
+            ProxyTypeComboBox.SelectedIndex = 0;
             ActiveControl = kryptonLabel5;
         }
 
@@ -32,13 +34,15 @@ namespace AddonMoney.Client
                 {
                     if (string.IsNullOrWhiteSpace(line)) continue;
                     lines.Add(line);
-                    _services.Add(new AddonMoneyService(line));
+                    _services.Add(new AddonMoneyService(line, _proxyPrefix));
                 }
+                _services = _services.DistinctBy(s => s.ProfileInfo.ProfilePath).ToList();
                 ProfilesTextBox.Lines = lines.ToArray();
                 HostService.WriteUserDataDirs(lines.ToArray());
 
                 CancellationToken = new();
                 EnableBtn(false);
+                if (!_services.Any()) return;
 
                 #region Always Check To Enable Extension
                 //var nextScan = DateTime.UtcNow;
@@ -109,13 +113,19 @@ namespace AddonMoney.Client
             }
             catch (Exception ex)
             {
-                if (CancellationToken.IsCancellationRequested) MessageBox.Show(this, "Bạn đã dừng chương trình", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                else MessageBox.Show(this, $"Có lỗi xảy ra: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Invoke(() =>
+                {
+                    if (CancellationToken.IsCancellationRequested) MessageBox.Show(this, "Bạn đã dừng chương trình", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else MessageBox.Show(this, $"Có lỗi xảy ra: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
             }
             finally
             {
                 EnableBtn(true);
-                MessageBox.Show(this, "Chương trình đã dừng lại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Invoke(() =>
+                {
+                    MessageBox.Show(this, "Chương trình đã dừng lại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                });
             }
         }
 
@@ -156,6 +166,7 @@ namespace AddonMoney.Client
             Invoke(() =>
             {
                 StartBtn.Enabled = enable;
+                ProxyTypeComboBox.Enabled = enable;
                 StopBtn.Enabled = !enable;
 
                 ProfilesTextBox.Enabled = enable;
@@ -196,6 +207,18 @@ namespace AddonMoney.Client
         private void VPSNameTextBox_TextChanged(object sender, EventArgs e)
         {
             HostService.SetHost(VPSNameTextBox.Text);
+        }
+
+        private void ProxyTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ProxyTypeComboBox.SelectedIndex == 1)
+            {
+                _proxyPrefix = "socks5://";
+            }
+            else
+            {
+                _proxyPrefix = "http://";
+            }
         }
     }
 }
