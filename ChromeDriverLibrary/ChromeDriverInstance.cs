@@ -99,7 +99,7 @@ namespace ChromeDriverLibrary
                 }
                 if (proxyInfo.Count == 4)
                 {
-                    myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
+                    //myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
                     var id = myDriver.Driver.GetExtensionId("Proxy Auto Auth", "Proxy Auto Auth", 15, token.Value);
                     myDriver.Driver.GoToUrl($"chrome-extension://{id}/options.html");
                     myDriver.Driver.FindElement("#login", 30, token.Value);

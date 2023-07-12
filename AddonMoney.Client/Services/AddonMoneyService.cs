@@ -91,7 +91,7 @@ namespace AddonMoney.Client.Services
                     try
                     {
                         _driver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
-                            privateMode: false, isHeadless: false, disableImg: false, token: token, isDeleteProfile: false,
+                            privateMode: false, isHeadless: false, disableImg: true, token: token, isDeleteProfile: false,
                             keepOneWindow: false, userDataDir: _userDataDir, profile: _profile, proxy: ProfileInfo.Proxy)).ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
@@ -196,12 +196,12 @@ namespace AddonMoney.Client.Services
                     }
 
                     var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-                    _driver.Driver.Sendkeys(emailElm, ProfileInfo.Email + "\n", true, timeout, token);
+                    _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
+                    await Task.Delay(5000, token).ConfigureAwait(false);
 
-                    var passwordElm = _driver.Driver.FindElement(@"autocomplete=""current-password""", timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-                    _driver.Driver.Sendkeys(passwordElm, ProfileInfo.Password + "\n", true, timeout, token);
+                    var passwordElm = _driver.Driver.FindElement(@"[autocomplete=""current-password""]", timeout, token);
+                    _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
+                    await Task.Delay(5000, token).ConfigureAwait(false);
 
                     _ = _driver.Driver.FindElement(".account-name", timeout * 2, token);
                     return true;
