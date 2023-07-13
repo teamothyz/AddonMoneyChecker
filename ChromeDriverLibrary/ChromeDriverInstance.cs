@@ -99,13 +99,30 @@ namespace ChromeDriverLibrary
                 }
                 if (proxyInfo.Count == 4)
                 {
-                    //myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
-                    var id = myDriver.Driver.GetExtensionId("Proxy Auto Auth", "Proxy Auto Auth", 15, token.Value);
-                    myDriver.Driver.GoToUrl($"chrome-extension://{id}/options.html");
-                    myDriver.Driver.FindElement("#login", 30, token.Value);
-                    myDriver.Driver.ExecuteScript($"localStorage['proxy_login'] = '{proxyInfo[2]}';" +
-                    $"localStorage['proxy_password'] = '{proxyInfo[3]}';" +
-                    $"localStorage['proxy_retry'] = '2'");
+                    foreach (var window in myDriver.Driver.WindowHandles)
+                    {
+                        myDriver.Driver.SwitchTo().Window(window);
+                        Task.Delay(1000, token.Value).Wait(token.Value);
+                        var title = (string)myDriver.Driver.ExecuteScript("return document.title");
+                        if (title.Contains("Proxy Auto Auth"))
+                        {
+                            myDriver.Driver.FindElement("#login", 30, token.Value);
+                            myDriver.Driver.ExecuteScript($"localStorage['proxy_login'] = '{proxyInfo[2]}';" +
+                            $"localStorage['proxy_password'] = '{proxyInfo[3]}';" +
+                            $"localStorage['proxy_retry'] = '5'");
+
+                            myDriver.Driver.Close();
+                            Task.Delay(1000, token.Value).Wait(token.Value);
+                            break;
+                        }
+                    }
+                    foreach (var window in myDriver.Driver.WindowHandles)
+                    {
+                        myDriver.Driver.SwitchTo().Window(window);
+                        Task.Delay(1000, token.Value).Wait(token.Value);
+                        var title = (string)myDriver.Driver.ExecuteScript("return document.title");
+                        if (!title.ToLower().Contains("addonmoney")) break;
+                    }
                 }
             }
             catch
