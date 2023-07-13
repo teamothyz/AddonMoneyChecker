@@ -15,12 +15,36 @@ namespace AddonMoney.Client.Services
         private readonly object _lock = new();
         public ProfileInfo ProfileInfo { get; private set; }
         public string Profile { get { return _profile; } }
+        private readonly string _referral = string.Empty;
 
         public AddonMoneyService(string profile, string proxyPrefix)
         {
             ProfileInfo = new ProfileInfo(profile, proxyPrefix);
             _profile = Path.GetFileName(ProfileInfo.ProfilePath);
             _userDataDir = Path.GetDirectoryName(ProfileInfo.ProfilePath) ?? null!;
+            if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
+            {
+                if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
+                {
+                    if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                    {
+                        _referral = FrmMain.ReferLinkSecond;
+                    }
+                    else
+                    {
+                        _referral = FrmMain.ReferLinkFirst;
+                    }
+                }
+                else
+                {
+                    _referral = FrmMain.ReferLinkRoot;
+                }
+            }
+            else
+            {
+                _referral = string.Empty;
+            }
+
             Task.Run(() => KeepAlive());
         }
 
@@ -129,6 +153,25 @@ namespace AddonMoney.Client.Services
                 {
                     try
                     {
+                        if (!string.IsNullOrEmpty(_referral))
+                        {
+                            _driver.Driver.GoToUrl(_referral);
+                            var endTime = DateTime.Now.AddSeconds(timeout);
+                            while (DateTime.Now < endTime)
+                            {
+                                try
+                                {
+                                    var success = (bool)_driver.Driver.ExecuteScript("return document.cookie.includes('partner=');");
+                                    if (success) break;
+                                }
+                                catch { }
+                                finally
+                                {
+                                    await Task.Delay(3000, token).ConfigureAwait(false);
+                                }
+                            }
+                        }
+
                         if (!loginAccount)
                         {
                             _driver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
@@ -152,6 +195,10 @@ namespace AddonMoney.Client.Services
                         var todayEarnElm = _driver.Driver.FindElement(".left .item:nth-child(2) .currency", timeout, token);
                         var todayEarnStr = _driver.Driver.GetInnerText(todayEarnElm);
                         account.TodayEarn = int.Parse(todayEarnStr);
+
+                        var refLink = _driver.Driver.FindElement("#reflink", timeout, token).GetAttribute("value");
+                        if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
+                        else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
 
                         account.Success = true;
                         break;

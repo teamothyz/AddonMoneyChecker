@@ -104,5 +104,30 @@ namespace AddonMoney.Client.Services
             }
             catch { }
         }
+
+        public static string GetRefLink()
+        {
+            try
+            {
+                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ref.data"));
+                return reader.ReadToEnd().Trim();
+            }
+            catch 
+            {
+                return string.Empty;
+            }
+        }
+
+        public static void SaveRefLink(string refLink)
+        {
+            try
+            {
+                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ref.data"), false);
+                writer.WriteLine(refLink);
+                writer.Flush();
+                writer.Close();
+            }
+            catch { }
+        }
     }
 }

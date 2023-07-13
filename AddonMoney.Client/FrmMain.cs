@@ -2,6 +2,7 @@
 using AddonMoney.Data.API;
 using ChromeDriverLibrary;
 using Serilog;
+using System.Text.RegularExpressions;
 
 namespace AddonMoney.Client
 {
@@ -9,6 +10,9 @@ namespace AddonMoney.Client
     {
         public static int Timeout { get; private set; } = 30;
         public static int TimeSleep { get; private set; } = 30;
+        public static string ReferLinkRoot { get; private set; } = string.Empty;
+        public static string ReferLinkFirst { get; set; } = string.Empty;
+        public static string ReferLinkSecond { get; set; } = string.Empty;
 
         private CancellationTokenSource CancellationToken = null!;
         private List<AddonMoneyService> _services = new();
@@ -20,6 +24,8 @@ namespace AddonMoney.Client
             VPSNameTextBox.Text = HostService.GetHostName();
             ProfilesTextBox.Lines = HostService.ReadUserDataDirs();
             ProxyTypeComboBox.SelectedIndex = 0;
+            ReferLinkRoot = HostService.GetRefLink();
+            ReferLinkTxtBox.Text = HostService.GetRefLink();
             ActiveControl = kryptonLabel5;
         }
 
@@ -42,6 +48,16 @@ namespace AddonMoney.Client
 
                 CancellationToken = new();
                 EnableBtn(false);
+                var matchRef = Regex.Match(ReferLinkRoot, "(https://addon.money/p/\\d{1,})");
+                if (!matchRef.Success || matchRef.Value != ReferLinkRoot) 
+                {
+                    Invoke(() =>
+                    {
+                        MessageBox.Show(this, "Vui lòng kiểm tra lại referal link", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    });
+                    return;
+                }
+                HostService.SaveRefLink(ReferLinkRoot);
                 if (!_services.Any()) return;
 
                 #region Always Check To Enable Extension
@@ -80,6 +96,9 @@ namespace AddonMoney.Client
 
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    ReferLinkFirst = string.Empty;
+                    ReferLinkSecond = string.Empty;
+
                     var needToScan = nextScan <= DateTime.UtcNow;
                     var needEnable = nextEnable <= DateTime.UtcNow;
                     if (needToScan || needEnable)
@@ -169,7 +188,8 @@ namespace AddonMoney.Client
                 ProxyTypeComboBox.Enabled = enable;
                 StopBtn.Enabled = !enable;
 
-                ProfilesTextBox.Enabled = enable;
+                ProfilesTextBox.ReadOnly = !enable;
+                ReferLinkTxtBox.ReadOnly = !enable;
                 SleepTimeUpDown.Enabled = enable;
 
                 RunStatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
@@ -219,6 +239,11 @@ namespace AddonMoney.Client
             {
                 _proxyPrefix = "http://";
             }
+        }
+
+        private void ReferLinkTxtBox_TextChanged(object sender, EventArgs e)
+        {
+            ReferLinkRoot = ReferLinkTxtBox.Text.Trim();
         }
     }
 }

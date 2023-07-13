@@ -44,6 +44,8 @@
             this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
             this.VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.ProxyTypeComboBox = new Krypton.Toolkit.KryptonComboBox();
+            this.ReferLinkTxtBox = new Krypton.Toolkit.KryptonTextBox();
+            this.ReferLinkLabel = new Krypton.Toolkit.KryptonLabel();
             ((System.ComponentModel.ISupportInitialize)(this.ProxyTypeComboBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,7 +61,7 @@
             // 
             // TimeoutUpDown
             // 
-            this.TimeoutUpDown.Location = new System.Drawing.Point(84, 247);
+            this.TimeoutUpDown.Location = new System.Drawing.Point(105, 247);
             this.TimeoutUpDown.Maximum = new decimal(new int[] {
             120,
             0,
@@ -71,7 +73,7 @@
             0,
             0});
             this.TimeoutUpDown.Name = "TimeoutUpDown";
-            this.TimeoutUpDown.Size = new System.Drawing.Size(128, 22);
+            this.TimeoutUpDown.Size = new System.Drawing.Size(107, 22);
             this.TimeoutUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
             this.TimeoutUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.TimeoutUpDown.TabIndex = 2;
@@ -164,7 +166,7 @@
             // 
             // RunStatusTextBox
             // 
-            this.RunStatusTextBox.Location = new System.Drawing.Point(245, 326);
+            this.RunStatusTextBox.Location = new System.Drawing.Point(371, 326);
             this.RunStatusTextBox.Name = "RunStatusTextBox";
             this.RunStatusTextBox.ReadOnly = true;
             this.RunStatusTextBox.Size = new System.Drawing.Size(93, 23);
@@ -224,9 +226,9 @@
             // 
             // VPSNameTextBox
             // 
-            this.VPSNameTextBox.Location = new System.Drawing.Point(84, 284);
+            this.VPSNameTextBox.Location = new System.Drawing.Point(105, 284);
             this.VPSNameTextBox.Name = "VPSNameTextBox";
-            this.VPSNameTextBox.Size = new System.Drawing.Size(380, 23);
+            this.VPSNameTextBox.Size = new System.Drawing.Size(107, 23);
             this.VPSNameTextBox.StateCommon.Back.Color1 = System.Drawing.Color.White;
             this.VPSNameTextBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
             this.VPSNameTextBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -251,11 +253,35 @@
             this.ProxyTypeComboBox.Text = "Proxy Type";
             this.ProxyTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.ProxyTypeComboBox_SelectedIndexChanged);
             // 
+            // ReferLinkTxtBox
+            // 
+            this.ReferLinkTxtBox.Location = new System.Drawing.Point(336, 284);
+            this.ReferLinkTxtBox.Name = "ReferLinkTxtBox";
+            this.ReferLinkTxtBox.Size = new System.Drawing.Size(128, 23);
+            this.ReferLinkTxtBox.StateCommon.Back.Color1 = System.Drawing.Color.White;
+            this.ReferLinkTxtBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
+            this.ReferLinkTxtBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.ReferLinkTxtBox.TabIndex = 29;
+            this.ReferLinkTxtBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ReferLinkTxtBox.TextChanged += new System.EventHandler(this.ReferLinkTxtBox_TextChanged);
+            // 
+            // ReferLinkLabel
+            // 
+            this.ReferLinkLabel.Location = new System.Drawing.Point(245, 287);
+            this.ReferLinkLabel.Name = "ReferLinkLabel";
+            this.ReferLinkLabel.Size = new System.Drawing.Size(73, 20);
+            this.ReferLinkLabel.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
+            this.ReferLinkLabel.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.ReferLinkLabel.TabIndex = 28;
+            this.ReferLinkLabel.Values.Text = "Refer Link:";
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 361);
+            this.Controls.Add(this.ReferLinkTxtBox);
+            this.Controls.Add(this.ReferLinkLabel);
             this.Controls.Add(this.ProxyTypeComboBox);
             this.Controls.Add(this.VPSNameTextBox);
             this.Controls.Add(this.kryptonLabel1);
@@ -301,5 +327,7 @@
         private Krypton.Toolkit.KryptonLabel kryptonLabel1;
         private Krypton.Toolkit.KryptonTextBox VPSNameTextBox;
         private Krypton.Toolkit.KryptonComboBox ProxyTypeComboBox;
+        private Krypton.Toolkit.KryptonTextBox ReferLinkTxtBox;
+        private Krypton.Toolkit.KryptonLabel ReferLinkLabel;
     }
 }
