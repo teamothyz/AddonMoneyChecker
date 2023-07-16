@@ -114,7 +114,7 @@ namespace AddonMoney.Transfer.Services
             }
         }
 
-        //session-appId-appHash-phone-timeStampUTC-timeout-proxy?
+        //session-appId-appHash-timeStampUTC-timeout-proxy?
         public static async Task<string?> GetOTPByPy(Account account, DateTime offsetDate, CancellationToken token)
         {
             try
@@ -131,15 +131,15 @@ namespace AddonMoney.Transfer.Services
                 }
                 string? proxy = account.Proxy?.ToString();
                 var offset = ((DateTimeOffset)offsetDate.ToUniversalTime()).ToUnixTimeSeconds();
-                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pyotp", "ReadOTPCode.exe");
+                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "helpers", "ReadOTPCode.exe");
                 var input = string.Empty;
                 if (proxy == null)
                 {
-                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {account.Phone} {offset} {TransferService.Timeout}";
+                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {offset} {TransferService.Timeout}";
                 }
                 else
                 {
-                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {account.Phone} {offset} {TransferService.Timeout} {proxy}";
+                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {offset} {TransferService.Timeout} {proxy}";
                 }
 
                 using var process = new Process
@@ -174,6 +174,67 @@ namespace AddonMoney.Transfer.Services
             {
                 Log.Error($"{_logPrefix} Got exception while waiting otp for {account.Phone}. Error: {ex}");
                 return null;
+            }
+        }
+
+        //session-appId-appHash-token-proxy?
+        public static async Task<bool> LinkAccount(Account account, string token)
+        {
+            try
+            {
+                var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                    "sessions",
+                    account.TeleSession.Replace(".session", ""),
+                    account.TeleSession);
+
+                if (!File.Exists(sessionPath))
+                {
+                    Log.Error($"Not found session file {sessionPath}.");
+                    return false;
+                }
+                string? proxy = account.Proxy?.ToString();
+                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "helpers", "LinkAccount.exe");
+                var input = string.Empty;
+                if (proxy == null)
+                {
+                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {token}";
+                }
+                else
+                {
+                    input = $"{sessionPath} {account.ApiId} {account.ApiHash} {token} {proxy}";
+                }
+
+                using var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true,
+                        Arguments = input
+                    }
+                };
+                process.Start();
+                var success = process.WaitForExit(60 * 1000);
+                if (!success)
+                {
+                    Log.Error($"{_logPrefix} Timeout while linking account for {account.Phone}.");
+                    return false;
+                }
+
+                var output = await process.StandardOutput.ReadToEndAsync();
+                if (output.ToLower().Contains("error"))
+                {
+                    Log.Error($"{_logPrefix} {output}");
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{_logPrefix} Got exception while linking account for {account.Phone}. Error: {ex}");
+                return false;
             }
         }
     }

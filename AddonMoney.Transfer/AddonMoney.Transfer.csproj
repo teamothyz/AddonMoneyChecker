@@ -34,13 +34,16 @@
       <Generator></Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="pyotp\ReadOTPCode.exe">
+    <None Update="helpers\LinkAccount.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="helpers\ReadOTPCode.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="pyotp\" />
+    <Folder Include="helpers\" />
   </ItemGroup>
 
 </Project>

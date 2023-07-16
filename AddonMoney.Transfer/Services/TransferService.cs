@@ -3,6 +3,7 @@ using CaptchaResolver.Clients;
 using ChromeDriverLibrary;
 using Serilog;
 using System.Text.RegularExpressions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace AddonMoney.Transfer.Services
 {
@@ -57,6 +58,7 @@ namespace AddonMoney.Transfer.Services
                 myDriver.Driver.Sendkeys(amountElm, withdrawAmount.ToString(), true, Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
+            SUBMIT_CAPTCHA:
                 var captchaToken = await GetCaptchaResponse(token);
                 var captchaResElm = myDriver.Driver.FindElement("#g-recaptcha-response", Timeout, token);
                 myDriver.Driver.SetInnerHtml(captchaResElm, captchaToken, true, Timeout, token);
@@ -64,31 +66,52 @@ namespace AddonMoney.Transfer.Services
 
                 var sendTime = DateTime.Now;
                 myDriver.Driver.Click("#payout-action", Timeout, token);
-
-                var code = await TeleService.GetOTPByPy(account, sendTime, token);
-                if (code == null)
+                var messageStatus = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token).Text;
+                if (messageStatus.Contains("code to your telegram to confirm the payment"))
                 {
-                    Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");
-                    return new Tuple<bool, string?>(false, "Can not find the otp code from telegram");
-                }
-
-                var codeElm = myDriver.Driver.FindElement(@"[name=""code""]", Timeout, token);
-                myDriver.Driver.Sendkeys(codeElm, code, true, Timeout, token);
-                await Task.Delay(1000, token).ConfigureAwait(false);
-
-                myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
-
-                var endTime = DateTime.Now.AddSeconds(Timeout);
-                while (endTime > DateTime.Now)
-                {
-                    var status = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).GetAttribute("class");
-                    if (status.Contains("good")) return new Tuple<bool, string?>(true, null);
-                    if (status.Contains("bad"))
+                    var code = await TeleService.GetOTPByPy(account, sendTime, token);
+                    if (code == null)
                     {
-                        var msg = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).Text;
-                        return new Tuple<bool, string?>(false, msg);
+                        Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");
+                        return new Tuple<bool, string?>(false, "Can not find the otp code from telegram");
                     }
-                    await Task.Delay(3000, token).ConfigureAwait(false);
+
+                    var codeElm = myDriver.Driver.FindElement(@"[name=""code""]", Timeout, token);
+                    myDriver.Driver.Sendkeys(codeElm, code, true, Timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
+                    myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
+
+                    var endTime = DateTime.Now.AddSeconds(Timeout);
+                    while (endTime > DateTime.Now)
+                    {
+                        var status = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token).GetAttribute("class");
+                        if (status.Contains("good")) return new Tuple<bool, string?>(true, null);
+                        else if (status.Contains("bad"))
+                        {
+                            var msg = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).Text;
+                            return new Tuple<bool, string?>(false, msg);
+                        }
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+                    }
+                }
+                else if (messageStatus.Contains("you need to link your telegram account"))
+                {
+                    var link = myDriver.Driver.FindElement("a.close-pay", Timeout, token).GetAttribute("href");
+                    var linkToken = link.Split("=")[1];
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
+                    var success = await TeleService.LinkAccount(account, linkToken);
+                    if (!success) return new Tuple<bool, string?>(false, "link account failed");
+
+                    myDriver.Driver.ClickByJS("button.close-pay", Timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
+                    goto SUBMIT_CAPTCHA;
+                }
+                else
+                {
+                    return new Tuple<bool, string?>(false, messageStatus);
                 }
                 return new Tuple<bool, string?>(false, $"waiting for result timeout after {Timeout}s");
             }
