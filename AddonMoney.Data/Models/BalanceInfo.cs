@@ -24,5 +24,7 @@ namespace AddonMoney.Data.Models
         public string VPS { get; set; } = null!;
 
         public DateTime LastUpdate { get; set; }
+
+        public string? EarningLevel { get; set; } = null;
     }
 }

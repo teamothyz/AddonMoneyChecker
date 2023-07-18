@@ -1,5 +1,5 @@
 {
   "ConnectionStrings": {
-    "AddonMoneyDB": "Server=103.232.54.93;database=AddonMoneyDB;user=lukaxsx;password=Tuan552001;TrustServerCertificate=True;"
+    "AddonMoneyDB": "Server=103.167.91.195;database=AddonMoneyDB;user=luka;password=sql2012@@;TrustServerCertificate=True;"
   }
 }

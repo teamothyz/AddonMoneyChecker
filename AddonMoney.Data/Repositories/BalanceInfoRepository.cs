@@ -47,8 +47,8 @@ namespace AddonMoney.Data.Repositories
                 .SingleOrDefaultAsync(bal => bal.Id == id);
         }
 
-        public async Task<int> UpdateBalance(int id, string name, int balance, 
-            int todayEarn, string profile, string vps)
+        public async Task<int> UpdateBalance(int id, string name, int balance,
+            int todayEarn, string profile, string vps, string? earningLevel)
         {
             using var transaction = await _dbcontext.Database.BeginTransactionAsync();
             try
@@ -56,7 +56,7 @@ namespace AddonMoney.Data.Repositories
                 DateTime utcNow = DateTime.UtcNow;
                 TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
-                
+
                 int count;
                 var currentBalanceInfo = await GetBalanceInfo(id);
                 if (currentBalanceInfo == null)
@@ -71,7 +71,8 @@ namespace AddonMoney.Data.Repositories
                         LastTodayEarn = 0,
                         Profile = profile,
                         LastUpdate = gmt7Time,
-                        VPS = vps
+                        VPS = vps,
+                        EarningLevel = earningLevel
                     };
                     await _dbcontext.AddAsync(currentBalanceInfo);
                     await _dbcontext.SaveChangesAsync();
@@ -88,6 +89,7 @@ namespace AddonMoney.Data.Repositories
                     .SetProperty(bal => bal.LastBalance, bal => currentBalanceInfo.Balance)
                     .SetProperty(bal => bal.LastTodayEarn, bal => currentBalanceInfo.TodayEarn)
                     .SetProperty(bal => bal.VPS, bal => vps)
+                    .SetProperty(bal => bal.EarningLevel, bal => earningLevel)
                     .SetProperty(bal => bal.LastUpdate, bal => gmt7Time));
                 }
                 await transaction.CommitAsync();

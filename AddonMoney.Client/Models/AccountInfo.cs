@@ -15,5 +15,7 @@
         public string ErrorMsg { get; set; } = null!;
 
         public string Profile { get; set; } = null!;
+
+        public string EarningLevel { get; set; } = null!;
     }
 }

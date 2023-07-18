@@ -63,7 +63,7 @@ namespace AddonMoney.API.Services
                     using var scoped = _services.CreateScope();
                     var balanceRepo = scoped.ServiceProvider.GetRequiredService<BalanceInfoRepository>();
                     await balanceRepo.UpdateBalance(balanceRq.Id, balanceRq.Name, balanceRq.Balance, 
-                        balanceRq.TodayEarn, balanceRq.Profile, balanceRq.VPS);
+                        balanceRq.TodayEarn, balanceRq.Profile, balanceRq.VPS, balanceRq.EarningLevel);
                     _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                 }
                 catch (Exception ex)

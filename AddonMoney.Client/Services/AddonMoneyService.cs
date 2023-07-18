@@ -15,36 +15,13 @@ namespace AddonMoney.Client.Services
         private readonly object _lock = new();
         public ProfileInfo ProfileInfo { get; private set; }
         public string Profile { get { return _profile; } }
-        private readonly string _referral = string.Empty;
+        private string _referral = string.Empty;
 
         public AddonMoneyService(string profile, string proxyPrefix)
         {
             ProfileInfo = new ProfileInfo(profile, proxyPrefix);
             _profile = Path.GetFileName(ProfileInfo.ProfilePath);
             _userDataDir = Path.GetDirectoryName(ProfileInfo.ProfilePath) ?? null!;
-            if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
-            {
-                if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
-                {
-                    if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
-                    {
-                        _referral = FrmMain.ReferLinkSecond;
-                    }
-                    else
-                    {
-                        _referral = FrmMain.ReferLinkFirst;
-                    }
-                }
-                else
-                {
-                    _referral = FrmMain.ReferLinkRoot;
-                }
-            }
-            else
-            {
-                _referral = string.Empty;
-            }
-
             Task.Run(() => KeepAlive());
         }
 
@@ -72,6 +49,28 @@ namespace AddonMoney.Client.Services
 
         public AccountInfo ScanInfo(bool needToScan, CancellationToken token)
         {
+            if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
+            {
+                if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
+                {
+                    if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                    {
+                        _referral = FrmMain.ReferLinkSecond;
+                    }
+                    else
+                    {
+                        _referral = FrmMain.ReferLinkFirst;
+                    }
+                }
+                else
+                {
+                    _referral = FrmMain.ReferLinkRoot;
+                }
+            }
+            else
+            {
+                _referral = string.Empty;
+            }
             lock (_lock)
             {
                 AccountInfo account = new()
@@ -195,6 +194,9 @@ namespace AddonMoney.Client.Services
                         var todayEarnElm = _driver.Driver.FindElement(".left .item:nth-child(2) .currency", timeout, token);
                         var todayEarnStr = _driver.Driver.GetInnerText(todayEarnElm);
                         account.TodayEarn = int.Parse(todayEarnStr);
+
+                        var earningLevelElm = _driver.Driver.FindElement(".informers .item:nth-child(3) .i-counter", timeout, token);
+                        account.EarningLevel = _driver.Driver.GetInnerText(earningLevelElm);
 
                         var refLink = _driver.Driver.FindElement("#reflink", timeout, token).GetAttribute("value");
                         if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;

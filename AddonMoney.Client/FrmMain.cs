@@ -162,7 +162,8 @@ namespace AddonMoney.Client
                         Name = account.Name,
                         TodayEarn = account.TodayEarn,
                         Profile = account.Profile,
-                        VPS = HostService.GetHostName()
+                        VPS = HostService.GetHostName(),
+                        EarningLevel = account.EarningLevel
                     };
                     await ApiService.SendBalance(balanceRq).ConfigureAwait(false);
                 }

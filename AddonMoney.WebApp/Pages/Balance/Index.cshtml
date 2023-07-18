@@ -66,6 +66,7 @@
                 <th>Balance</th>
                 <th>Last Balance</th>
                 <th>Today Earn</th>
+                <th>Earning Level</th>
                 <th>Last Update</th>
             </tr>
         </thead>
@@ -79,13 +80,23 @@
                     <td>@balanceInfo.Balance</td>
                     <td>@balanceInfo.LastBalance</td>
                     <td>@balanceInfo.TodayEarn</td>
+                    <td>@(balanceInfo.EarningLevel ?? "None")</td>
                     <td>@balanceInfo.LastUpdate</td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <div class="row">
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <strong>Page's Today Earn: @Model.PageTotalEarn</strong>
+        </div>
+        <div class="col-md-6">
+            <strong>Page's Total Balance: @Model.PageTotalBalance</strong>
+        </div>
+    </div>
+
+    <div class="row mt-3">
         <div class="col-md-6">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
