@@ -26,5 +26,9 @@ namespace AddonMoney.Data.Models
         public DateTime LastUpdate { get; set; }
 
         public string? EarningLevel { get; set; } = null;
+
+        public string? Email { get; set; } = null!;
+
+        public bool ProxyDie { get; set; } = false;
     }
 }

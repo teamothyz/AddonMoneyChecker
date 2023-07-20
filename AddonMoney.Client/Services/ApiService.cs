@@ -42,6 +42,27 @@ namespace AddonMoney.Client.Services
             }
         }
 
+        public static async Task SendProxyStatus(UpdateProxyStatusRequest model)
+        {
+            try
+            {
+                using var client = new HttpClient()
+                {
+                    Timeout = TimeSpan.FromSeconds(30)
+                };
+                var body = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var res = await client.PostAsync($"{BaseUrl}/api/addonmoney/proxy", body);
+                if (res.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    Log.Error($"Send proxy status to server got exception. Data: {JsonConvert.SerializeObject(model)}. Status code: {res.StatusCode}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Send proxy status to server got exception.", ex);
+            }
+        }
+
         public static async Task SendBalance(UpdateBalanceRequest model)
         {
             try

@@ -40,12 +40,15 @@
             this.kryptonLabel8 = new Krypton.Toolkit.KryptonLabel();
             this.RunStatusTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.ProfileCountTextBox = new Krypton.Toolkit.KryptonTextBox();
-            this.SleepTimeUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            this.TimeScanUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
             this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
             this.VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.ProxyTypeComboBox = new Krypton.Toolkit.KryptonComboBox();
             this.ReferLinkTxtBox = new Krypton.Toolkit.KryptonTextBox();
             this.ReferLinkLabel = new Krypton.Toolkit.KryptonLabel();
+            this.TimeResetUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            this.kryptonLabel2 = new Krypton.Toolkit.KryptonLabel();
+            this.OnlyRootLinkCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ProxyTypeComboBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -158,15 +161,15 @@
             // 
             this.kryptonLabel8.Location = new System.Drawing.Point(245, 247);
             this.kryptonLabel8.Name = "kryptonLabel8";
-            this.kryptonLabel8.Size = new System.Drawing.Size(82, 20);
+            this.kryptonLabel8.Size = new System.Drawing.Size(113, 20);
             this.kryptonLabel8.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
             this.kryptonLabel8.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.kryptonLabel8.TabIndex = 21;
-            this.kryptonLabel8.Values.Text = "Quãng nghỉ:";
+            this.kryptonLabel8.Values.Text = "Time quét (phút):";
             // 
             // RunStatusTextBox
             // 
-            this.RunStatusTextBox.Location = new System.Drawing.Point(371, 326);
+            this.RunStatusTextBox.Location = new System.Drawing.Point(12, 366);
             this.RunStatusTextBox.Name = "RunStatusTextBox";
             this.RunStatusTextBox.ReadOnly = true;
             this.RunStatusTextBox.Size = new System.Drawing.Size(93, 23);
@@ -189,30 +192,30 @@
             this.ProfileCountTextBox.Text = "0";
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // SleepTimeUpDown
+            // TimeScanUpDown
             // 
-            this.SleepTimeUpDown.Location = new System.Drawing.Point(336, 247);
-            this.SleepTimeUpDown.Maximum = new decimal(new int[] {
+            this.TimeScanUpDown.Location = new System.Drawing.Point(357, 247);
+            this.TimeScanUpDown.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
-            this.SleepTimeUpDown.Minimum = new decimal(new int[] {
+            this.TimeScanUpDown.Minimum = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            this.SleepTimeUpDown.Name = "SleepTimeUpDown";
-            this.SleepTimeUpDown.Size = new System.Drawing.Size(128, 22);
-            this.SleepTimeUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
-            this.SleepTimeUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.SleepTimeUpDown.TabIndex = 24;
-            this.SleepTimeUpDown.Value = new decimal(new int[] {
+            this.TimeScanUpDown.Name = "TimeScanUpDown";
+            this.TimeScanUpDown.Size = new System.Drawing.Size(107, 22);
+            this.TimeScanUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
+            this.TimeScanUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.TimeScanUpDown.TabIndex = 24;
+            this.TimeScanUpDown.Value = new decimal(new int[] {
             30,
             0,
             0,
             0});
-            this.SleepTimeUpDown.ValueChanged += new System.EventHandler(this.SleepTimeUpDown_ValueChanged);
+            this.TimeScanUpDown.ValueChanged += new System.EventHandler(this.SleepTimeUpDown_ValueChanged);
             // 
             // kryptonLabel1
             // 
@@ -244,9 +247,9 @@
             this.ProxyTypeComboBox.Items.AddRange(new object[] {
             "HTTP",
             "Socks5"});
-            this.ProxyTypeComboBox.Location = new System.Drawing.Point(336, 211);
+            this.ProxyTypeComboBox.Location = new System.Drawing.Point(340, 211);
             this.ProxyTypeComboBox.Name = "ProxyTypeComboBox";
-            this.ProxyTypeComboBox.Size = new System.Drawing.Size(130, 21);
+            this.ProxyTypeComboBox.Size = new System.Drawing.Size(126, 21);
             this.ProxyTypeComboBox.StateCommon.ComboBox.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.ProxyTypeComboBox.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
             this.ProxyTypeComboBox.TabIndex = 27;
@@ -255,9 +258,9 @@
             // 
             // ReferLinkTxtBox
             // 
-            this.ReferLinkTxtBox.Location = new System.Drawing.Point(336, 284);
+            this.ReferLinkTxtBox.Location = new System.Drawing.Point(324, 326);
             this.ReferLinkTxtBox.Name = "ReferLinkTxtBox";
-            this.ReferLinkTxtBox.Size = new System.Drawing.Size(128, 23);
+            this.ReferLinkTxtBox.Size = new System.Drawing.Size(140, 23);
             this.ReferLinkTxtBox.StateCommon.Back.Color1 = System.Drawing.Color.White;
             this.ReferLinkTxtBox.StateCommon.Content.Color1 = System.Drawing.Color.Black;
             this.ReferLinkTxtBox.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -267,7 +270,7 @@
             // 
             // ReferLinkLabel
             // 
-            this.ReferLinkLabel.Location = new System.Drawing.Point(245, 287);
+            this.ReferLinkLabel.Location = new System.Drawing.Point(245, 329);
             this.ReferLinkLabel.Name = "ReferLinkLabel";
             this.ReferLinkLabel.Size = new System.Drawing.Size(73, 20);
             this.ReferLinkLabel.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
@@ -275,17 +278,66 @@
             this.ReferLinkLabel.TabIndex = 28;
             this.ReferLinkLabel.Values.Text = "Refer Link:";
             // 
+            // TimeResetUpDown
+            // 
+            this.TimeResetUpDown.Location = new System.Drawing.Point(357, 285);
+            this.TimeResetUpDown.Maximum = new decimal(new int[] {
+            24,
+            0,
+            0,
+            0});
+            this.TimeResetUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.TimeResetUpDown.Name = "TimeResetUpDown";
+            this.TimeResetUpDown.Size = new System.Drawing.Size(107, 22);
+            this.TimeResetUpDown.StateCommon.Content.Color1 = System.Drawing.Color.Black;
+            this.TimeResetUpDown.StateCommon.Content.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.TimeResetUpDown.TabIndex = 31;
+            this.TimeResetUpDown.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            // 
+            // kryptonLabel2
+            // 
+            this.kryptonLabel2.Location = new System.Drawing.Point(245, 287);
+            this.kryptonLabel2.Name = "kryptonLabel2";
+            this.kryptonLabel2.Size = new System.Drawing.Size(106, 20);
+            this.kryptonLabel2.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
+            this.kryptonLabel2.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.kryptonLabel2.TabIndex = 30;
+            this.kryptonLabel2.Values.Text = "Time reset (giờ):";
+            // 
+            // OnlyRootLinkCheckBox
+            // 
+            this.OnlyRootLinkCheckBox.Location = new System.Drawing.Point(245, 369);
+            this.OnlyRootLinkCheckBox.Name = "OnlyRootLinkCheckBox";
+            this.OnlyRootLinkCheckBox.Size = new System.Drawing.Size(142, 20);
+            this.OnlyRootLinkCheckBox.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
+            this.OnlyRootLinkCheckBox.StateCommon.ShortText.Color2 = System.Drawing.Color.Black;
+            this.OnlyRootLinkCheckBox.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.OnlyRootLinkCheckBox.TabIndex = 32;
+            this.OnlyRootLinkCheckBox.Values.Text = "Chỉ sử dụng link gốc";
+            this.OnlyRootLinkCheckBox.CheckedChanged += new System.EventHandler(this.OnlyRootLinkCheckBox_CheckedChanged);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(478, 361);
+            this.ClientSize = new System.Drawing.Size(478, 408);
+            this.Controls.Add(this.OnlyRootLinkCheckBox);
+            this.Controls.Add(this.TimeResetUpDown);
+            this.Controls.Add(this.kryptonLabel2);
             this.Controls.Add(this.ReferLinkTxtBox);
             this.Controls.Add(this.ReferLinkLabel);
             this.Controls.Add(this.ProxyTypeComboBox);
             this.Controls.Add(this.VPSNameTextBox);
             this.Controls.Add(this.kryptonLabel1);
-            this.Controls.Add(this.SleepTimeUpDown);
+            this.Controls.Add(this.TimeScanUpDown);
             this.Controls.Add(this.ProfileCountTextBox);
             this.Controls.Add(this.RunStatusTextBox);
             this.Controls.Add(this.kryptonLabel8);
@@ -299,8 +351,8 @@
             this.Controls.Add(this.ProfilesTextBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(494, 400);
-            this.MinimumSize = new System.Drawing.Size(494, 400);
+            this.MaximumSize = new System.Drawing.Size(494, 447);
+            this.MinimumSize = new System.Drawing.Size(494, 447);
             this.Name = "FrmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
@@ -323,11 +375,14 @@
         private Krypton.Toolkit.KryptonLabel kryptonLabel8;
         private Krypton.Toolkit.KryptonTextBox RunStatusTextBox;
         private Krypton.Toolkit.KryptonTextBox ProfileCountTextBox;
-        private Krypton.Toolkit.KryptonNumericUpDown SleepTimeUpDown;
+        private Krypton.Toolkit.KryptonNumericUpDown TimeScanUpDown;
         private Krypton.Toolkit.KryptonLabel kryptonLabel1;
         private Krypton.Toolkit.KryptonTextBox VPSNameTextBox;
         private Krypton.Toolkit.KryptonComboBox ProxyTypeComboBox;
         private Krypton.Toolkit.KryptonTextBox ReferLinkTxtBox;
         private Krypton.Toolkit.KryptonLabel ReferLinkLabel;
+        private Krypton.Toolkit.KryptonNumericUpDown TimeResetUpDown;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel2;
+        private Krypton.Toolkit.KryptonCheckBox OnlyRootLinkCheckBox;
     }
 }

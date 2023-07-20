@@ -9,6 +9,8 @@ namespace AddonMoney.API.Services
     {
         private readonly string _balanceQueue;
         private readonly string _errorQueue;
+        private readonly string _proxyStatusQueue;
+
         private readonly IConnection _connection;
         private readonly IModel _channel;
 
@@ -16,6 +18,8 @@ namespace AddonMoney.API.Services
         {
             _balanceQueue = configuration["MQ:QueueNameBalance"] ?? "AddonMoneyBalanceMsg";
             _errorQueue = configuration["MQ:QueueNameError"] ?? "AddonMoneyErrorMsg";
+            _proxyStatusQueue = configuration["MQ:QueueNameProxyStatus"] ?? "AddonMoneyProxyStatus";
+
             var factory = new ConnectionFactory()
             {
                 HostName = configuration["MQ:Host"] ?? "localhost",
@@ -36,26 +40,42 @@ namespace AddonMoney.API.Services
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
+
+            _channel.QueueDeclare(queue: _proxyStatusQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
         }
 
-        public void SendMessage(object data)
+        public void SendBalanceMessage(UpdateBalanceRequest data)
         {
             if (data == null) return;
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
-            if (data is UpdateBalanceRequest)
-            {
-                _channel.BasicPublish(exchange: string.Empty,
-                        routingKey: _balanceQueue,
-                        basicProperties: null,
-                        body: body);
-            }
-            else if (data is UpdateErrorRequest)
-            {
-                _channel.BasicPublish(exchange: string.Empty,
-                        routingKey: _errorQueue,
-                        basicProperties: null,
-                        body: body);
-            }
+            _channel.BasicPublish(exchange: string.Empty,
+                    routingKey: _balanceQueue,
+                    basicProperties: null,
+                    body: body);
+        }
+
+        public void SendErrorMessage(UpdateErrorRequest data)
+        {
+            if (data == null) return;
+            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
+            _channel.BasicPublish(exchange: string.Empty,
+                    routingKey: _errorQueue,
+                    basicProperties: null,
+                    body: body);
+        }
+
+        public void SendProxyStatusMessage(UpdateProxyStatusRequest data)
+        {
+            if (data == null) return;
+            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
+            _channel.BasicPublish(exchange: string.Empty,
+                    routingKey: _proxyStatusQueue,
+                    basicProperties: null,
+                    body: body);
         }
 
         public void CloseConnection()

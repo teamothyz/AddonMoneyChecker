@@ -14,6 +14,8 @@ namespace AddonMoney.API.Services
 
         private readonly string _balanceQueue;
         private readonly string _errorQueue;
+        private readonly string _proxyStatusQueue;
+
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly IServiceProvider _services;
@@ -23,6 +25,8 @@ namespace AddonMoney.API.Services
             _services = services;
             _balanceQueue = configuration["MQ:QueueNameBalance"] ?? "AddonMoneyBalanceMsg";
             _errorQueue = configuration["MQ:QueueNameError"] ?? "AddonMoneyErrorMsg";
+            _proxyStatusQueue = configuration["MQ:QueueNameProxyStatus"] ?? "AddonMoneyProxyStatus";
+
             var factory = new ConnectionFactory()
             {
                 HostName = configuration["MQ:Host"] ?? "localhost",
@@ -40,6 +44,12 @@ namespace AddonMoney.API.Services
                 arguments: null);
 
             _channel.QueueDeclare(queue: _errorQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            _channel.QueueDeclare(queue: _proxyStatusQueue,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -62,8 +72,7 @@ namespace AddonMoney.API.Services
 
                     using var scoped = _services.CreateScope();
                     var balanceRepo = scoped.ServiceProvider.GetRequiredService<BalanceInfoRepository>();
-                    await balanceRepo.UpdateBalance(balanceRq.Id, balanceRq.Name, balanceRq.Balance, 
-                        balanceRq.TodayEarn, balanceRq.Profile, balanceRq.VPS, balanceRq.EarningLevel);
+                    await balanceRepo.UpdateBalance(balanceRq);
                     _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                 }
                 catch (Exception ex)
@@ -104,6 +113,35 @@ namespace AddonMoney.API.Services
                 finally { semaphore.Release(); }
             };
             _channel.BasicConsume(queue: _errorQueue, autoAck: false, consumer: consumer);
+        }
+
+        public void StartProxyStatusConsuming()
+        {
+            var semaphore = new SemaphoreSlim(10);
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += async (model, ea) =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    var proStatRq = JsonConvert.DeserializeObject<UpdateProxyStatusRequest>(message);
+                    if (proStatRq == null) return;
+
+                    using var scoped = _services.CreateScope();
+                    var balanceRepo = scoped.ServiceProvider.GetRequiredService<BalanceInfoRepository>();
+                    await balanceRepo.UpdateProxyStatus(proStatRq);
+                    _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"{_logPrefix} Handle proxy status {ea.DeliveryTag} failed.", ex);
+                    _channel.BasicNack(ea.DeliveryTag, false, false);
+                }
+                finally { semaphore.Release(); }
+            };
+            _channel.BasicConsume(queue: _balanceQueue, autoAck: false, consumer: consumer);
         }
 
         public void CloseConnection()

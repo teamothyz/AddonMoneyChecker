@@ -16,6 +16,7 @@ namespace AddonMoney.Client.Services
         public ProfileInfo ProfileInfo { get; private set; }
         public string Profile { get { return _profile; } }
         private string _referral = string.Empty;
+        private bool _firstTime = true;
 
         public AddonMoneyService(string profile, string proxyPrefix)
         {
@@ -51,7 +52,11 @@ namespace AddonMoney.Client.Services
         {
             if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
             {
-                if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
+                if (FrmMain.OnlyRootLink)
+                {
+                    _referral = FrmMain.ReferLinkRoot;
+                }
+                else if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
                 {
                     if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
                     {
@@ -76,7 +81,8 @@ namespace AddonMoney.Client.Services
                 AccountInfo account = new()
                 {
                     Profile = _profile,
-                    Success = false
+                    Success = false,
+                    Email = ProfileInfo.Email
                 };
                 try
                 {
@@ -284,6 +290,15 @@ namespace AddonMoney.Client.Services
                         await Task.Delay(1000, token).ConfigureAwait(false);
 
                         var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
+                        if (_firstTime)
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                            _driver.Driver.Click("#status-addon", timeout, token);
+                            _firstTime = false;
+                        }
+
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+                        statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         if (!statusElm.GetAttribute("class").Contains("active"))
                         {
                             await Task.Delay(1000, token).ConfigureAwait(false);

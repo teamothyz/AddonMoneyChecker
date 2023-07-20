@@ -1,4 +1,5 @@
-﻿using AddonMoney.Data.Models;
+﻿using AddonMoney.Data.API;
+using AddonMoney.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AddonMoney.Data.Repositories
@@ -47,8 +48,7 @@ namespace AddonMoney.Data.Repositories
                 .SingleOrDefaultAsync(bal => bal.Id == id);
         }
 
-        public async Task<int> UpdateBalance(int id, string name, int balance,
-            int todayEarn, string profile, string vps, string? earningLevel)
+        public async Task<int> UpdateBalance(UpdateBalanceRequest balRq)
         {
             using var transaction = await _dbcontext.Database.BeginTransactionAsync();
             try
@@ -58,21 +58,22 @@ namespace AddonMoney.Data.Repositories
                 DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
 
                 int count;
-                var currentBalanceInfo = await GetBalanceInfo(id);
+                var currentBalanceInfo = await GetBalanceInfo(balRq.Id);
                 if (currentBalanceInfo == null)
                 {
                     currentBalanceInfo = new BalanceInfo
                     {
-                        Id = id,
-                        Name = name,
-                        Balance = balance,
-                        TodayEarn = todayEarn,
+                        Id = balRq.Id,
+                        Name = balRq.Name,
+                        Balance = balRq.Balance,
+                        TodayEarn = balRq.TodayEarn,
                         LastBalance = 0,
                         LastTodayEarn = 0,
-                        Profile = profile,
+                        Profile = balRq.Profile,
                         LastUpdate = gmt7Time,
-                        VPS = vps,
-                        EarningLevel = earningLevel
+                        VPS = balRq.VPS,
+                        Email = balRq.Email,
+                        EarningLevel = balRq.EarningLevel
                     };
                     await _dbcontext.AddAsync(currentBalanceInfo);
                     await _dbcontext.SaveChangesAsync();
@@ -80,16 +81,17 @@ namespace AddonMoney.Data.Repositories
                 }
                 else
                 {
-                    count = await _dbcontext.BalanceInfos.Where(bal => bal.Id == id)
+                    count = await _dbcontext.BalanceInfos.Where(bal => bal.Id == balRq.Id)
                     .ExecuteUpdateAsync(bals => bals
-                    .SetProperty(bal => bal.Balance, bal => balance)
-                    .SetProperty(bal => bal.TodayEarn, bal => todayEarn)
-                    .SetProperty(bal => bal.Profile, bal => profile)
-                    .SetProperty(bal => bal.Name, bal => name)
+                    .SetProperty(bal => bal.Balance, bal => balRq.Balance)
+                    .SetProperty(bal => bal.TodayEarn, bal => balRq.TodayEarn)
+                    .SetProperty(bal => bal.Profile, bal => balRq.Profile)
+                    .SetProperty(bal => bal.Name, bal => balRq.Name)
                     .SetProperty(bal => bal.LastBalance, bal => currentBalanceInfo.Balance)
                     .SetProperty(bal => bal.LastTodayEarn, bal => currentBalanceInfo.TodayEarn)
-                    .SetProperty(bal => bal.VPS, bal => vps)
-                    .SetProperty(bal => bal.EarningLevel, bal => earningLevel)
+                    .SetProperty(bal => bal.VPS, bal => balRq.VPS)
+                    .SetProperty(bal => bal.EarningLevel, bal => balRq.EarningLevel)
+                    .SetProperty(bal => bal.Email, bal => balRq.Email)
                     .SetProperty(bal => bal.LastUpdate, bal => gmt7Time));
                 }
                 await transaction.CommitAsync();
@@ -100,6 +102,12 @@ namespace AddonMoney.Data.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task UpdateProxyStatus(UpdateProxyStatusRequest rq)
+        {
+            _ = await _dbcontext.BalanceInfos.Where(bal => bal.Email == rq.Email)
+                .ExecuteUpdateAsync(bals => bals.SetProperty(bal => bal.ProxyDie, rq.ProxyDie));
         }
 
         public async Task<int> TotalToday()

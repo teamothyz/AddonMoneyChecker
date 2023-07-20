@@ -13,6 +13,7 @@
         {
             _consumer.StartBalanceConsuming();
             _consumer.StartErrorConsuming();
+            _consumer.StartProxyStatusConsuming();
             return Task.CompletedTask;
         }
 

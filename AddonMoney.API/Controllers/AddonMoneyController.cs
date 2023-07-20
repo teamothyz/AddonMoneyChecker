@@ -22,7 +22,7 @@ namespace AddonMoney.API.Controllers
         {
             try
             {
-                await Task.Run(() => _producer.SendMessage(model));
+                await Task.Run(() => _producer.SendBalanceMessage(model));
                 return Ok();
             }
             catch (Exception ex)
@@ -37,12 +37,27 @@ namespace AddonMoney.API.Controllers
         {
             try
             {
-                await Task.Run(() => _producer.SendMessage(model));
+                await Task.Run(() => _producer.SendErrorMessage(model));
                 return Ok();
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception when handling update error request.", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("proxy")]
+        public async Task<IActionResult> UpdateProxyStatus(UpdateProxyStatusRequest model)
+        {
+            try
+            {
+                await Task.Run(() => _producer.SendProxyStatusMessage(model));
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{_logPrefix} Got exception when handling update proxy status request.", ex);
                 return StatusCode(500, ex.Message);
             }
         }

@@ -63,25 +63,31 @@
                 <th>ID</th>
                 <th>Host</th>
                 <th>Name</th>
+                <th>Email</th>
+                <th>Profile</th>
                 <th>Balance</th>
                 <th>Last Balance</th>
                 <th>Today Earn</th>
                 <th>Earning Level</th>
                 <th>Last Update</th>
+                <th>Proxy</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var balanceInfo in Model.BalanceInfos.Items)
             {
-                <tr class="@(balanceInfo.Balance == balanceInfo.LastBalance ? "table-danger" : "")">
+                <tr class="@(balanceInfo.Balance == balanceInfo.LastBalance || balanceInfo.ProxyDie ? "table-danger" : "")">
                     <td>@balanceInfo.Id</td>
                     <td>@balanceInfo.VPS</td>
                     <td>@balanceInfo.Name</td>
+                    <td>@balanceInfo.Email</td>
+                    <td>@balanceInfo.Profile</td>
                     <td>@balanceInfo.Balance</td>
                     <td>@balanceInfo.LastBalance</td>
                     <td>@balanceInfo.TodayEarn</td>
                     <td>@(balanceInfo.EarningLevel ?? "None")</td>
                     <td>@balanceInfo.LastUpdate</td>
+                    <td>@(balanceInfo.ProxyDie ? "Die" : "Alive")</td>
                 </tr>
             }
         </tbody>

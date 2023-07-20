@@ -13,6 +13,7 @@ namespace AddonMoney.Client
         public static string ReferLinkRoot { get; private set; } = string.Empty;
         public static string ReferLinkFirst { get; set; } = string.Empty;
         public static string ReferLinkSecond { get; set; } = string.Empty;
+        public static bool OnlyRootLink { get; private set; } = false;
 
         private CancellationTokenSource CancellationToken = null!;
         private List<AddonMoneyService> _services = new();
@@ -59,7 +60,7 @@ namespace AddonMoney.Client
                 }
                 HostService.SaveRefLink(ReferLinkRoot);
                 if (!_services.Any()) return;
-
+                _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
                 #region Always Check To Enable Extension
                 //var nextScan = DateTime.UtcNow;
                 //while (!CancellationToken.IsCancellationRequested)
@@ -93,6 +94,7 @@ namespace AddonMoney.Client
                 #region Check And Enable Extension Each 15 Minutes
                 var nextScan = DateTime.UtcNow;
                 var nextEnable = DateTime.UtcNow;
+                var nextReset = DateTime.UtcNow;
 
                 while (!CancellationToken.IsCancellationRequested)
                 {
@@ -101,14 +103,19 @@ namespace AddonMoney.Client
 
                     var needToScan = nextScan <= DateTime.UtcNow;
                     var needEnable = nextEnable <= DateTime.UtcNow;
-                    if (needToScan || needEnable)
+                    var needReset = nextReset <= DateTime.UtcNow;
+                    if (needToScan || needEnable || needReset)
                     {
                         nextEnable = DateTime.UtcNow.AddMinutes(15);
+                        if (needReset)
+                        {
+                            nextReset = DateTime.UtcNow.AddHours((int)TimeResetUpDown.Value);
+                            _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
+                            ChromeDriverInstance.KillAllChromes();
+                        }
                         if (needToScan)
                         {
                             nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
-                            _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
-                            ChromeDriverInstance.KillAllChromes();
                         }
 
                         var now = GetGMT7Now();
@@ -163,7 +170,8 @@ namespace AddonMoney.Client
                         TodayEarn = account.TodayEarn,
                         Profile = account.Profile,
                         VPS = HostService.GetHostName(),
-                        EarningLevel = account.EarningLevel
+                        EarningLevel = account.EarningLevel,
+                        Email = account.Email
                     };
                     await ApiService.SendBalance(balanceRq).ConfigureAwait(false);
                 }
@@ -191,7 +199,9 @@ namespace AddonMoney.Client
 
                 ProfilesTextBox.ReadOnly = !enable;
                 ReferLinkTxtBox.ReadOnly = !enable;
-                SleepTimeUpDown.Enabled = enable;
+                TimeScanUpDown.Enabled = enable;
+                TimeResetUpDown.Enabled = enable;
+                OnlyRootLinkCheckBox.Enabled = enable;
 
                 RunStatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
                 RunStatusTextBox.StateCommon.Back.Color1 = enable ? Color.FromArgb(255, 128, 128) : Color.GreenYellow;
@@ -217,7 +227,7 @@ namespace AddonMoney.Client
 
         private void SleepTimeUpDown_ValueChanged(object sender, EventArgs e)
         {
-            TimeSleep = (int)SleepTimeUpDown.Value;
+            TimeSleep = (int)TimeScanUpDown.Value;
         }
 
         private void TopMostCheckBtn_CheckedChanged(object sender, EventArgs e)
@@ -245,6 +255,11 @@ namespace AddonMoney.Client
         private void ReferLinkTxtBox_TextChanged(object sender, EventArgs e)
         {
             ReferLinkRoot = ReferLinkTxtBox.Text.Trim();
+        }
+
+        private void OnlyRootLinkCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            OnlyRootLink = OnlyRootLinkCheckBox.Checked;
         }
     }
 }
