@@ -21,8 +21,8 @@ namespace AddonMoney.Client.Services
         private bool _firstTimeGotoAddon = true;
         private bool _firstTimeCookie = true;
 
-        private bool _loginAccountSuccess = false;
-        private bool _loginFirstTimeSuccess = false;
+        private bool _loginAccountSuccess = true;
+        //private bool _loginFirstTimeSuccess = false;
 
         public ProfileInfo ProfileInfo { get; private set; }
 
@@ -121,7 +121,7 @@ namespace AddonMoney.Client.Services
                     }
                     else account.Success = false;
 
-                    if (_loginAccountSuccess || _loginFirstTimeSuccess)
+                    if (_loginAccountSuccess)
                     {
                         ActivateAddonTask(timeout, token).Wait(token);
                     }
@@ -200,14 +200,14 @@ namespace AddonMoney.Client.Services
                             _firstTimeGotoAddon = false;
                         }
 
-                        var loginGGTimes = 0;
-                        while (!_loginFirstTimeSuccess)
-                        {
-                            _loginFirstTimeSuccess = await LoginGoogleFirstTime(timeout, token);
-                            loginGGTimes++;
-                            if (loginGGTimes == 2) break;
-                            await Task.Delay(1000, token).ConfigureAwait(false);
-                        }
+                        //var loginGGTimes = 0;
+                        //while (!_loginFirstTimeSuccess)
+                        //{
+                        //    _loginFirstTimeSuccess = await LoginGoogleFirstTime(timeout, token);
+                        //    loginGGTimes++;
+                        //    if (loginGGTimes == 2) break;
+                        //    await Task.Delay(1000, token).ConfigureAwait(false);
+                        //}
 
                         await GetAccountInfo(account, timeout, token).ConfigureAwait(false);
                         break;
@@ -220,10 +220,7 @@ namespace AddonMoney.Client.Services
 
                         if (_driver.Driver.Url.Contains("google.com"))
                         {
-                            if (_loginFirstTimeSuccess && !_loginAccountSuccess)
-                            {
-                                _loginAccountSuccess = await LoginGoogle(timeout, token).ConfigureAwait(false);
-                            }
+                            _loginAccountSuccess = await LoginGoogle(timeout, token).ConfigureAwait(false);
                             if (!_loginAccountSuccess)
                             {
                                 await ApiService.SendError($"Login google account failed. {ex.Message}.").ConfigureAwait(false);
@@ -277,12 +274,58 @@ namespace AddonMoney.Client.Services
             account.Success = true;
         }
 
-        private async Task<bool> LoginGoogleFirstTime(int timeout, CancellationToken token)
+        //private async Task<bool> LoginGoogleFirstTime(int timeout, CancellationToken token)
+        //{
+        //    try
+        //    {
+        //        _driver.Driver.GoToUrl("https://accounts.google.com/v3/signin/identifier?flowName=GlifWebSignIn");
+        //        await Task.Delay(1000, token).ConfigureAwait(false);
+
+        //        var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
+        //        _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
+        //        await Task.Delay(1000, token).ConfigureAwait(false);
+
+        //        var passwordElm = _driver.Driver.FindElement(@"[autocomplete=""current-password""]", timeout, token);
+        //        _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
+        //        await Task.Delay(1000, token).ConfigureAwait(false);
+
+        //        try
+        //        {
+        //            _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
+        //            return true;
+        //        }
+        //        catch
+        //        {
+        //            var challenge = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 5, token);
+        //            _driver.Driver.ClickByJS(@"[data-challengetype=""12""]", timeout, token);
+        //            await Task.Delay(1000, token).ConfigureAwait(false);
+
+        //            var recoveryMailElm = _driver.Driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", timeout, token);
+        //            _driver.Driver.SendkeysRandom(recoveryMailElm, ProfileInfo.RecoveryMail, true, true, timeout, token);
+        //            await Task.Delay(timeout / 2 * 1000, token).ConfigureAwait(false);
+
+        //            _driver.Driver.GoToUrl("https://myaccount.google.com");
+        //            await Task.Delay(1000, token).ConfigureAwait(false);
+        //            _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error($"Got exception while login account first time for {_profile}.", ex);
+        //        return false;
+        //    }
+        //}
+
+        private async Task<bool> LoginGoogle(int timeout, CancellationToken token)
         {
             try
             {
-                _driver.Driver.GoToUrl("https://accounts.google.com/v3/signin/identifier?flowName=GlifWebSignIn");
-                await Task.Delay(1000, token).ConfigureAwait(false);
+                if (_driver.Driver.Url.Contains("oauthchooseaccount"))
+                {
+                    _driver.Driver.Click("ul li:nth-last-child(1)", timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+                }
 
                 var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
                 _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
@@ -292,80 +335,56 @@ namespace AddonMoney.Client.Services
                 _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
-                try
+                var endTime = DateTime.Now.AddSeconds(timeout);
+                while (DateTime.Now < endTime)
                 {
-                    _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
-                    return true;
-                }
-                catch
-                {
-                    var challenge = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 5, token);
-                    _driver.Driver.ClickByJS(@"[data-challengetype=""12""]", timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
-                    var recoveryMailElm = _driver.Driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", timeout, token);
-                    _driver.Driver.SendkeysRandom(recoveryMailElm, ProfileInfo.RecoveryMail, true, true, timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
-                    _driver.Driver.GoToUrl("https://myaccount.google.com");
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-                    _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Got exception while login account first time for {_profile}.", ex);
-                return false;
-            }
-        }
-
-        private async Task<bool> LoginGoogle(int timeout, CancellationToken token)
-        {
-            if (_driver.Driver.Url.Contains("google.com"))
-            {
-                try
-                {
-                    if (_driver.Driver.Url.Contains("oauthchooseaccount"))
-                    {
-                        _driver.Driver.Click("ul li:nth-last-child(1)", timeout, token);
-                        await Task.Delay(1000, token).ConfigureAwait(false);
-                    }
-
-                    var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
-                    _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
-                    var passwordElm = _driver.Driver.FindElement(@"[autocomplete=""current-password""]", timeout, token);
-                    _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
-                    await Task.Delay(1000, token).ConfigureAwait(false);
-
                     try
                     {
-                        _ = _driver.Driver.FindElement(".account-name", timeout, token);
+                        _ = _driver.Driver.FindElement(".account-name", 3, token);
                         return true;
                     }
                     catch
                     {
-                        var challenge = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 5, token);
+                        try
+                        {
+                            _ = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 3, token);
+                        }
+                        catch
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                            continue;
+                        }
+
                         _driver.Driver.ClickByJS(@"[data-challengetype=""12""]", timeout, token);
                         await Task.Delay(1000, token).ConfigureAwait(false);
 
                         var recoveryMailElm = _driver.Driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", timeout, token);
                         _driver.Driver.SendkeysRandom(recoveryMailElm, ProfileInfo.RecoveryMail, true, true, timeout, token);
-                        await Task.Delay(1000, token).ConfigureAwait(false);
-
-                        _ = _driver.Driver.FindElement(".account-name", timeout, token);
-                        return true;
+                        break;
                     }
                 }
-                catch (Exception ex)
+
+                endTime = DateTime.Now.AddSeconds(timeout);
+                while (DateTime.Now < endTime)
                 {
-                    Log.Error($"Got exception while login account for {_profile}.", ex);
-                    return false;
+                    try
+                    {
+                        _ = _driver.Driver.FindElement(".account-name", 3, token);
+                        return true;
+                    }
+                    catch
+                    {
+                        if (_driver.Driver.Url.Contains("gds.google.com")) return true;
+                        else await Task.Delay(1000, token).ConfigureAwait(false);
+                    }
                 }
+                return false;
             }
-            return true;
+            catch (Exception ex)
+            {
+                Log.Error($"Got exception while login account for {_profile}.", ex);
+                return false;
+            }
         }
 
         private async Task ActivateAddonTask(int timeout, CancellationToken token)

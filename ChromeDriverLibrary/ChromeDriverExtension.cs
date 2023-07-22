@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumUndetectedChromeDriver;
 
