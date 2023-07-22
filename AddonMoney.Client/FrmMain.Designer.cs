@@ -49,6 +49,7 @@
             this.TimeResetUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
             this.kryptonLabel2 = new Krypton.Toolkit.KryptonLabel();
             this.OnlyRootLinkCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.ClearCookiesCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ProxyTypeComboBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -314,7 +315,7 @@
             // 
             // OnlyRootLinkCheckBox
             // 
-            this.OnlyRootLinkCheckBox.Location = new System.Drawing.Point(245, 369);
+            this.OnlyRootLinkCheckBox.Location = new System.Drawing.Point(322, 369);
             this.OnlyRootLinkCheckBox.Name = "OnlyRootLinkCheckBox";
             this.OnlyRootLinkCheckBox.Size = new System.Drawing.Size(142, 20);
             this.OnlyRootLinkCheckBox.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
@@ -324,11 +325,24 @@
             this.OnlyRootLinkCheckBox.Values.Text = "Chỉ sử dụng link gốc";
             this.OnlyRootLinkCheckBox.CheckedChanged += new System.EventHandler(this.OnlyRootLinkCheckBox_CheckedChanged);
             // 
+            // ClearCookiesCheckBox
+            // 
+            this.ClearCookiesCheckBox.Location = new System.Drawing.Point(168, 369);
+            this.ClearCookiesCheckBox.Name = "ClearCookiesCheckBox";
+            this.ClearCookiesCheckBox.Size = new System.Drawing.Size(93, 20);
+            this.ClearCookiesCheckBox.StateCommon.ShortText.Color1 = System.Drawing.Color.Black;
+            this.ClearCookiesCheckBox.StateCommon.ShortText.Color2 = System.Drawing.Color.Black;
+            this.ClearCookiesCheckBox.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.ClearCookiesCheckBox.TabIndex = 33;
+            this.ClearCookiesCheckBox.Values.Text = "Xóa cookies";
+            this.ClearCookiesCheckBox.CheckedChanged += new System.EventHandler(this.ClearCookiesCheckBox_CheckedChanged);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 408);
+            this.Controls.Add(this.ClearCookiesCheckBox);
             this.Controls.Add(this.OnlyRootLinkCheckBox);
             this.Controls.Add(this.TimeResetUpDown);
             this.Controls.Add(this.kryptonLabel2);
@@ -384,5 +398,6 @@
         private Krypton.Toolkit.KryptonNumericUpDown TimeResetUpDown;
         private Krypton.Toolkit.KryptonLabel kryptonLabel2;
         private Krypton.Toolkit.KryptonCheckBox OnlyRootLinkCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox ClearCookiesCheckBox;
     }
 }

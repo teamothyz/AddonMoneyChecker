@@ -8,6 +8,8 @@
 
         public string Password { get; set; } = null!;
 
+        public string RecoveryMail { get; set; } = null!;
+
         public string Proxy { get; set; } = null!;
 
         public ProfileInfo(string line, string proxyPrefix)
@@ -18,7 +20,8 @@
                 ProfilePath = details[0].Trim();
                 Email = details[1].Trim();
                 Password = details[2].Trim();
-                Proxy = proxyPrefix + details[3].Trim();
+                RecoveryMail = details[3].Trim();
+                Proxy = proxyPrefix + details[4].Trim();
             }
             catch
             {

@@ -14,6 +14,7 @@ namespace AddonMoney.Client
         public static string ReferLinkFirst { get; set; } = string.Empty;
         public static string ReferLinkSecond { get; set; } = string.Empty;
         public static bool OnlyRootLink { get; private set; } = false;
+        public static bool ClearCookies { get; private set; } = false;
 
         private CancellationTokenSource CancellationToken = null!;
         private List<AddonMoneyService> _services = new();
@@ -61,35 +62,6 @@ namespace AddonMoney.Client
                 HostService.SaveRefLink(ReferLinkRoot);
                 if (!_services.Any()) return;
                 _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
-                #region Always Check To Enable Extension
-                //var nextScan = DateTime.UtcNow;
-                //while (!CancellationToken.IsCancellationRequested)
-                //{
-                //    var needToScan = nextScan <= DateTime.UtcNow;
-                //    if (needToScan)
-                //    {
-                //        nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
-                //        _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
-                //        ChromeDriverInstance.KillAllChromes();
-                //    }
-
-                //    var now = GetGMT7Now();
-                //    var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
-                //    var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
-
-                //    for (int i = 0; i < _services.Count; i++)
-                //    {
-                //        if (!(start <= i && i < end)) await _services[i].Close().ConfigureAwait(false);
-                //        await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
-                //    }
-                //    for (int i = 0; i < _services.Count; i++)
-                //    {
-                //        if (start <= i && i < end) await Run(needToScan, _services[i]).ConfigureAwait(false);
-                //        await Task.Delay(3000, CancellationToken.Token).ConfigureAwait(false);
-                //    }
-                //    await Task.Delay(5000, CancellationToken.Token).ConfigureAwait(false);
-                //}
-                #endregion
 
                 #region Check And Enable Extension Each 15 Minutes
                 var nextScan = DateTime.UtcNow;
@@ -124,16 +96,22 @@ namespace AddonMoney.Client
 
                         for (int i = 0; i < _services.Count; i++)
                         {
-                            if (!(start <= i && i < end)) await _services[i].Close();
-                            await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                            if (!(start <= i && i < end))
+                            {
+                                await _services[i].Close();
+                                await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                            }
                         }
                         for (int i = 0; i < _services.Count; i++)
                         {
-                            if (start <= i && i < end) await Run(needToScan, _services[i]).ConfigureAwait(false);
-                            await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                            if (start <= i && i < end)
+                            {
+                                await Run(needToScan, _services[i]).ConfigureAwait(false);
+                                await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                            }
                         }
                     }
-                    await Task.Delay(10000, CancellationToken.Token).ConfigureAwait(false);
+                    await Task.Delay(3000, CancellationToken.Token).ConfigureAwait(false);
                 }
                 #endregion
             }
@@ -202,6 +180,7 @@ namespace AddonMoney.Client
                 TimeScanUpDown.Enabled = enable;
                 TimeResetUpDown.Enabled = enable;
                 OnlyRootLinkCheckBox.Enabled = enable;
+                ClearCookiesCheckBox.Enabled = enable;
 
                 RunStatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
                 RunStatusTextBox.StateCommon.Back.Color1 = enable ? Color.FromArgb(255, 128, 128) : Color.GreenYellow;
@@ -260,6 +239,11 @@ namespace AddonMoney.Client
         private void OnlyRootLinkCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             OnlyRootLink = OnlyRootLinkCheckBox.Checked;
+        }
+
+        private void ClearCookiesCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            ClearCookies = ClearCookiesCheckBox.Checked;
         }
     }
 }

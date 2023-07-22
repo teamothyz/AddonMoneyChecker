@@ -8,15 +8,25 @@ namespace AddonMoney.Client.Services
 {
     public class AddonMoneyService
     {
+        private readonly object _lock = new();
+
         private MyChromeDriver _driver = null!;
         private readonly string _userDataDir = null!;
         private readonly string _profile = null!;
         private string _extensionId = null!;
-        private readonly object _lock = new();
-        public ProfileInfo ProfileInfo { get; private set; }
-        public string Profile { get { return _profile; } }
+
         private string _referral = string.Empty;
-        private bool _firstTime = true;
+
+        private bool _firstTimeActive = true;
+        private bool _firstTimeGotoAddon = true;
+        private bool _firstTimeCookie = true;
+
+        private bool _loginAccountSuccess = false;
+        private bool _loginFirstTimeSuccess = false;
+
+        public ProfileInfo ProfileInfo { get; private set; }
+
+        public string Profile { get => _profile; }
 
         public AddonMoneyService(string profile, string proxyPrefix)
         {
@@ -88,17 +98,33 @@ namespace AddonMoney.Client.Services
                 {
                     CreateDriverTask(token).Wait(token);
                     if (_driver?.Driver == null) return account;
-                    Task.Delay(3000, token).Wait(token);
+
+                    Task.Delay(500, token).Wait(token);
+                    if (FrmMain.ClearCookies && _firstTimeCookie)
+                    {
+                        _driver.Driver.GoToUrl("https://addon.money");
+                        _driver.Driver.Manage().Cookies.DeleteAllCookies();
+                        Task.Delay(500, token).Wait(token);
+
+                        _driver.Driver.GoToUrl("https://www.google.com/");
+                        _driver.Driver.Manage().Cookies.DeleteAllCookies();
+                        Task.Delay(500, token).Wait(token);
+
+                        _firstTimeCookie = false;
+                    }
 
                     var timeout = FrmMain.Timeout;
                     if (needToScan)
                     {
                         GetDataTask(account, timeout, token).Wait(token);
-                        Task.Delay(3000, token).Wait(token);
+                        Task.Delay(1000, token).Wait(token);
                     }
                     else account.Success = false;
 
-                    ActivateAddonTask(timeout, token).Wait(token);
+                    if (_loginAccountSuccess || _loginFirstTimeSuccess)
+                    {
+                        ActivateAddonTask(timeout, token).Wait(token);
+                    }
                     return account;
                 }
                 catch (Exception ex)
@@ -133,10 +159,7 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while creating driver for {_profile}.", ex);
                         createInstanceTimes++;
                         if (createInstanceTimes == 2) throw;
-                    }
-                    finally
-                    {
-                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                        await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -153,12 +176,11 @@ namespace AddonMoney.Client.Services
             try
             {
                 int getDataTimes = 0;
-                var loginAccount = false;
                 while (true)
                 {
                     try
                     {
-                        if (!string.IsNullOrEmpty(_referral))
+                        if (!string.IsNullOrEmpty(_referral) && _firstTimeGotoAddon)
                         {
                             _driver.Driver.GoToUrl(_referral);
                             var endTime = DateTime.Now.AddSeconds(timeout);
@@ -172,62 +194,47 @@ namespace AddonMoney.Client.Services
                                 catch { }
                                 finally
                                 {
-                                    await Task.Delay(3000, token).ConfigureAwait(false);
+                                    await Task.Delay(1000, token).ConfigureAwait(false);
                                 }
                             }
+                            _firstTimeGotoAddon = false;
                         }
 
-                        if (!loginAccount)
+                        var loginGGTimes = 0;
+                        while (!_loginFirstTimeSuccess)
                         {
-                            _driver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
-                            await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                            _loginFirstTimeSuccess = await LoginGoogleFirstTime(timeout, token);
+                            loginGGTimes++;
+                            if (loginGGTimes == 2) break;
+                            await Task.Delay(1000, token).ConfigureAwait(false);
                         }
 
-                        loginAccount = false;
-                        var accountNameElm = _driver.Driver.FindElement(".account-name", timeout, token);
-                        account.Name = _driver.Driver.GetInnerText(accountNameElm);
-
-                        var accountIdElm = _driver.Driver.FindElement(".account-login", timeout, token);
-                        var accountIdStr = _driver.Driver.GetInnerText(accountIdElm);
-                        var matchId = Regex.Match(accountIdStr, "(\\d{1,})");
-                        if (!matchId.Success) throw new InvalidDataException($"Invalid Account Id: {accountIdStr}.");
-                        account.Id = int.Parse(matchId.Value);
-
-                        var balanceElm = _driver.Driver.FindElement("#balance", timeout, token);
-                        var balanceStr = _driver.Driver.GetInnerText(balanceElm);
-                        account.Balance = int.Parse(balanceStr);
-
-                        var todayEarnElm = _driver.Driver.FindElement(".left .item:nth-child(2) .currency", timeout, token);
-                        var todayEarnStr = _driver.Driver.GetInnerText(todayEarnElm);
-                        account.TodayEarn = int.Parse(todayEarnStr);
-
-                        var earningLevelElm = _driver.Driver.FindElement(".informers .item:nth-child(3) .i-counter", timeout, token);
-                        account.EarningLevel = _driver.Driver.GetInnerText(earningLevelElm);
-
-                        var refLink = _driver.Driver.FindElement("#reflink", timeout, token).GetAttribute("value");
-                        if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
-                        else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
-
-                        account.Success = true;
+                        await GetAccountInfo(account, timeout, token).ConfigureAwait(false);
                         break;
                     }
                     catch (Exception ex)
                     {
                         if (token.IsCancellationRequested) return;
-                        loginAccount = await LoginGoogle(timeout, token).ConfigureAwait(false);
-                        await Task.Delay(3000, token).ConfigureAwait(false);
-
                         getDataTimes++;
                         if (getDataTimes == 2) throw;
-                        if (!loginAccount)
+
+                        if (_driver.Driver.Url.Contains("google.com"))
                         {
-                            Log.Error($"Got exception while getting balance in the addon web for {_profile}.", ex);
-                            _driver.Driver.GoToUrl("about:blank");
+                            if (_loginFirstTimeSuccess && !_loginAccountSuccess)
+                            {
+                                _loginAccountSuccess = await LoginGoogle(timeout, token).ConfigureAwait(false);
+                            }
+                            if (!_loginAccountSuccess)
+                            {
+                                await ApiService.SendError($"Login google account failed. {ex.Message}.").ConfigureAwait(false);
+                                return;
+                            }
                         }
                     }
                     finally
                     {
-                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                        _driver.Driver.GoToUrl("about:blank");
+                        await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }
@@ -235,6 +242,81 @@ namespace AddonMoney.Client.Services
             {
                 Log.Error($"Got exception while getting account info for {_profile}.", ex);
                 await ApiService.SendError($"Got exception while getting account info for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
+            }
+        }
+
+        private async Task GetAccountInfo(AccountInfo account, int timeout, CancellationToken token)
+        {
+            _driver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
+            await Task.Delay(1000, token).ConfigureAwait(false);
+
+            var accountNameElm = _driver.Driver.FindElement(".account-name", timeout, token);
+            account.Name = _driver.Driver.GetInnerText(accountNameElm);
+
+            var accountIdElm = _driver.Driver.FindElement(".account-login", timeout, token);
+            var accountIdStr = _driver.Driver.GetInnerText(accountIdElm);
+            var matchId = Regex.Match(accountIdStr, "(\\d{1,})");
+            if (!matchId.Success) throw new InvalidDataException($"Invalid Account Id: {accountIdStr}.");
+            account.Id = int.Parse(matchId.Value);
+
+            var balanceElm = _driver.Driver.FindElement("#balance", timeout, token);
+            var balanceStr = _driver.Driver.GetInnerText(balanceElm);
+            account.Balance = int.Parse(balanceStr);
+
+            var todayEarnElm = _driver.Driver.FindElement(".left .item:nth-child(2) .currency", timeout, token);
+            var todayEarnStr = _driver.Driver.GetInnerText(todayEarnElm);
+            account.TodayEarn = int.Parse(todayEarnStr);
+
+            var earningLevelElm = _driver.Driver.FindElement(".informers .item:nth-child(3) .i-counter", timeout, token);
+            account.EarningLevel = _driver.Driver.GetInnerText(earningLevelElm);
+
+            var refLink = _driver.Driver.FindElement("#reflink", timeout, token).GetAttribute("value");
+            if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
+            else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
+
+            account.Success = true;
+        }
+
+        private async Task<bool> LoginGoogleFirstTime(int timeout, CancellationToken token)
+        {
+            try
+            {
+                _driver.Driver.GoToUrl("https://accounts.google.com/v3/signin/identifier?flowName=GlifWebSignIn");
+                await Task.Delay(1000, token).ConfigureAwait(false);
+
+                var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
+                _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
+                await Task.Delay(1000, token).ConfigureAwait(false);
+
+                var passwordElm = _driver.Driver.FindElement(@"[autocomplete=""current-password""]", timeout, token);
+                _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
+                await Task.Delay(1000, token).ConfigureAwait(false);
+
+                try
+                {
+                    _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
+                    return true;
+                }
+                catch
+                {
+                    var challenge = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 5, token);
+                    _driver.Driver.ClickByJS(@"[data-challengetype=""12""]", timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
+                    var recoveryMailElm = _driver.Driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", timeout, token);
+                    _driver.Driver.SendkeysRandom(recoveryMailElm, ProfileInfo.RecoveryMail, true, true, timeout, token);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+
+                    _driver.Driver.GoToUrl("https://myaccount.google.com");
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+                    _ = _driver.Driver.FindElement(@"[data-p*=""myaccount.google.com""]", timeout, token);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Got exception while login account first time for {_profile}.", ex);
+                return false;
             }
         }
 
@@ -247,27 +329,43 @@ namespace AddonMoney.Client.Services
                     if (_driver.Driver.Url.Contains("oauthchooseaccount"))
                     {
                         _driver.Driver.Click("ul li:nth-last-child(1)", timeout, token);
-                        await Task.Delay(3000, token).ConfigureAwait(false);
+                        await Task.Delay(1000, token).ConfigureAwait(false);
                     }
 
                     var emailElm = _driver.Driver.FindElement("#identifierId", timeout, token);
                     _driver.Driver.SendkeysRandom(emailElm, ProfileInfo.Email, true, true, timeout, token);
-                    await Task.Delay(5000, token).ConfigureAwait(false);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
 
                     var passwordElm = _driver.Driver.FindElement(@"[autocomplete=""current-password""]", timeout, token);
                     _driver.Driver.SendkeysRandom(passwordElm, ProfileInfo.Password, true, true, timeout, token);
-                    await Task.Delay(5000, token).ConfigureAwait(false);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
 
-                    _ = _driver.Driver.FindElement(".account-name", timeout * 2, token);
-                    return true;
+                    try
+                    {
+                        _ = _driver.Driver.FindElement(".account-name", timeout, token);
+                        return true;
+                    }
+                    catch
+                    {
+                        var challenge = _driver.Driver.FindElement(@"[data-challengetype=""12""]", 5, token);
+                        _driver.Driver.ClickByJS(@"[data-challengetype=""12""]", timeout, token);
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+
+                        var recoveryMailElm = _driver.Driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", timeout, token);
+                        _driver.Driver.SendkeysRandom(recoveryMailElm, ProfileInfo.RecoveryMail, true, true, timeout, token);
+                        await Task.Delay(1000, token).ConfigureAwait(false);
+
+                        _ = _driver.Driver.FindElement(".account-name", timeout, token);
+                        return true;
+                    }
                 }
                 catch (Exception ex)
                 {
                     Log.Error($"Got exception while login account for {_profile}.", ex);
-                    await ApiService.SendError($"Got exception while logining account for {_profile}. Error: {ex.Message}.").ConfigureAwait(false);
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
 
         private async Task ActivateAddonTask(int timeout, CancellationToken token)
@@ -290,11 +388,11 @@ namespace AddonMoney.Client.Services
                         await Task.Delay(1000, token).ConfigureAwait(false);
 
                         var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
-                        if (_firstTime)
+                        if (_firstTimeActive)
                         {
                             await Task.Delay(1000, token).ConfigureAwait(false);
                             _driver.Driver.Click("#status-addon", timeout, token);
-                            _firstTime = false;
+                            _firstTimeActive = false;
                         }
 
                         await Task.Delay(1000, token).ConfigureAwait(false);
@@ -317,11 +415,11 @@ namespace AddonMoney.Client.Services
                         Log.Error($"Got exception while checking active extension for {_profile}.", ex);
                         activeTimes++;
                         if (activeTimes == 2) throw;
-                        _driver.Driver.GoToUrl("https://addon.money/dashboard/");
+                        _driver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
                     }
                     finally
                     {
-                        await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
+                        await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
             }

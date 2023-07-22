@@ -87,7 +87,7 @@ namespace ChromeDriverLibrary
                 {
                     myDriver.Driver.Manage().Window.Maximize();
                 }
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
                 if (keepOneWindow)
                 {
                     while (myDriver.Driver.WindowHandles.Count > 1)
