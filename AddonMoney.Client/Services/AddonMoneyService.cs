@@ -150,7 +150,7 @@ namespace AddonMoney.Client.Services
                             keepOneWindow: false, userDataDir: _userDataDir, profile: _profile, proxy: ProfileInfo.Proxy)).ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
-                        _driver.Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(FrmMain.Timeout);
+                        _driver.Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(120);
                     }
                     catch (Exception ex)
                     {
@@ -223,7 +223,7 @@ namespace AddonMoney.Client.Services
                             _loginAccountSuccess = await LoginGoogle(timeout, token).ConfigureAwait(false);
                             if (!_loginAccountSuccess)
                             {
-                                await ApiService.SendError($"Login google account failed. {ex.Message}.").ConfigureAwait(false);
+                                await ApiService.SendError($"Login google account failed {_profile}. {ex.Message}.").ConfigureAwait(false);
                                 return;
                             }
                         }
