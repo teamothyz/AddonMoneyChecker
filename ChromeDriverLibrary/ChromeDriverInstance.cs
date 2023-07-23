@@ -110,6 +110,9 @@ namespace ChromeDriverLibrary
                             myDriver.Driver.ExecuteScript($"localStorage['proxy_login'] = '{proxyInfo[2]}';" +
                             $"localStorage['proxy_password'] = '{proxyInfo[3]}';" +
                             $"localStorage['proxy_retry'] = '5'");
+                            Task.Delay(500, token.Value).Wait(token.Value);
+                            myDriver.Driver.ExecuteScript($"localStorage['proxy_locked'] = false;");
+                            Task.Delay(500, token.Value).Wait(token.Value);
 
                             myDriver.Driver.Close();
                             Task.Delay(1000, token.Value).Wait(token.Value);
