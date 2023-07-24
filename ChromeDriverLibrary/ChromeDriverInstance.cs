@@ -88,15 +88,6 @@ namespace ChromeDriverLibrary
                     myDriver.Driver.Manage().Window.Maximize();
                 }
                 Thread.Sleep(1000);
-                if (keepOneWindow)
-                {
-                    while (myDriver.Driver.WindowHandles.Count > 1)
-                    {
-                        myDriver.Driver.Close();
-                        Thread.Sleep(1000);
-                        myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
-                    }
-                }
                 if (proxyInfo.Count == 4)
                 {
                     foreach (var window in myDriver.Driver.WindowHandles)
@@ -127,6 +118,16 @@ namespace ChromeDriverLibrary
                         if (!title.ToLower().Contains("addonmoney")) break;
                     }
                 }
+
+                if (keepOneWindow)
+                {
+                    while (myDriver.Driver.WindowHandles.Count > 1)
+                    {
+                        myDriver.Driver.Close();
+                        Thread.Sleep(1000);
+                        myDriver.Driver.SwitchTo().Window(myDriver.Driver.WindowHandles.First());
+                    }
+                }
             }
             catch
             {
@@ -154,6 +155,7 @@ namespace ChromeDriverLibrary
 
         public static async Task Close(MyChromeDriver myDriver)
         {
+            if (myDriver == null) return;
             try
             {
                 myDriver.Driver?.Close();
@@ -165,14 +167,14 @@ namespace ChromeDriverLibrary
             }
             catch { }
 
-            //if (myDriver.IsDeleteProfile && Directory.Exists(myDriver.ProfileDir))
-            //{
-            //    try
-            //    {
-            //        Directory.Delete(myDriver.ProfileDir, true);
-            //    }
-            //    catch { }
-            //}
+            if (myDriver.IsDeleteProfile && Directory.Exists(myDriver.ProfileDir))
+            {
+                try
+                {
+                    Directory.Delete(myDriver.ProfileDir, true);
+                }
+                catch { }
+            }
         }
 
         public static void KillAllChromes()

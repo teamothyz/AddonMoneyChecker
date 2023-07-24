@@ -16,7 +16,7 @@ namespace AddonMoney.Client
         public static bool OnlyRootLink { get; private set; } = false;
         public static bool ClearCookies { get; private set; } = false;
 
-        private CancellationTokenSource CancellationToken = null!;
+        private CancellationTokenSource CancellationToken = new();
         private List<AddonMoneyService> _services = new();
         private string _proxyPrefix = "http://";
 
