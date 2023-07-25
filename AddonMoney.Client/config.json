@@ -8,7 +8,7 @@
       {
         "Name": "File",
         "Args": {
-          "path": "../logs/client.log",
+          "path": "./logs/client.log",
           "rollingInterval": "Day",
           "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
         }
@@ -16,5 +16,7 @@
     ]
   },
 
-  "BaseUrl": "http://103.167.91.195:5050"
+  //"BaseUrl": "http://103.167.91.195:5050",
+  //"BaseUrl": "http://103.183.114.254:5050",
+  "BaseUrl": "http://103.190.80.18:5050"
 }

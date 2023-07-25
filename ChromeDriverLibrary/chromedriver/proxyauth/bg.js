@@ -27,8 +27,11 @@ chrome.notifications.onClicked.addListener(function(id){
 /* Core */
 chrome.webRequest.onAuthRequired.addListener(
 	function(details) {
-	
-		var locked = isLocked();
+
+		//disable lock (Customize)
+		//var locked = isLocked();
+		var locked = false;
+
 		var idstr = details.requestId.toString();
 	
 		if(details.isProxy === true && !locked){
@@ -40,26 +43,26 @@ chrome.webRequest.onAuthRequired.addListener(
 				calls[idstr] = 0;
 			}
 			calls[idstr] = calls[idstr] + 1;
-			
-			var retry = parseInt(localStorage["proxy_retry"]) || DEFAULT_RETRY_ATTEMPTS || 5;
-			
-			if(calls[idstr] >= retry){
-				lock();
-				chrome.notifications.create(NOTIFICATION_ID, {
-					'type': 'basic',
-					'iconUrl': 'icon_locked_128.png',
-					'title': 'Proxy Auto Auth error',
-					'message': 'A lot of Proxy Authentication requests have been detected. There is probably a mistake in your credentials. For your safety, the extension has been temporary locked. To unlock it, click the save button in the options.',
-					'isClickable': true,
-					'priority': 2
-				}, function(id){ 
-					//console.log('notification callback'); 
-				});
-				calls = {};
-				return({
-					cancel : true
-				});
-			}
+
+			//disable retry (Customize)
+			//var retry = parseInt(localStorage["proxy_retry"]) || DEFAULT_RETRY_ATTEMPTS || 5;
+			//if(calls[idstr] >= retry){
+			//	lock();
+			//	chrome.notifications.create(NOTIFICATION_ID, {
+			//		'type': 'basic',
+			//		'iconUrl': 'icon_locked_128.png',
+			//		'title': 'Proxy Auto Auth error',
+			//		'message': 'A lot of Proxy Authentication requests have been detected. There is probably a mistake in your credentials. For your safety, the extension has been temporary locked. To unlock it, click the save button in the options.',
+			//		'isClickable': true,
+			//		'priority': 2
+			//	}, function(id){ 
+			//		//console.log('notification callback'); 
+			//	});
+			//	calls = {};
+			//	return({
+			//		cancel : true
+			//	});
+			//}
 			
 			var login = localStorage["proxy_login"];
 			var password = localStorage["proxy_password"];
