@@ -3,7 +3,6 @@ using CaptchaResolver.Clients;
 using ChromeDriverLibrary;
 using Serilog;
 using System.Text.RegularExpressions;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace AddonMoney.Transfer.Services
 {

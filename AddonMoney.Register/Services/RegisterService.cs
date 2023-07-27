@@ -3,7 +3,6 @@ using AddonMoney.Register.Windows;
 using ChromeDriverLibrary;
 using SeleniumUndetectedChromeDriver;
 using Serilog;
-using System.Threading;
 
 namespace AddonMoney.Register.Services
 {
@@ -15,7 +14,7 @@ namespace AddonMoney.Register.Services
 
         public static async Task<bool?> StartRegister(CancellationToken token)
         {
-            Account account;
+            Account account = null!;
             MyChromeDriver myDriver = null!;
             try
             {
@@ -23,6 +22,7 @@ namespace AddonMoney.Register.Services
                 {
                     if (Account.Accounts.Count == 0) return null;
                     account = Account.Accounts.Dequeue();
+                    if (account == null) return null;
                 }
                 try
                 {
@@ -33,7 +33,7 @@ namespace AddonMoney.Register.Services
                     if (myDriver.Driver == null) throw new Exception("null driver");
 
                     var referalLink = GetReferalLink();
-                    if (string.IsNullOrEmpty(referalLink))
+                    if (!string.IsNullOrEmpty(referalLink))
                     {
                         myDriver.Driver.GoToUrl(referalLink);
                         var success = false;
@@ -67,6 +67,14 @@ namespace AddonMoney.Register.Services
                 var googleLinkSuccess = await LinkGoogle(myDriver.Driver, account, token).ConfigureAwait(false);
                 if (!googleLinkSuccess)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        lock (Account.Accounts)
+                        {
+                            Account.Accounts.Enqueue(account);
+                        }
+                        return null;
+                    }
                     DataService.WriteError(account, StartTime);
                     return false;
                 }
@@ -87,23 +95,54 @@ namespace AddonMoney.Register.Services
                 }
                 if (string.IsNullOrEmpty(account.Cookie))
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        lock (Account.Accounts)
+                        {
+                            Account.Accounts.Enqueue(account);
+                        }
+                        return null;
+                    }
                     account.Error = "Get cookie failed";
                     DataService.WriteError(account, StartTime);
                     return false;
                 }
+
+                DataService.WriteSuccess(account, StartTime);
                 if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst) || string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
                 {
-                    var refLink = myDriver.Driver.FindElement("#reflink", Timeout, token).GetAttribute("value");
-                    if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
-                    else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
+                    try
+                    {
+
+                        var refLink = myDriver.Driver.FindElement("#reflink", Timeout, token).GetAttribute("value");
+                        if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
+                        else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"{_logPrefix} Got exception while getting refer link. Error: {ex}");
+                    }
                 }
-                DataService.WriteSuccess(account, StartTime);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Error($"{_logPrefix} Got exception while creating web driver.", ex);
-                return false;
+                if (token.IsCancellationRequested && account != null)
+                {
+                    lock (Account.Accounts)
+                    {
+                        Account.Accounts.Enqueue(account);
+                    }
+                    return null;
+                }
+                Log.Error($"{_logPrefix} Got exception while creating account. Error: {ex}");
+                if (account != null)
+                {
+                    account.Error = ex.Message;
+                    DataService.WriteError(account, StartTime);
+                    return false;
+                }
+                return null;
             }
             finally
             {
@@ -129,8 +168,17 @@ namespace AddonMoney.Register.Services
                 {
                     try
                     {
-                        _ = driver.FindElement(".account-name", 3, token);
-                        success = true;
+                        try
+                        {
+                            _ = driver.FindElement(".account-name", 3, token);
+                            success = true;
+                        }
+                        catch
+                        {
+                            //first time login will get this notification
+                            driver.ClickByJS("#confirm", 3, token);
+                            success = true;
+                        }
                     }
                     catch
                     {
@@ -151,8 +199,17 @@ namespace AddonMoney.Register.Services
                 {
                     try
                     {
-                        _ = driver.FindElement(".account-name", 3, token);
-                        return true;
+                        try
+                        {
+                            _ = driver.FindElement(".account-name", 3, token);
+                            return true;
+                        }
+                        catch
+                        {
+                            //first time login will get this notification
+                            driver.ClickByJS("#confirm", 3, token);
+                            return true;
+                        }
                     }
                     catch
                     {
@@ -165,7 +222,7 @@ namespace AddonMoney.Register.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception while link account for {account.Email}.", ex);
+                Log.Error($"Got exception while link account for {account.Email}. Error: {ex}");
                 account.Error = ex.Message;
                 return false;
             }

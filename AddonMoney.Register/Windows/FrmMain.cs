@@ -1,5 +1,6 @@
 ﻿using AddonMoney.Register.Models;
 using AddonMoney.Register.Services;
+using ChromeDriverLibrary;
 using Serilog;
 
 namespace AddonMoney.Register.Windows
@@ -17,6 +18,7 @@ namespace AddonMoney.Register.Windows
         public FrmMain()
         {
             InitializeComponent();
+            ProxyComboBox.SelectedIndex = 0;
             TotalCountTextBox.DataBindings.Add("Text", _dataCount, "Total");
             SuccessCountTextBox.DataBindings.Add("Text", _dataCount, "Success");
             FailedCountTextBox.DataBindings.Add("Text", _dataCount, "Failed");
@@ -46,11 +48,25 @@ namespace AddonMoney.Register.Windows
                     var success = DataService.ReadAccounts(dialog.FileName);
                     if (success)
                     {
-                        Invoke(() => MessageBox.Show(this, "Đọc dữ liệu thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information));
+                        Invoke(() =>
+                        {
+                            _dataCount.Total = Account.Accounts.Count;
+                            _dataCount.Success = 0;
+                            _dataCount.Failed = 0;
+                            _dataCount.Processed = 0;
+                            MessageBox.Show(this, "Đọc dữ liệu thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        });
                     }
                     else
                     {
-                        Invoke(() => MessageBox.Show(this, "Đọc dữ liệu thất bại. Kiểm tra lại format", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning));
+                        Invoke(() =>
+                        {
+                            _dataCount.Total = Account.Accounts.Count;
+                            _dataCount.Success = 0;
+                            _dataCount.Failed = 0;
+                            _dataCount.Processed = 0;
+                            MessageBox.Show(this, "Đọc dữ liệu thất bại. Kiểm tra lại format", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        });
                     }
                 });
             }
@@ -63,6 +79,7 @@ namespace AddonMoney.Register.Windows
             try
             {
                 _cancelSource = new();
+                RegisterService.StartTime = DateTime.Now;
                 var tasks = new List<Task>();
                 while (true)
                 {
@@ -118,17 +135,19 @@ namespace AddonMoney.Register.Windows
                 TimeoutUpDown.Enabled = enable;
                 ReferalTextBox.Enabled = enable;
                 OnlyRootLinkCheckBox.Enabled = enable;
+                ProxyComboBox.Enabled = enable;
 
                 StopBtn.Enabled = !enable;
 
                 StatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
-                StatusTextBox.StateCommon.Back.Color1 = enable ? Color.Red : Color.Green;
+                StatusTextBox.StateActive.Back.Color1 = enable ? Color.Red : Color.Green;
             });
         }
 
         private void StopBtn_Click(object sender, EventArgs e)
         {
             ActiveControl = kryptonLabel1;
+            ChromeDriverInstance.KillAllChromes();
             _cancelSource.Cancel();
         }
 
@@ -140,6 +159,12 @@ namespace AddonMoney.Register.Windows
         private void ReferalTextBox_TextChanged(object sender, EventArgs e)
         {
             ReferLinkRoot = ReferalTextBox.Text;
+        }
+
+        private void ProxyComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ProxyComboBox.SelectedIndex == 1) MyProxy.Type = ProxyType.Socks5;
+            else MyProxy.Type = ProxyType.Http;
         }
     }
 }

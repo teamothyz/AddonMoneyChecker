@@ -32,12 +32,12 @@
         {
             var type = Type switch
             {
-                ProxyType.Http => "http",
-                ProxyType.Socks5 => "socks5",
-                _ => "http"
+                ProxyType.Http => "http://",
+                ProxyType.Socks5 => "socks5://",
+                _ => "http://"
             };
             if (Type == ProxyType.None) return null!;
-            return $"{type}:{Host}:{Port}:{Username}:{Password}";
+            return $"{type}{Host}:{Port}:{Username}:{Password}";
         }
     }
 

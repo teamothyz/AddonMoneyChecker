@@ -33,7 +33,7 @@
                 _ => "http://"
             };
             if (Type == ProxyType.None) return null!;
-            return $"{type}:{Host}:{Port}:{Username}:{Password}";
+            return $"{type}{Host}:{Port}:{Username}:{Password}";
         }
 
         public string ToStringWithoutPrefix()

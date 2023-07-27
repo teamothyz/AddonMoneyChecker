@@ -113,6 +113,7 @@ namespace ChromeDriverLibrary
                     foreach (var window in myDriver.Driver.WindowHandles)
                     {
                         myDriver.Driver.SwitchTo().Window(window);
+                        if (myDriver.Driver.WindowHandles.Count == 1) break;
                         Task.Delay(1000, token.Value).Wait(token.Value);
                         var title = (string)myDriver.Driver.ExecuteScript("return document.title");
                         if (!title.ToLower().Contains("addonmoney")) break;
