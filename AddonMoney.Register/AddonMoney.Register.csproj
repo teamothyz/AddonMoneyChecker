@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Krypton.Toolkit" Version="70.22.11.312" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="Serilog" Version="3.0.1" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -17,6 +18,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChromeDriverLibrary\ChromeDriverLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="register.setting.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

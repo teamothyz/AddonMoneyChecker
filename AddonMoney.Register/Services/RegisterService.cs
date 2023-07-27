@@ -3,6 +3,7 @@ using AddonMoney.Register.Windows;
 using ChromeDriverLibrary;
 using SeleniumUndetectedChromeDriver;
 using Serilog;
+using System.Threading;
 
 namespace AddonMoney.Register.Services
 {
@@ -12,7 +13,7 @@ namespace AddonMoney.Register.Services
         public static int Timeout { get; set; } = 30;
         public static DateTime StartTime { get; set; }
 
-        public static async Task StartRegister(CancellationToken token)
+        public static async Task<bool?> StartRegister(CancellationToken token)
         {
             Account account;
             MyChromeDriver myDriver = null!;
@@ -20,7 +21,7 @@ namespace AddonMoney.Register.Services
             {
                 lock (Account.Accounts)
                 {
-                    if (Account.Accounts.Count == 0) return;
+                    if (Account.Accounts.Count == 0) return null;
                     account = Account.Accounts.Dequeue();
                 }
                 try
@@ -58,14 +59,14 @@ namespace AddonMoney.Register.Services
                     {
                         Account.Accounts.Enqueue(account);
                     }
-                    throw;
+                    return null;
                 }
 
                 var googleLinkSuccess = await LinkGoogle(myDriver.Driver, account, token).ConfigureAwait(false);
                 if (!googleLinkSuccess)
                 {
                     DataService.WriteError(account, StartTime);
-                    return;
+                    return false;
                 }
 
                 myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
@@ -77,7 +78,7 @@ namespace AddonMoney.Register.Services
                         account.Cookie = (string)myDriver.Driver.ExecuteScript("return document.cookie;");
                         break;
                     }
-                    catch 
+                    catch
                     {
                         await Task.Delay(1000, token).ConfigureAwait(false);
                     }
@@ -86,17 +87,25 @@ namespace AddonMoney.Register.Services
                 {
                     account.Error = "Get cookie failed";
                     DataService.WriteError(account, StartTime);
-                    return;
+                    return false;
+                }
+                if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst) || string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                {
+                    var refLink = myDriver.Driver.FindElement("#reflink", Timeout, token).GetAttribute("value");
+                    if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
+                    else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
                 }
                 DataService.WriteSuccess(account, StartTime);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while creating web driver.", ex);
+                return false;
             }
             finally
             {
-               await ChromeDriverInstance.Close(myDriver);
+                await ChromeDriverInstance.Close(myDriver);
             }
         }
 

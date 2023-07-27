@@ -1,3 +1,7 @@
+using AddonMoney.Register.Windows;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+
 namespace AddonMoney.Register
 {
     internal static class Program
@@ -5,8 +9,14 @@ namespace AddonMoney.Register
         [STAThread]
         static void Main()
         {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(new ConfigurationBuilder()
+                .AddJsonFile("register.setting.json").Build())
+
+                .Enrich.FromLogContext()
+                .CreateLogger();
             ApplicationConfiguration.Initialize();
-            //Application.Run(new Form1());
+            Application.Run(new FrmMain());
         }
     }
 }
