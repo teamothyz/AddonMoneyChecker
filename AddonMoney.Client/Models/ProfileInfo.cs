@@ -1,8 +1,10 @@
-﻿namespace AddonMoney.Client.Models
+﻿using Newtonsoft.Json.Linq;
+
+namespace AddonMoney.Client.Models
 {
     public class ProfileInfo
     {
-        public string ProfilePath { get; set; } = null!;
+        public static readonly List<ProfileInfo> Profiles = new();
 
         public string Email { get; set; } = null!;
 
@@ -12,21 +14,19 @@
 
         public string Proxy { get; set; } = null!;
 
-        public ProfileInfo(string line, string proxyPrefix)
+        public string Cookies { get; set; } = null!;
+
+        public string Raw { get; set; } = null!;
+
+        public ProfileInfo(string line)
         {
-            try
-            {
-                var details = line.Split("|");
-                ProfilePath = details[0].Trim();
-                Email = details[1].Trim();
-                Password = details[2].Trim();
-                RecoveryMail = details[3].Trim();
-                Proxy = proxyPrefix + details[4].Trim();
-            }
-            catch
-            {
-                throw new Exception("Data sai format");
-            }
+            Raw = line;
+            var details = line.Split("|");
+            Email = details[0].Trim();
+            Password = details[1].Trim();
+            RecoveryMail = details[2].Trim();
+            Proxy = details[3].Trim();
+            Cookies = details[4];
         }
     }
 }

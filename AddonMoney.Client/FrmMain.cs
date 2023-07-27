@@ -1,8 +1,8 @@
-﻿using AddonMoney.Client.Services;
+﻿using AddonMoney.Client.Models;
+using AddonMoney.Client.Services;
 using AddonMoney.Data.API;
 using ChromeDriverLibrary;
 using Serilog;
-using System.Text.RegularExpressions;
 
 namespace AddonMoney.Client
 {
@@ -10,24 +10,18 @@ namespace AddonMoney.Client
     {
         public static int Timeout { get; private set; } = 30;
         public static int TimeSleep { get; private set; } = 30;
-        public static string ReferLinkRoot { get; private set; } = string.Empty;
-        public static string ReferLinkFirst { get; set; } = string.Empty;
-        public static string ReferLinkSecond { get; set; } = string.Empty;
-        public static bool OnlyRootLink { get; private set; } = false;
-        public static bool ClearCookies { get; private set; } = false;
 
         private CancellationTokenSource CancellationToken = new();
-        private List<AddonMoneyService> _services = new();
-        private string _proxyPrefix = "http://";
+        private readonly List<AddonMoneyService> _services = new();
+        public static string ProxyPrefix { get; private set; } = "http://";
 
         public FrmMain()
         {
             InitializeComponent();
             VPSNameTextBox.Text = HostService.GetHostName();
-            ProfilesTextBox.Lines = HostService.ReadUserDataDirs();
+            HostService.ReadProfileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile.data"));
+            ProfileCountTextBox.Text = ProfileInfo.Profiles.Count.ToString();
             ProxyTypeComboBox.SelectedIndex = 0;
-            ReferLinkRoot = HostService.GetRefLink();
-            ReferLinkTxtBox.Text = HostService.GetRefLink();
             ActiveControl = kryptonLabel5;
         }
 
@@ -38,53 +32,29 @@ namespace AddonMoney.Client
             {
                 var lines = new HashSet<string>();
                 _services.Clear();
-                foreach (var line in ProfilesTextBox.Lines)
+                var index = 1;
+                foreach (var profile in  ProfileInfo.Profiles)
                 {
-                    if (string.IsNullOrWhiteSpace(line)) continue;
-                    lines.Add(line);
-                    _services.Add(new AddonMoneyService(line, _proxyPrefix));
+                    _services.Add(new AddonMoneyService(profile, index));
+                    index++;
                 }
-                _services = _services.DistinctBy(s => s.ProfileInfo.ProfilePath).ToList();
-                ProfilesTextBox.Lines = lines.ToArray();
-                HostService.WriteUserDataDirs(lines.ToArray());
-
                 CancellationToken = new();
                 EnableBtn(false);
-                var matchRef = Regex.Match(ReferLinkRoot, "(https://addon.money/p/\\d{1,})");
-                if (!matchRef.Success || matchRef.Value != ReferLinkRoot) 
-                {
-                    Invoke(() =>
-                    {
-                        MessageBox.Show(this, "Vui lòng kiểm tra lại referal link", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    });
-                    return;
-                }
-                HostService.SaveRefLink(ReferLinkRoot);
+
                 if (!_services.Any()) return;
                 _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
 
                 #region Check And Enable Extension Each 15 Minutes
                 var nextScan = DateTime.UtcNow;
                 var nextEnable = DateTime.UtcNow;
-                var nextReset = DateTime.UtcNow;
-
+                var oldStart = -1;
                 while (!CancellationToken.IsCancellationRequested)
                 {
-                    ReferLinkFirst = string.Empty;
-                    ReferLinkSecond = string.Empty;
-
                     var needToScan = nextScan <= DateTime.UtcNow;
                     var needEnable = nextEnable <= DateTime.UtcNow;
-                    var needReset = nextReset <= DateTime.UtcNow;
-                    if (needToScan || needEnable || needReset)
+                    if (needToScan || needEnable)
                     {
                         nextEnable = DateTime.UtcNow.AddMinutes(15);
-                        if (needReset)
-                        {
-                            nextReset = DateTime.UtcNow.AddHours((int)TimeResetUpDown.Value);
-                            _services.ForEach(async sv => await sv.Close().ConfigureAwait(false));
-                            ChromeDriverInstance.KillAllChromes();
-                        }
                         if (needToScan)
                         {
                             nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
@@ -94,14 +64,20 @@ namespace AddonMoney.Client
                         var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
                         var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
 
-                        for (int i = 0; i < _services.Count; i++)
+                        if (oldStart != start)
                         {
-                            if (!(start <= i && i < end))
+                            oldStart = start;
+                            ChromeDriverInstance.KillAllChromes();
+                            for (int i = 0; i < _services.Count; i++)
                             {
-                                await _services[i].Close();
-                                await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                if (!(start <= i && i < end))
+                                {
+                                    await _services[i].Close();
+                                    await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                }
                             }
                         }
+                        
                         for (int i = 0; i < _services.Count; i++)
                         {
                             if (start <= i && i < end)
@@ -156,7 +132,7 @@ namespace AddonMoney.Client
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception when running scan service for {service.Profile}.", ex);
+                Log.Error($"Got exception when running scan service for {service.ProfileName}.", ex);
             }
         }
 
@@ -175,12 +151,8 @@ namespace AddonMoney.Client
                 ProxyTypeComboBox.Enabled = enable;
                 StopBtn.Enabled = !enable;
 
-                ProfilesTextBox.ReadOnly = !enable;
-                ReferLinkTxtBox.ReadOnly = !enable;
                 TimeScanUpDown.Enabled = enable;
-                TimeResetUpDown.Enabled = enable;
-                OnlyRootLinkCheckBox.Enabled = enable;
-                ClearCookiesCheckBox.Enabled = enable;
+                DataInputBtn.Enabled = enable;
 
                 RunStatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
                 RunStatusTextBox.StateCommon.Back.Color1 = enable ? Color.FromArgb(255, 128, 128) : Color.GreenYellow;
@@ -190,11 +162,6 @@ namespace AddonMoney.Client
         private void TimeoutUpDown_ValueChanged(object sender, EventArgs e)
         {
             Timeout = (int)TimeoutUpDown.Value;
-        }
-
-        private void ProfilesTextBox_TextChanged(object sender, EventArgs e)
-        {
-            ProfileCountTextBox.Text = ProfilesTextBox.Lines.Count(line => !string.IsNullOrWhiteSpace(line)).ToString();
         }
 
         public static DateTime GetGMT7Now()
@@ -223,27 +190,42 @@ namespace AddonMoney.Client
         {
             if (ProxyTypeComboBox.SelectedIndex == 1)
             {
-                _proxyPrefix = "socks5://";
+                ProxyPrefix = "socks5://";
             }
             else
             {
-                _proxyPrefix = "http://";
+                ProxyPrefix = "http://";
             }
         }
 
-        private void ReferLinkTxtBox_TextChanged(object sender, EventArgs e)
+        private async void DataInputBtn_Click(object sender, EventArgs e)
         {
-            ReferLinkRoot = ReferLinkTxtBox.Text.Trim();
-        }
-
-        private void OnlyRootLinkCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            OnlyRootLink = OnlyRootLinkCheckBox.Checked;
-        }
-
-        private void ClearCookiesCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            ClearCookies = ClearCookiesCheckBox.Checked;
+            ActiveControl = kryptonLabel1;
+            var dialog = new OpenFileDialog();
+            var result = dialog.ShowDialog(this);
+            if (result == DialogResult.OK)
+            {
+                await Task.Run(() =>
+                {
+                    var success = HostService.ReadProfileInfo(dialog.FileName);
+                    if (success)
+                    {
+                        Invoke(() =>
+                        {
+                            ProfileCountTextBox.Text = ProfileInfo.Profiles.Count.ToString();
+                            MessageBox.Show(this, "Đọc dữ liệu thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        });
+                    }
+                    else
+                    {
+                        Invoke(() =>
+                        {
+                            ProfileCountTextBox.Text = ProfileInfo.Profiles.Count.ToString();
+                            MessageBox.Show(this, "Đọc dữ liệu thất bại. Kiểm tra lại format", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        });
+                    }
+                });
+            }
         }
     }
 }

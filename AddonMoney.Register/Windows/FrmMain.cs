@@ -66,7 +66,7 @@ namespace AddonMoney.Register.Windows
                 var tasks = new List<Task>();
                 while (true)
                 {
-                    if (_cancelSource.IsCancellationRequested) return;
+                    if (_cancelSource.IsCancellationRequested || _dataCount.Processed == _dataCount.Total) break;
                     if (tasks.Count(t => !t.IsCompleted) == Convert.ToInt32(ThreadNumberUpDown.Value))
                     {
                         await Task.WhenAny(tasks);
@@ -94,6 +94,7 @@ namespace AddonMoney.Register.Windows
                     }));
                     await Task.Delay(500, CancellationToken.None);
                 }
+                await Task.WhenAll(tasks);
             }
             catch (Exception ex)
             {
@@ -119,6 +120,9 @@ namespace AddonMoney.Register.Windows
                 OnlyRootLinkCheckBox.Enabled = enable;
 
                 StopBtn.Enabled = !enable;
+
+                StatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
+                StatusTextBox.StateCommon.Back.Color1 = enable ? Color.Red : Color.Green;
             });
         }
 

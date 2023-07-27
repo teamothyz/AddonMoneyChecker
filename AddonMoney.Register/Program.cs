@@ -16,7 +16,10 @@ namespace AddonMoney.Register
                 .Enrich.FromLogContext()
                 .CreateLogger();
             ApplicationConfiguration.Initialize();
-            Application.Run(new FrmMain());
+            Application.Run(new FrmMain
+            {
+                TopMost = true
+            });
         }
     }
 }

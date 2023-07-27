@@ -15,7 +15,7 @@ namespace AddonMoney.Client.Services
                     try
                     {
                         var prefix = string.Empty;
-                        var proxyRaw = profile.Proxy;
+                        var proxyRaw = FrmMain.ProxyPrefix + profile.Proxy;
                         if (proxyRaw.Contains("http://") || proxyRaw.Contains("https://"))
                         {
                             proxyRaw = proxyRaw.Replace("http://", "");

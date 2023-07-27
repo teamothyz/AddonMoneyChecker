@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Net;
+using AddonMoney.Client.Models;
 
 namespace AddonMoney.Client.Services
 {
@@ -45,41 +46,6 @@ namespace AddonMoney.Client.Services
             }
         }
 
-        public static string[] ReadUserDataDirs()
-        {
-            try
-            {
-                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "userdatadir.data"));
-                var lines = new List<string>();
-                var line = reader.ReadLine();
-                while (line != null)
-                {
-                    lines.Add(line);
-                    line = reader.ReadLine();
-                }
-                return lines.ToArray();
-            }
-            catch
-            {
-                return Array.Empty<string>();
-            }
-        }
-
-        public static void WriteUserDataDirs(string[] data)
-        {
-            try
-            {
-                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "userdatadir.data"), false);
-                foreach (var line in data)
-                {
-                    writer.WriteLine(line);
-                }
-                writer.Flush();
-                writer.Close();
-            }
-            catch { }
-        }
-
         private static string ReadHostName()
         {
             try
@@ -105,25 +71,43 @@ namespace AddonMoney.Client.Services
             catch { }
         }
 
-        public static string GetRefLink()
+        public static bool ReadProfileInfo(string path)
         {
             try
             {
-                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ref.data"));
-                return reader.ReadToEnd().Trim();
+                ProfileInfo.Profiles.Clear();
+                using var reader = new StreamReader(path);
+                var line = reader.ReadLine();
+
+                var profileInfos = new List<ProfileInfo>();
+                while (line != null)
+                {
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        line = reader.ReadLine();
+                        continue;
+                    }
+                    profileInfos.Add(new ProfileInfo(line));
+                }
+                reader.Close();
+                ProfileInfo.Profiles.AddRange(profileInfos);
+                return true;
             }
             catch 
             {
-                return string.Empty;
+                return false;
             }
         }
 
-        public static void SaveRefLink(string refLink)
+        public static void SaveProfileInfo()
         {
             try
             {
-                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ref.data"), false);
-                writer.WriteLine(refLink);
+                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile.data"), false);
+                foreach (var profileInfo in ProfileInfo.Profiles)
+                {
+                    writer.WriteLine(profileInfo.Raw);
+                }    
                 writer.Flush();
                 writer.Close();
             }

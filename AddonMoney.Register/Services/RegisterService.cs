@@ -33,24 +33,26 @@ namespace AddonMoney.Register.Services
                     if (myDriver.Driver == null) throw new Exception("null driver");
 
                     var referalLink = GetReferalLink();
-                    myDriver.Driver.GoToUrl(referalLink);
-
-                    var success = false;
-                    var endTime = DateTime.Now.AddSeconds(Timeout);
-                    while (DateTime.Now < endTime)
+                    if (string.IsNullOrEmpty(referalLink))
                     {
-                        try
+                        myDriver.Driver.GoToUrl(referalLink);
+                        var success = false;
+                        var endTime = DateTime.Now.AddSeconds(Timeout);
+                        while (DateTime.Now < endTime)
                         {
-                            success = (bool)myDriver.Driver.ExecuteScript("return document.cookie.includes('partner=');");
-                            if (success) break;
+                            try
+                            {
+                                success = (bool)myDriver.Driver.ExecuteScript("return document.cookie.includes('partner=');");
+                                if (success) break;
+                            }
+                            catch { }
+                            finally
+                            {
+                                await Task.Delay(1000, token).ConfigureAwait(false);
+                            }
                         }
-                        catch { }
-                        finally
-                        {
-                            await Task.Delay(1000, token).ConfigureAwait(false);
-                        }
+                        if (!success) throw new Exception("can not go to referal link");
                     }
-                    if (!success) throw new Exception("can not go to referal link");
                     myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
                 }
                 catch
