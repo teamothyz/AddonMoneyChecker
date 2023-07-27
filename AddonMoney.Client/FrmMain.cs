@@ -40,7 +40,7 @@ namespace AddonMoney.Client
                 }
                 CancellationToken = new();
                 EnableBtn(false);
-
+                await Task.Run(() => HostService.SaveProfileInfo());
                 if (!_services.Any()) return;
                 _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
 

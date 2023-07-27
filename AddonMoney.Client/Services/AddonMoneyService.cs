@@ -13,7 +13,7 @@ namespace AddonMoney.Client.Services
         private string _extensionId = null!;
         public readonly string ProfileName = null!;
 
-        private bool _loginAccountSuccess = false;
+        private bool _loginAccountSuccess = true;
         private bool _firstTimeActive = true;
         private bool _firstTimeCookie = true;
         private readonly string _proxy = null!;
@@ -64,17 +64,18 @@ namespace AddonMoney.Client.Services
                     CreateDriverTask(token).Wait(token);
                     if (_driver?.Driver == null) return account;
                     Task.Delay(500, token).Wait(token);
-                    
+
                     var endTime = DateTime.Now.AddSeconds(FrmMain.Timeout);
                     while (_firstTimeCookie)
                     {
                         try
                         {
+                            _driver.Driver.GoToUrl("https://addon.money");
                             _ = _driver.Driver.ExecuteScript($"var cookieString = '{ProfileInfo.Cookies}';" +
-                            "var cookies = cookieString.split(';');" +
-                            "cookies.forEach(function(cookie) { var parts = cookie.split('='); " +
-                            "var key = parts[0].trim(); var value = parts[1].trim(); " +
-                            "document.cookie = key + '=' + value + ';path=/';});");
+                                "var cookies = cookieString.split(';');" +
+                                "cookies.forEach(function(cookie) { var parts = cookie.split('='); " +
+                                "var key = parts[0].trim(); var value = parts[1].trim(); " +
+                                "document.cookie = key + '=' + value + ';path=/';});");
                             _firstTimeCookie = false;
                         }
                         catch
@@ -109,6 +110,7 @@ namespace AddonMoney.Client.Services
         {
             try
             {
+                var extensionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "extensions", "AddonMoney");
                 int createInstanceTimes = 0;
                 while (_driver?.Driver == null)
                 {
@@ -116,8 +118,8 @@ namespace AddonMoney.Client.Services
                     try
                     {
                         _driver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
-                            privateMode: false, isHeadless: false, disableImg: true, token: token, 
-                            isDeleteProfile: true, keepOneWindow: false, proxy: _proxy))
+                            privateMode: false, isHeadless: false, disableImg: true, token: token,
+                            isDeleteProfile: true, keepOneWindow: true, proxy: _proxy, extensionPaths: new List<string> { extensionPath }))
                             .ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
@@ -212,7 +214,7 @@ namespace AddonMoney.Client.Services
                 {
                     _extensionId = _driver.Driver.GetExtensionId("AddonMoney", "AddonMoney", timeout, token);
                     if (string.IsNullOrWhiteSpace(_extensionId)) throw new Exception("Can not find add-on Id");
-                    await Task.Delay(1000, token).ConfigureAwait(false);
+                    await Task.Delay(500, token).ConfigureAwait(false);
                 }
 
                 while (true)
@@ -225,17 +227,19 @@ namespace AddonMoney.Client.Services
                         var statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         if (_firstTimeActive)
                         {
-                            await Task.Delay(1000, token).ConfigureAwait(false);
-                            _driver.Driver.Click("#status-addon", timeout, token);
+                            _driver.Driver.ClickByJS("#status-addon", timeout, token);
+                            await Task.Delay(15000, token).ConfigureAwait(false);
+
+                            _driver.Driver.ClickByJS("#status-addon", timeout, token);
+                            await Task.Delay(15000, token).ConfigureAwait(false);
                             _firstTimeActive = false;
                         }
 
-                        await Task.Delay(1000, token).ConfigureAwait(false);
                         statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
                         if (!statusElm.GetAttribute("class").Contains("active"))
                         {
                             await Task.Delay(1000, token).ConfigureAwait(false);
-                            _driver.Driver.Click("#status-addon", timeout, token);
+                            _driver.Driver.ClickByJS("#status-addon", timeout, token);
                             statusElm = _driver.Driver.FindElement("#status-addon", timeout, token);
 
                             await Task.Delay(1000, token).ConfigureAwait(false);

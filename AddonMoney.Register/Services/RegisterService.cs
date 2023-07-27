@@ -28,7 +28,7 @@ namespace AddonMoney.Register.Services
                 {
                     myDriver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
                         privateMode: false, isHeadless: false, disableImg: true,
-                        token: token, isDeleteProfile: true, keepOneWindow: false,
+                        token: token, isDeleteProfile: true, keepOneWindow: true,
                         proxy: account.Proxy.ToString())).ConfigureAwait(false);
                     if (myDriver.Driver == null) throw new Exception("null driver");
 

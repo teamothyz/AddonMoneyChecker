@@ -88,12 +88,13 @@ namespace AddonMoney.Client.Services
                         continue;
                     }
                     profileInfos.Add(new ProfileInfo(line));
+                    line = reader.ReadLine();
                 }
                 reader.Close();
                 ProfileInfo.Profiles.AddRange(profileInfos);
                 return true;
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -107,7 +108,7 @@ namespace AddonMoney.Client.Services
                 foreach (var profileInfo in ProfileInfo.Profiles)
                 {
                     writer.WriteLine(profileInfo.Raw);
-                }    
+                }
                 writer.Flush();
                 writer.Close();
             }

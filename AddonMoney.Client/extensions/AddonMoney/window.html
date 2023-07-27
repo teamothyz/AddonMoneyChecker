@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AddonMoney</title>
+<link type="text/css" rel="stylesheet" href="../data/css/include.css" />
+</head>
+<body>
+
+<div class="loader_wrapper active" id="loader_wrapper">
+	<div class="loader"></div>
+</div>
+
+<div class="not-auth" id="not-auth">
+	<div class="ait-wrapper">
+		<img src="../data/images/not-auth.svg">
+	<p>Вы не авторизованы в <b>AddonMoney</b></p>
+	<a href="https://addon.money/#auth" target="_blank" class="btn green">Авторизоваться</a>
+	</div>
+</div>
+
+<div id="ban-account" class="ban-account">
+	<div class="ait-wrapper">
+		<img src="../data/images/ban-account.svg">
+		<h3>Аккаунт заблокирован</h3>
+		<p>Ваш аккаунт был заблокирован за нарушение <a target="_blank" href="https://addon.money/terms">правил системы</a>.</p>
+	<a href="https://addon.money/help/" target="_blank" class="btn dark">
+		Написать нам
+	</a>
+	</div>
+</div>
+
+<div id="network-error" class="ban-account">
+	<div class="ait-wrapper">
+		<img src="../data/images/ban-account.svg">
+		<h3>Ошибка соединения</h3>
+		<p>Попробуйте через несколько минут</p>
+	</div>
+</div>
+
+
+	<div class="popup-wrap" id="popup-wrap">
+
+		<section class="status-addon" id="status-addon" data-disabled="0">
+			<div class="status-addon-text">
+				<div class="title">Статус плагина:</div>
+				<div class="status" id="addonstatus">Остановлен</div>
+			</div>
+
+			<div class="status-addon-switcher"></div>
+		</section>
+
+
+
+		<section class="balance">
+
+			<div class="balance-wrap">
+				<div class="section-title">Баланс</div>
+				<div class="balance-score">
+					<div class="icon icon-lg icon-balance"></div>
+					<div id="balance">0</div>
+				</div>
+			</div>
+
+			<div class="payout-button-area">
+				<a href="https://addon.money/dashboard/" target="_blank">Вывести</a>
+			</div>
+		</section>
+
+
+		<section class="referals">
+			<div class="section-title">Рефералы</div>
+			<div class="ref-wrapper">
+				<div class="item">
+					<div class="refs-total" id="referals-total">0</div>
+					<div class="ref-sub-name">Всего</div>
+				</div>
+				<div class="item">
+					<div class="refs-score" id="referals-score">0</div>
+					<div class="ref-sub-name">Заработано</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="ref-programm">
+			<div class="ref-programm-text">Привлекайте новых пользователей и получайте пожизненно <span id="ref-per-score"></span>% от их дохода.</div>
+			<div class="ref-programm-input-wrap">
+				<input type="text" class="ref-programm-input" id="partner" value="">
+			</div>
+		</section>
+
+		<section class="alert-area">
+			<div class="alert-text" id="alert-text">
+				Для корректной работы расширения выключите блокировщики рекламы (adblock, adguard и т.п.).
+			</div>
+		</section>
+
+		<section class="profile-area">
+			<div class="profile-area-left">
+				<a href="https://addon.money/dashboard/" target="_blank" class="user-avatar" id="user-avatar"></a>
+				<div class="profile-name-wrap">
+					<a href="https://addon.money/dashboard/" target="_blank" class="profile-name" id="profile-name"></a>
+					<div class="profile-id" id="profile-id"></div>
+				</div>
+			</div>
+			<a href="https://addon.money/auth/out.php" target="_blank" class="btn-out gray">Выход</a>
+		</section>
+
+
+
+	</div>
+	<script src="data/js/include/window.js"></script>
+</body>
+</html>
