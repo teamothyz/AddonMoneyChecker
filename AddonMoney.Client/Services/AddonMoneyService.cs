@@ -188,6 +188,7 @@ namespace AddonMoney.Client.Services
                         {
                             _loginAccountSuccess = false;
                             await ApiService.SendError($"Login account by cookies failed {ProfileName}.").ConfigureAwait(false);
+                            _firstTimeCookie = true;
                             return;
                         }
                     }
@@ -282,6 +283,7 @@ namespace AddonMoney.Client.Services
             finally
             {
                 _driver = null!;
+                _firstTimeCookie = true;
             }
         }
     }

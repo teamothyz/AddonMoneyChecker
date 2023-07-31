@@ -171,7 +171,7 @@ namespace ChromeDriverLibrary
             }
         }
 
-        public static void KillAllChromes()
+        public static void KillAllChromes(bool deleteTempFolder = true)
         {
             try
             {
@@ -184,6 +184,18 @@ namespace ChromeDriverLibrary
                 process.WaitForExit(10000);
             }
             catch { }
+
+            if (deleteTempFolder)
+            {
+                var basePath = AppDomain.CurrentDomain.BaseDirectory;
+                var folder = Path.Combine(basePath, "profiles");
+                try
+                {
+                    if (!Directory.Exists(folder)) return;
+                    Directory.Delete(folder, true);
+                }
+                catch { }
+            }
         }
     }
 }
