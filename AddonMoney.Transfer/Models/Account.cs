@@ -4,7 +4,7 @@
     {
         public static readonly List<Account> Accounts = new();
 
-        public int AccountId { get; set; }
+        public string Cookies { get; set; }
 
         public string PayeerId { get; set; } = null!;
 
@@ -18,9 +18,9 @@
 
         public MyProxy? Proxy { get; set; } = null!;
 
-        public Account(int accountId, string payeerId, string phone, int apiId, string apiHash, MyProxy? proxy = null)
+        public Account(string cookies, string payeerId, string phone, int apiId, string apiHash, MyProxy? proxy = null)
         {
-            AccountId = accountId;
+            Cookies = cookies;
             PayeerId = payeerId;
             Phone = phone.StartsWith('0') ? "+84" + phone[1..] : phone;
             TeleSession = $"{phone}.session";

@@ -65,7 +65,7 @@ namespace AddonMoney.Transfer.Services
                     while (line != null)
                     {
                         var details = line.Split('|');
-                        var accountId = Convert.ToInt32(details[0].Trim());
+                        var cookies = details[0];
                         var payeerId = details[1].Trim();
                         var phone = details[2].Trim();
                         var appId = Convert.ToInt32(details[3].Trim());
@@ -73,13 +73,13 @@ namespace AddonMoney.Transfer.Services
 
                         if (details.Length == 5)
                         {
-                            var account = new Account(accountId, payeerId, phone, appId, appHash);
+                            var account = new Account(cookies, payeerId, phone, appId, appHash);
                             accounts.Add(account);
                         }
                         else
                         {
                             var myProxy = GetProxy(details[5].Trim());
-                            var account = new Account(accountId, payeerId, phone, appId, appHash, myProxy);
+                            var account = new Account(cookies, payeerId, phone, appId, appHash, myProxy);
                             accounts.Add(account);
                         }
                         line = streamReader.ReadLine();
@@ -130,7 +130,7 @@ namespace AddonMoney.Transfer.Services
             catch { }
         }
 
-        public static void WriteResult(string name, DriverProfile profile, bool success, string? reason = null)
+        public static void WriteResult(string name, Account account, bool success, string? reason = null)
         {
             lock (_lockResult)
             {
@@ -140,7 +140,7 @@ namespace AddonMoney.Transfer.Services
                     if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
                     var file = Path.Combine(folder, $"{name}.txt");
                     var result = success ? "OK" : "FAILED";
-                    var line = $"{profile.Profile}|{result}";
+                    var line = $"{account.PayeerId}|{account.Phone}|{result}";
                     if (reason != null) line += "|reason: " + reason;
                     using var writer = new StreamWriter(file, true);
                     writer.WriteLine(line);

@@ -18,7 +18,6 @@ namespace AddonMoney.Transfer.Windows
         {
             InitializeComponent();
             _2captchaTextBox.Text = KeyHandler.GetKey() ?? string.Empty;
-            ProfilesTextBox.Lines = DataService.ReadUserDataDirs();
             ActiveControl = kryptonLabel1;
             TopMost = true;
         }
@@ -84,27 +83,16 @@ namespace AddonMoney.Transfer.Windows
                         return;
                     }
                     KeyHandler.SaveKey(_2captchaKey);
-
-                    var lines = new HashSet<string>();
-                    var profiles = new List<DriverProfile>();
-                    foreach (var line in ProfilesTextBox.Lines)
-                    {
-                        if (string.IsNullOrWhiteSpace(line)) continue;
-                        lines.Add(line);
-                        profiles.Add(new DriverProfile(line));
-                    }
-                    ProfilesTextBox.Lines = lines.ToArray();
-                    DataService.WriteUserDataDirs(lines.ToArray());
                     CaptchaV2Client.InitKey(_2captchaKey, "https://addon.money", "6LeuIL4UAAAAAHgT1ir2kCjOaU6F1UAcTmWiFr5M");
 
                     _tokenSource = new();
                     var sessionName = $"{DateTime.Now:yyyyMMdd.HHmmss}";
                     var tasks = new List<Task>();
-                    foreach (var profile in profiles)
+                    foreach (var account in Account.Accounts)
                     {
                         tasks.Add(Task.Run(async () =>
                         {
-                            var result = await TransferService.Transfer(profile, _tokenSource.Token);
+                            var result = await TransferService.Transfer(account, _tokenSource.Token);
                             if (result.Item1)
                             {
                                 _successCount++;
@@ -114,7 +102,7 @@ namespace AddonMoney.Transfer.Windows
                                 _failedCount++;
                             }
                             UpdateProcessedCount();
-                            DataService.WriteResult(sessionName, profile, result.Item1, result.Item2);
+                            DataService.WriteResult(sessionName, account, result.Item1, result.Item2);
                         }));
                         if (tasks.Count(t => !t.IsCompleted) == _threadNum) await Task.WhenAll(tasks);
                     }
@@ -171,42 +159,11 @@ namespace AddonMoney.Transfer.Windows
                 StartBtn.Enabled = !isRun;
                 _2captchaTextBox.ReadOnly = isRun;
                 StopBtn.Enabled = isRun;
-                ProfilesTextBox.ReadOnly = isRun;
-                //ProxyInputBtn.Enabled = !isRun;
                 NoneProxyRadioBtn.Enabled = !isRun;
                 HTTPProxyRadioBtn.Enabled = !isRun;
                 Socks5ProxyRadioBtn.Enabled = !isRun;
             });
         }
-
-        private void ProfilesTextBox_TextChanged(object sender, EventArgs e)
-        {
-            ProfileCountTextBox.Text = ProfilesTextBox.Lines.Length.ToString();
-        }
-
-        //private async void ProxyInputBtn_Click(object sender, EventArgs e)
-        //{
-        //    ActiveControl = kryptonLabel1;
-        //    await Task.Run(() =>
-        //    {
-        //        var dialog = new OpenFileDialog();
-        //        var result = DialogResult.Cancel;
-        //        Invoke(() => result = dialog.ShowDialog(this));
-        //        if (result == DialogResult.OK)
-        //        {
-        //            var success = DataService.ReadProxies(dialog.FileName);
-        //            Invoke(() =>
-        //            {
-        //                ProxyCountTextBox.Text = MyProxy.Proxies.Count.ToString();
-        //                Invoke(() =>
-        //                {
-        //                    if (success) MessageBox.Show(this, "Đã đọc proxies xong", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //                    else MessageBox.Show(this, "Đã đọc proxies thất bại", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //                });
-        //            });
-        //        }
-        //    });
-        //}
 
         private void NoneProxyRadioBtn_CheckedChanged(object sender, EventArgs e)
         {

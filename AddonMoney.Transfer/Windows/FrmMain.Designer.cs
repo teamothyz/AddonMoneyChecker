@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
-            this.ProfilesTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
             this.kryptonLabel2 = new Krypton.Toolkit.KryptonLabel();
             this.kryptonLabel3 = new Krypton.Toolkit.KryptonLabel();
@@ -57,18 +56,9 @@
             this.kryptonLabel9 = new Krypton.Toolkit.KryptonLabel();
             this.SuspendLayout();
             // 
-            // ProfilesTextBox
-            // 
-            this.ProfilesTextBox.Location = new System.Drawing.Point(12, 12);
-            this.ProfilesTextBox.Multiline = true;
-            this.ProfilesTextBox.Name = "ProfilesTextBox";
-            this.ProfilesTextBox.Size = new System.Drawing.Size(558, 390);
-            this.ProfilesTextBox.TabIndex = 0;
-            this.ProfilesTextBox.TextChanged += new System.EventHandler(this.ProfilesTextBox_TextChanged);
-            // 
             // kryptonLabel1
             // 
-            this.kryptonLabel1.Location = new System.Drawing.Point(576, 14);
+            this.kryptonLabel1.Location = new System.Drawing.Point(12, 12);
             this.kryptonLabel1.Name = "kryptonLabel1";
             this.kryptonLabel1.Size = new System.Drawing.Size(65, 20);
             this.kryptonLabel1.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -77,7 +67,7 @@
             // 
             // kryptonLabel2
             // 
-            this.kryptonLabel2.Location = new System.Drawing.Point(576, 50);
+            this.kryptonLabel2.Location = new System.Drawing.Point(12, 48);
             this.kryptonLabel2.Name = "kryptonLabel2";
             this.kryptonLabel2.Size = new System.Drawing.Size(62, 20);
             this.kryptonLabel2.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -86,7 +76,7 @@
             // 
             // kryptonLabel3
             // 
-            this.kryptonLabel3.Location = new System.Drawing.Point(12, 418);
+            this.kryptonLabel3.Location = new System.Drawing.Point(12, 455);
             this.kryptonLabel3.Name = "kryptonLabel3";
             this.kryptonLabel3.Size = new System.Drawing.Size(90, 20);
             this.kryptonLabel3.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -95,14 +85,14 @@
             // 
             // _2captchaTextBox
             // 
-            this._2captchaTextBox.Location = new System.Drawing.Point(108, 415);
+            this._2captchaTextBox.Location = new System.Drawing.Point(108, 452);
             this._2captchaTextBox.Name = "_2captchaTextBox";
-            this._2captchaTextBox.Size = new System.Drawing.Size(370, 23);
+            this._2captchaTextBox.Size = new System.Drawing.Size(116, 23);
             this._2captchaTextBox.TabIndex = 4;
             // 
             // ThreadUpDown
             // 
-            this.ThreadUpDown.Location = new System.Drawing.Point(668, 12);
+            this.ThreadUpDown.Location = new System.Drawing.Point(104, 10);
             this.ThreadUpDown.Minimum = new decimal(new int[] {
             1,
             0,
@@ -121,7 +111,7 @@
             // 
             // TimeoutUpDown
             // 
-            this.TimeoutUpDown.Location = new System.Drawing.Point(668, 48);
+            this.TimeoutUpDown.Location = new System.Drawing.Point(104, 46);
             this.TimeoutUpDown.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -146,7 +136,7 @@
             // AccountsInputBtn
             // 
             this.AccountsInputBtn.CornerRoundingRadius = -1F;
-            this.AccountsInputBtn.Location = new System.Drawing.Point(688, 194);
+            this.AccountsInputBtn.Location = new System.Drawing.Point(124, 192);
             this.AccountsInputBtn.Name = "AccountsInputBtn";
             this.AccountsInputBtn.Size = new System.Drawing.Size(100, 30);
             this.AccountsInputBtn.StateCommon.Back.Color1 = System.Drawing.Color.DeepSkyBlue;
@@ -159,7 +149,7 @@
             // StartBtn
             // 
             this.StartBtn.CornerRoundingRadius = -1F;
-            this.StartBtn.Location = new System.Drawing.Point(576, 310);
+            this.StartBtn.Location = new System.Drawing.Point(12, 308);
             this.StartBtn.Name = "StartBtn";
             this.StartBtn.Size = new System.Drawing.Size(100, 30);
             this.StartBtn.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
@@ -173,7 +163,7 @@
             // 
             this.StopBtn.CornerRoundingRadius = -1F;
             this.StopBtn.Enabled = false;
-            this.StopBtn.Location = new System.Drawing.Point(688, 310);
+            this.StopBtn.Location = new System.Drawing.Point(124, 308);
             this.StopBtn.Name = "StopBtn";
             this.StopBtn.Size = new System.Drawing.Size(100, 30);
             this.StopBtn.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
@@ -185,7 +175,7 @@
             // 
             // StatusTextBox
             // 
-            this.StatusTextBox.Location = new System.Drawing.Point(576, 415);
+            this.StatusTextBox.Location = new System.Drawing.Point(12, 349);
             this.StatusTextBox.Name = "StatusTextBox";
             this.StatusTextBox.ReadOnly = true;
             this.StatusTextBox.Size = new System.Drawing.Size(212, 23);
@@ -197,7 +187,7 @@
             // 
             // kryptonLabel4
             // 
-            this.kryptonLabel4.Location = new System.Drawing.Point(576, 356);
+            this.kryptonLabel4.Location = new System.Drawing.Point(12, 391);
             this.kryptonLabel4.Name = "kryptonLabel4";
             this.kryptonLabel4.Size = new System.Drawing.Size(82, 20);
             this.kryptonLabel4.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -206,7 +196,7 @@
             // 
             // kryptonLabel5
             // 
-            this.kryptonLabel5.Location = new System.Drawing.Point(576, 382);
+            this.kryptonLabel5.Location = new System.Drawing.Point(12, 417);
             this.kryptonLabel5.Name = "kryptonLabel5";
             this.kryptonLabel5.Size = new System.Drawing.Size(61, 20);
             this.kryptonLabel5.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -215,7 +205,7 @@
             // 
             // SuccessTextBox
             // 
-            this.SuccessTextBox.Location = new System.Drawing.Point(688, 350);
+            this.SuccessTextBox.Location = new System.Drawing.Point(124, 385);
             this.SuccessTextBox.Name = "SuccessTextBox";
             this.SuccessTextBox.ReadOnly = true;
             this.SuccessTextBox.Size = new System.Drawing.Size(100, 23);
@@ -227,7 +217,7 @@
             // 
             // FailedTextBox
             // 
-            this.FailedTextBox.Location = new System.Drawing.Point(688, 379);
+            this.FailedTextBox.Location = new System.Drawing.Point(124, 414);
             this.FailedTextBox.Name = "FailedTextBox";
             this.FailedTextBox.ReadOnly = true;
             this.FailedTextBox.Size = new System.Drawing.Size(100, 23);
@@ -241,7 +231,7 @@
             // 
             this.TopMostCheckBox.Checked = true;
             this.TopMostCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.TopMostCheckBox.Location = new System.Drawing.Point(488, 417);
+            this.TopMostCheckBox.Location = new System.Drawing.Point(12, 275);
             this.TopMostCheckBox.Name = "TopMostCheckBox";
             this.TopMostCheckBox.Size = new System.Drawing.Size(82, 20);
             this.TopMostCheckBox.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -251,7 +241,7 @@
             // 
             // kryptonLabel6
             // 
-            this.kryptonLabel6.Location = new System.Drawing.Point(576, 156);
+            this.kryptonLabel6.Location = new System.Drawing.Point(12, 154);
             this.kryptonLabel6.Name = "kryptonLabel6";
             this.kryptonLabel6.Size = new System.Drawing.Size(67, 20);
             this.kryptonLabel6.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -260,7 +250,7 @@
             // 
             // AccCountTextBox
             // 
-            this.AccCountTextBox.Location = new System.Drawing.Point(668, 153);
+            this.AccCountTextBox.Location = new System.Drawing.Point(104, 151);
             this.AccCountTextBox.Name = "AccCountTextBox";
             this.AccCountTextBox.ReadOnly = true;
             this.AccCountTextBox.Size = new System.Drawing.Size(120, 23);
@@ -272,7 +262,7 @@
             // 
             // kryptonLabel7
             // 
-            this.kryptonLabel7.Location = new System.Drawing.Point(576, 86);
+            this.kryptonLabel7.Location = new System.Drawing.Point(12, 84);
             this.kryptonLabel7.Name = "kryptonLabel7";
             this.kryptonLabel7.Size = new System.Drawing.Size(58, 20);
             this.kryptonLabel7.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -281,7 +271,7 @@
             // 
             // ProfileCountTextBox
             // 
-            this.ProfileCountTextBox.Location = new System.Drawing.Point(668, 83);
+            this.ProfileCountTextBox.Location = new System.Drawing.Point(104, 81);
             this.ProfileCountTextBox.Name = "ProfileCountTextBox";
             this.ProfileCountTextBox.ReadOnly = true;
             this.ProfileCountTextBox.Size = new System.Drawing.Size(120, 23);
@@ -293,7 +283,7 @@
             // 
             // ProxyCountTextBox
             // 
-            this.ProxyCountTextBox.Location = new System.Drawing.Point(668, 119);
+            this.ProxyCountTextBox.Location = new System.Drawing.Point(104, 117);
             this.ProxyCountTextBox.Name = "ProxyCountTextBox";
             this.ProxyCountTextBox.ReadOnly = true;
             this.ProxyCountTextBox.Size = new System.Drawing.Size(120, 23);
@@ -305,7 +295,7 @@
             // 
             // kryptonLabel8
             // 
-            this.kryptonLabel8.Location = new System.Drawing.Point(576, 122);
+            this.kryptonLabel8.Location = new System.Drawing.Point(12, 120);
             this.kryptonLabel8.Name = "kryptonLabel8";
             this.kryptonLabel8.Size = new System.Drawing.Size(56, 20);
             this.kryptonLabel8.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -315,7 +305,7 @@
             // NoneProxyRadioBtn
             // 
             this.NoneProxyRadioBtn.Checked = true;
-            this.NoneProxyRadioBtn.Location = new System.Drawing.Point(688, 230);
+            this.NoneProxyRadioBtn.Location = new System.Drawing.Point(124, 228);
             this.NoneProxyRadioBtn.Name = "NoneProxyRadioBtn";
             this.NoneProxyRadioBtn.Size = new System.Drawing.Size(54, 20);
             this.NoneProxyRadioBtn.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -325,7 +315,7 @@
             // 
             // HTTPProxyRadioBtn
             // 
-            this.HTTPProxyRadioBtn.Location = new System.Drawing.Point(688, 254);
+            this.HTTPProxyRadioBtn.Location = new System.Drawing.Point(124, 252);
             this.HTTPProxyRadioBtn.Name = "HTTPProxyRadioBtn";
             this.HTTPProxyRadioBtn.Size = new System.Drawing.Size(54, 20);
             this.HTTPProxyRadioBtn.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -335,7 +325,7 @@
             // 
             // Socks5ProxyRadioBtn
             // 
-            this.Socks5ProxyRadioBtn.Location = new System.Drawing.Point(688, 277);
+            this.Socks5ProxyRadioBtn.Location = new System.Drawing.Point(124, 275);
             this.Socks5ProxyRadioBtn.Name = "Socks5ProxyRadioBtn";
             this.Socks5ProxyRadioBtn.Size = new System.Drawing.Size(62, 20);
             this.Socks5ProxyRadioBtn.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -345,7 +335,7 @@
             // 
             // kryptonLabel9
             // 
-            this.kryptonLabel9.Location = new System.Drawing.Point(576, 230);
+            this.kryptonLabel9.Location = new System.Drawing.Point(12, 228);
             this.kryptonLabel9.Name = "kryptonLabel9";
             this.kryptonLabel9.Size = new System.Drawing.Size(56, 20);
             this.kryptonLabel9.StateCommon.ShortText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -356,7 +346,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(244, 491);
             this.Controls.Add(this.kryptonLabel9);
             this.Controls.Add(this.Socks5ProxyRadioBtn);
             this.Controls.Add(this.HTTPProxyRadioBtn);
@@ -382,11 +372,10 @@
             this.Controls.Add(this.kryptonLabel3);
             this.Controls.Add(this.kryptonLabel2);
             this.Controls.Add(this.kryptonLabel1);
-            this.Controls.Add(this.ProfilesTextBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(816, 489);
-            this.MinimumSize = new System.Drawing.Size(816, 489);
+            this.MaximumSize = new System.Drawing.Size(260, 530);
+            this.MinimumSize = new System.Drawing.Size(260, 530);
             this.Name = "FrmMain";
             this.Text = "AddonMoney Transfer - Telegram: @lukaxsx";
             this.ResumeLayout(false);
@@ -395,8 +384,6 @@
         }
 
         #endregion
-
-        private Krypton.Toolkit.KryptonTextBox ProfilesTextBox;
         private Krypton.Toolkit.KryptonLabel kryptonLabel1;
         private Krypton.Toolkit.KryptonLabel kryptonLabel2;
         private Krypton.Toolkit.KryptonLabel kryptonLabel3;

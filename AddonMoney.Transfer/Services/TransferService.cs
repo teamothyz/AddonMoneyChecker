@@ -11,14 +11,34 @@ namespace AddonMoney.Transfer.Services
         private static readonly string _logPrefix = "[TransferService]";
         public static int Timeout { get; set; } = 30;
 
-        public static async Task<Tuple<bool, string?>> Transfer(DriverProfile profile, CancellationToken token)
+        public static async Task<Tuple<bool, string?>> Transfer(Account account, CancellationToken token)
         {
-            var myDriver = await CreateDriver(profile, token).ConfigureAwait(false);
+            var myDriver = await CreateDriver(account.Proxy?.ToString(), token).ConfigureAwait(false);
             if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
 
             try
             {
-                myDriver.Driver.GoToUrl("https://addon.money/dashboard/");
+                var endTime = DateTime.Now.AddSeconds(Timeout);
+                while (true)
+                {
+                    try
+                    {
+                        myDriver.Driver.GoToUrl("https://addon.money");
+                        _ = myDriver.Driver.ExecuteScript($"var cookieString = '{account.Cookies}';" +
+                            "var cookies = cookieString.split(';');" +
+                            "cookies.forEach(function(cookie) { var parts = cookie.split('='); " +
+                            "var key = parts[0].trim(); var value = parts[1].trim(); " +
+                            "document.cookie = key + '=' + value + ';path=/';});");
+                        break;
+                    }
+                    catch
+                    {
+                        if (endTime > DateTime.Now) throw;
+                        else Task.Delay(500, token).Wait(token);
+                    }
+                }
+
+                myDriver.Driver.GoToUrl("https://addon.money/dashboard");
                 await Task.Delay(3000, CancellationToken.None).ConfigureAwait(false);
 
                 var accountIdElm = myDriver.Driver.FindElement(".account-login", Timeout, token);
@@ -26,13 +46,6 @@ namespace AddonMoney.Transfer.Services
                 var matchId = Regex.Match(accountIdStr, "(\\d{1,})");
                 if (!matchId.Success) throw new InvalidDataException($"Invalid Account Id: {accountIdStr}.");
                 var accountId = int.Parse(matchId.Value);
-
-                var account = Account.Accounts.FirstOrDefault(a => a.AccountId == accountId);
-                if (account == null)
-                {
-                    Log.Error($"{_logPrefix} Not found account {accountId} from the input data.");
-                    return new Tuple<bool, string?>(false, $"Not found account {accountId} from the input data");
-                }
 
                 var limit = int.Parse(myDriver.Driver.FindElement(".my-payout-limit b", Timeout, token).Text);
                 var balance = int.Parse(myDriver.Driver.FindElement("#balance", Timeout, token).Text);
@@ -71,7 +84,7 @@ namespace AddonMoney.Transfer.Services
                     var code = await TeleService.GetOTPByPy(account, sendTime, token);
                     if (code == null)
                     {
-                        Log.Error($"{_logPrefix} Can not find the otp code from telegram for {profile.Profile}.");
+                        Log.Error($"{_logPrefix} Can not find the otp code from telegram for withdraw to payeer {account.PayeerId}.");
                         return new Tuple<bool, string?>(false, "Can not find the otp code from telegram");
                     }
 
@@ -81,7 +94,7 @@ namespace AddonMoney.Transfer.Services
 
                     myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
 
-                    var endTime = DateTime.Now.AddSeconds(Timeout);
+                    endTime = DateTime.Now.AddSeconds(Timeout);
                     while (endTime > DateTime.Now)
                     {
                         var status = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token).GetAttribute("class");
@@ -116,7 +129,7 @@ namespace AddonMoney.Transfer.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"{_logPrefix} Got exception while transfer balance for {profile.Profile}. Error: {ex}");
+                Log.Error($"{_logPrefix} Got exception while transfer balance to payeer {account.PayeerId}. Error: {ex}");
                 return new Tuple<bool, string?>(false, ex.Message);
             }
             finally
@@ -125,7 +138,7 @@ namespace AddonMoney.Transfer.Services
             }
         }
 
-        private static async Task<MyChromeDriver?> CreateDriver(DriverProfile profile, CancellationToken token)
+        private static async Task<MyChromeDriver?> CreateDriver(string? proxy, CancellationToken token)
         {
             MyChromeDriver? _driver = null;
             try
@@ -137,11 +150,12 @@ namespace AddonMoney.Transfer.Services
                     try
                     {
                         _driver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
-                            privateMode: false, isHeadless: false, disableImg: false, token: token, isDeleteProfile: false,
-                            keepOneWindow: false, userDataDir: profile.UserDataDir, profile: profile.Profile))
+                            privateMode: false, isHeadless: false, disableImg: true, token: token,
+                            isDeleteProfile: true, keepOneWindow: true, proxy: proxy))
                             .ConfigureAwait(false);
 
                         if (_driver?.Driver == null) throw new Exception("driver is null");
+                        _driver.Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(120);
                     }
                     catch
                     {
@@ -158,7 +172,7 @@ namespace AddonMoney.Transfer.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"{_logPrefix} Got exception while creating web driver for {profile.Profile}. Error: {ex}");
+                Log.Error($"{_logPrefix} Got exception while creating web driver. Error: {ex}");
                 return null;
             }
         }
