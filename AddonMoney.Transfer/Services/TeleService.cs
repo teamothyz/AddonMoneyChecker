@@ -14,7 +14,7 @@ namespace AddonMoney.Transfer.Services
     {
         private static readonly string _logPrefix = "[TeleService]";
 
-        public static async Task<string?> GetOTP(Account account, DateTime offset, CancellationToken token)
+        public static async Task<Tuple<bool, string>> GetOTP(Account account, DateTime offset, CancellationToken token)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace AddonMoney.Transfer.Services
                 if (!File.Exists(sessionPath))
                 {
                     Log.Error($"Not found session file {sessionPath}.");
-                    return null;
+                    return new Tuple<bool, string>(false, $"Not found session file {sessionPath}.");
                 }
 
                 using var client = new Client(account.ApiId, account.ApiHash, sessionPath);
@@ -71,7 +71,7 @@ namespace AddonMoney.Transfer.Services
                 if (config != null || client.User == null)
                 {
                     Log.Warning($"{_logPrefix} Can not authenticate tele account {account.Phone}.");
-                    return null;
+                    return new Tuple<bool, string>(false, $"Can not authenticate tele account {account.Phone}.");
                 }
 
                 var notiBot = await client.Contacts_ResolveUsername(AppConfig.BotUsername).ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace AddonMoney.Transfer.Services
                             await Task.Delay(5000, token).ConfigureAwait(false);
                             continue;
                         }
-                        return matched.Value;
+                        return new Tuple<bool, string>(true, matched.Value);
                     }
                     else
                     {
@@ -105,17 +105,17 @@ namespace AddonMoney.Transfer.Services
                     }
                 }
                 Log.Error($"{_logPrefix} Get otp time out after {TransferService.Timeout}s. Account {account.Phone}.");
-                return null;
+                return new Tuple<bool, string>(false, "Not found OTP. OTP time out.");
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while waiting otp for {account.Phone}. Error: {ex}");
-                return null;
+                return new Tuple<bool, string>(false, ex.Message);
             }
         }
 
         //session-appId-appHash-timeStampUTC-timeout-proxy?
-        public static async Task<string?> GetOTPByPy(Account account, DateTime offsetDate, CancellationToken token)
+        public static async Task<Tuple<bool, string>> GetOTPByPy(Account account, DateTime offsetDate, CancellationToken token)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace AddonMoney.Transfer.Services
                 if (!File.Exists(sessionPath))
                 {
                     Log.Error($"Not found session file {sessionPath}.");
-                    return null;
+                    return new Tuple<bool, string>(false, $"Not found session file {sessionPath}.");
                 }
                 string? proxy = account.Proxy?.ToString();
                 var offset = ((DateTimeOffset)offsetDate.ToUniversalTime()).ToUnixTimeSeconds();
@@ -149,6 +149,7 @@ namespace AddonMoney.Transfer.Services
                         FileName = exePath,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         CreateNoWindow = true,
                         Arguments = input
                     }
@@ -158,27 +159,28 @@ namespace AddonMoney.Transfer.Services
                 if (!success)
                 {
                     Log.Error($"{_logPrefix} Timeout while waiting otp for {account.Phone}.");
-                    return null;
+                    return new Tuple<bool, string>(false, $"Not found code.");
                 }
 
                 var output = await process.StandardOutput.ReadToEndAsync();
+                var error = await process.StandardError.ReadToEndAsync();
                 var matched = Regex.Match(output, "(\\d{6})");
                 if (matched.Success && output.ToLower().Contains("code"))
                 {
-                    return matched.Value;
+                    return new Tuple<bool, string>(true, matched.Value);
                 }
                 Log.Error($"{_logPrefix} Not found otp for {account.Phone}. Result message: {output}");
-                return null;
+                return new Tuple<bool, string>(false, output + " " + error);
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while waiting otp for {account.Phone}. Error: {ex}");
-                return null;
+                return new Tuple<bool, string>(false, ex.Message);
             }
         }
 
         //session-appId-appHash-token-proxy?
-        public static async Task<bool> LinkAccount(Account account, string token)
+        public static async Task<Tuple<bool, string>> LinkAccount(Account account, string token)
         {
             try
             {
@@ -190,7 +192,7 @@ namespace AddonMoney.Transfer.Services
                 if (!File.Exists(sessionPath))
                 {
                     Log.Error($"Not found session file {sessionPath}.");
-                    return false;
+                    return new Tuple<bool, string>(false, $"Not found session file {sessionPath}.");
                 }
                 string? proxy = account.Proxy?.ToString();
                 var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "helpers", "LinkAccount.exe");
@@ -221,21 +223,22 @@ namespace AddonMoney.Transfer.Services
                 if (!success)
                 {
                     Log.Error($"{_logPrefix} Timeout while linking account for {account.Phone}.");
-                    return false;
+                    return new Tuple<bool, string>(false, $"Timeout while linking account for {account.Phone}.");
                 }
 
                 var output = await process.StandardOutput.ReadToEndAsync();
-                if (output.ToLower().Contains("error"))
+                var error = await process.StandardError.ReadToEndAsync();
+                if (output.ToLower().Contains("error") || !string.IsNullOrEmpty(error))
                 {
-                    Log.Error($"{_logPrefix} {output}");
-                    return false;
+                    Log.Error($"{_logPrefix} {output} {error}");
+                    return new Tuple<bool, string>(false, output + " " + error);
                 }
-                return true;
+                return new Tuple<bool, string>(true, string.Empty);
             }
             catch (Exception ex)
             {
                 Log.Error($"{_logPrefix} Got exception while linking account for {account.Phone}. Error: {ex}");
-                return false;
+                return new Tuple<bool, string>(false, ex.Message);
             }
         }
     }

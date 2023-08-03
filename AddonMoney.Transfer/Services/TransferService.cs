@@ -92,15 +92,15 @@ namespace AddonMoney.Transfer.Services
                 var messageStatus = messageStatusElm.Text;
                 if (messageStatus.Contains("code to your telegram to confirm the payment"))
                 {
-                    var code = await TeleService.GetOTPByPy(account, sendTime, token);
-                    if (code == null)
+                    var codeRs = await TeleService.GetOTPByPy(account, sendTime, token);
+                    if (!codeRs.Item1)
                     {
                         Log.Error($"{_logPrefix} Can not find the otp code from telegram for withdraw to payeer {account.PayeerId}.");
-                        return new Tuple<bool, string?>(false, "Can not find the otp code from telegram");
+                        return new Tuple<bool, string?>(false, codeRs.Item2);
                     }
 
                     var codeElm = myDriver.Driver.FindElement(@"[name=""code""]", Timeout, token);
-                    myDriver.Driver.Sendkeys(codeElm, code, true, Timeout, token);
+                    myDriver.Driver.Sendkeys(codeElm, codeRs.Item2, true, Timeout, token);
                     await Task.Delay(1000, token).ConfigureAwait(false);
 
                     myDriver.Driver.Click(".close-pay.close-pay-aprove", Timeout, token);
@@ -124,8 +124,8 @@ namespace AddonMoney.Transfer.Services
                     var linkToken = link.Split("=")[1];
                     await Task.Delay(1000, token).ConfigureAwait(false);
 
-                    var success = await TeleService.LinkAccount(account, linkToken);
-                    if (!success) return new Tuple<bool, string?>(false, "link account failed");
+                    var linkRs = await TeleService.LinkAccount(account, linkToken);
+                    if (!linkRs.Item1) return new Tuple<bool, string?>(false, linkRs.Item2);
 
                     myDriver.Driver.ClickByJS("button.close-pay", Timeout, token);
                     await Task.Delay(1000, token).ConfigureAwait(false);
