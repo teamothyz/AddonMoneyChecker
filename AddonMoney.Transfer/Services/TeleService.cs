@@ -211,8 +211,8 @@ namespace AddonMoney.Transfer.Services
                         FileName = exePath,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
-                        CreateNoWindow = true,
-                        Arguments = input
+                        CreateNoWindow = false,
+                        Arguments = input,
                     }
                 };
                 process.Start();

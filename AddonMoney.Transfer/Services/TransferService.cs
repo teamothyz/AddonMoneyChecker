@@ -78,7 +78,18 @@ namespace AddonMoney.Transfer.Services
 
                 var sendTime = DateTime.Now;
                 myDriver.Driver.Click("#payout-action", Timeout, token);
-                var messageStatus = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token).Text;
+                
+                var messageStatusElm = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token);
+                var loading = messageStatusElm.GetAttribute("class").Contains("loading");
+                var waitStatusTime = DateTime.Now.AddSeconds(Timeout);
+                while (waitStatusTime > DateTime.Now && loading)
+                {
+                    messageStatusElm = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token);
+                    loading = messageStatusElm.GetAttribute("class").Contains("loading");
+                }
+                if (loading) return new Tuple<bool, string?>(false, "loading after click failed");
+
+                var messageStatus = messageStatusElm.Text;
                 if (messageStatus.Contains("code to your telegram to confirm the payment"))
                 {
                     var code = await TeleService.GetOTPByPy(account, sendTime, token);

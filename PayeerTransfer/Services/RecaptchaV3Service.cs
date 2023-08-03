@@ -19,6 +19,15 @@ namespace PayeerTransfer.Services
                     _myDriver.Driver.GoToUrl("https://payeer.com/en/auth/");
                     _isInPage = true;
                 }
+
+                var emailElm = _myDriver.Driver.FindElement(@"[name=""email""]", timeout, token);
+                _myDriver.Driver.Sendkeys(emailElm, "P1100737635", true, timeout, token);
+
+                var passElm = _myDriver.Driver.FindElement(@"[name=""password""]", timeout, token);
+                _myDriver.Driver.Sendkeys(passElm, "Tuan552001", true, timeout, token);
+
+                _myDriver.Driver.ClickByJS(".login-form__login-btn.step1", timeout, token);
+
                 var endTime = DateTime.Now.AddSeconds(timeout);
                 while (endTime > DateTime.Now)
                 {
@@ -59,7 +68,7 @@ namespace PayeerTransfer.Services
                     try
                     {
                         _myDriver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0,
-                            privateMode: false, isHeadless: true, disableImg: true, token: token,
+                            privateMode: false, isHeadless: false, disableImg: true, token: token,
                             isDeleteProfile: true)).ConfigureAwait(false);
 
                         if (_myDriver?.Driver == null) throw new Exception("driver is null");
