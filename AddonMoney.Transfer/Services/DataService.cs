@@ -10,32 +10,6 @@ namespace AddonMoney.Transfer.Services
         private static readonly object _lockData = new();
         private static readonly object _lockResult = new();
 
-        //public static bool ReadProxies(string path)
-        //{
-        //    lock (_lockData)
-        //    {
-        //        try
-        //        {
-        //            MyProxy.Proxies.Clear();
-        //            var proxies = new List<MyProxy>();
-        //            using var streamReader = new StreamReader(path);
-        //            var line = streamReader.ReadLine();
-        //            while (line != null)
-        //            {
-        //                proxies.Add(GetProxy(line));
-        //                line = streamReader.ReadLine();
-        //            }
-        //            MyProxy.Proxies.AddRange(proxies);
-        //            return true;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Log.Error($"{_logPrefix} Got exception while reading proxies file. {ex}");
-        //            return false;
-        //        }
-        //    }
-        //}
-
         public static MyProxy GetProxy(string line)
         {
             var details = line.Split(':');
