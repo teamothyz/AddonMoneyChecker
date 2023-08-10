@@ -78,7 +78,7 @@ namespace AddonMoney.Transfer.Services
 
                 var sendTime = DateTime.Now;
                 myDriver.Driver.Click("#payout-action", Timeout, token);
-                
+
                 var messageStatusElm = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token);
                 var loading = messageStatusElm.GetAttribute("class").Contains("loading");
                 var waitStatusTime = DateTime.Now.AddSeconds(Timeout);
@@ -87,7 +87,11 @@ namespace AddonMoney.Transfer.Services
                     messageStatusElm = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token);
                     loading = messageStatusElm.GetAttribute("class").Contains("loading");
                 }
-                if (loading) return new Tuple<bool, string?>(false, "loading after click failed");
+                if (loading)
+                {
+                    Log.Error($"{_logPrefix} Loading failed due to bad network.");
+                    return new Tuple<bool, string?>(false, "loading after click failed");
+                }
 
                 var messageStatus = messageStatusElm.Text;
                 if (messageStatus.Contains("code to your telegram to confirm the payment"))
@@ -113,6 +117,7 @@ namespace AddonMoney.Transfer.Services
                         else if (status.Contains("bad"))
                         {
                             var msg = myDriver.Driver.FindElement(".payout-form-error", Timeout, token).Text;
+                            Log.Error($"{_logPrefix} Bad status {msg}.");
                             return new Tuple<bool, string?>(false, msg);
                         }
                         await Task.Delay(1000, token).ConfigureAwait(false);
@@ -125,7 +130,11 @@ namespace AddonMoney.Transfer.Services
                     await Task.Delay(1000, token).ConfigureAwait(false);
 
                     var linkRs = await TeleService.LinkAccount(account, linkToken);
-                    if (!linkRs.Item1) return new Tuple<bool, string?>(false, linkRs.Item2);
+                    if (!linkRs.Item1)
+                    {
+                        Log.Error($"{_logPrefix} Link account failed.");
+                        return new Tuple<bool, string?>(false, linkRs.Item2);
+                    }
 
                     myDriver.Driver.ClickByJS("button.close-pay", Timeout, token);
                     await Task.Delay(1000, token).ConfigureAwait(false);
@@ -134,8 +143,10 @@ namespace AddonMoney.Transfer.Services
                 }
                 else
                 {
+                    Log.Error($"{_logPrefix} Message status wrong.");
                     return new Tuple<bool, string?>(false, messageStatus);
                 }
+                Log.Error($"{_logPrefix} waiting for result timeout.");
                 return new Tuple<bool, string?>(false, $"waiting for result timeout after {Timeout}s");
             }
             catch (Exception ex)
