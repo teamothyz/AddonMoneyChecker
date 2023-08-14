@@ -41,33 +41,6 @@ namespace ChromeDriverLibrary
             }, token);
         }
 
-        public static void SendkeysRandom(this UndetectedChromeDriver driver, IWebElement element, string content, bool needCompare, bool enter, int timeout, CancellationToken token)
-        {
-            var waiter = GetWaiter(driver, timeout);
-            var rand = new Random();
-            waiter.Until(webdriver =>
-            {
-                try
-                {
-                    element.Click();
-                    Thread.Sleep(500);
-                    element.Clear();
-                    Thread.Sleep(500);
-                }
-                catch { }
-
-                foreach (var c in content)
-                {
-                    element.SendKeys(c.ToString());
-                    Thread.Sleep(rand.Next(1, 3) * 100);
-                }
-                if (enter) element.SendKeys("\n");
-                Thread.Sleep(500);
-                if (!needCompare) return true;
-                return CompareContent(driver, element, content);
-            }, token);
-        }
-
         public static void SetInnerHtml(this UndetectedChromeDriver driver, IWebElement element, string content, bool needCompare, int timeout, CancellationToken token)
         {
             var waiter = GetWaiter(driver, timeout);

@@ -80,6 +80,7 @@ namespace AddonMoney.Register.Windows
             {
                 _cancelSource = new();
                 RegisterService.StartTime = DateTime.Now;
+                RegisterService.RegistedAccount = 0;
                 var tasks = new List<Task>();
                 while (true)
                 {

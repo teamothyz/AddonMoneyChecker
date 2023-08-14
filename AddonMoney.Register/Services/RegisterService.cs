@@ -1,6 +1,7 @@
 ﻿using AddonMoney.Register.Models;
 using AddonMoney.Register.Windows;
 using ChromeDriverLibrary;
+using OpenQA.Selenium;
 using SeleniumUndetectedChromeDriver;
 using Serilog;
 
@@ -11,6 +12,8 @@ namespace AddonMoney.Register.Services
         private static readonly string _logPrefix = "[RegisterService]";
         public static int Timeout { get; set; } = 30;
         public static DateTime StartTime { get; set; }
+        public static int RegistedAccount { get; set; } = 0;
+        private static readonly object _lockRef = new();
 
         public static async Task<bool?> StartRegister(CancellationToken token)
         {
@@ -155,11 +158,13 @@ namespace AddonMoney.Register.Services
             try
             {
                 var emailElm = driver.FindElement("#identifierId", Timeout, token);
-                driver.SendkeysRandom(emailElm, account.Email, true, true, Timeout, token);
+                driver.Sendkeys(emailElm, account.Email, true, Timeout, token);
+                emailElm.SendKeys(OpenQA.Selenium.Keys.Enter);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 var passwordElm = driver.FindElement(@"[autocomplete=""current-password""]", Timeout, token);
-                driver.SendkeysRandom(passwordElm, account.Password, true, true, Timeout, token);
+                driver.Sendkeys(passwordElm, account.Password, true, Timeout, token);
+                passwordElm.SendKeys(OpenQA.Selenium.Keys.Enter);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 var endTime = DateTime.Now.AddSeconds(Timeout);
@@ -237,7 +242,8 @@ namespace AddonMoney.Register.Services
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 var recoveryMailElm = driver.FindElement(@"[name=""knowledgePreregisteredEmailResponse""]", Timeout, token);
-                driver.SendkeysRandom(recoveryMailElm, account.RecoveryMail, true, true, Timeout, token);
+                driver.Sendkeys(recoveryMailElm, account.RecoveryMail, true, Timeout, token);
+                recoveryMailElm.SendKeys(OpenQA.Selenium.Keys.Enter);
                 return true;
             }
             catch
@@ -248,31 +254,40 @@ namespace AddonMoney.Register.Services
 
         private static string GetReferalLink()
         {
-            if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
+            lock (_lockRef)
             {
-                if (FrmMain.OnlyRootLink)
+                if (RegistedAccount % 16 == 0)
                 {
-                    return FrmMain.ReferLinkRoot;
+                    FrmMain.ReferLinkFirst = null!;
+                    FrmMain.ReferLinkSecond = null!;
                 }
-                else if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
+
+                if (!string.IsNullOrEmpty(FrmMain.ReferLinkRoot))
                 {
-                    if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                    if (FrmMain.OnlyRootLink)
                     {
-                        return FrmMain.ReferLinkSecond;
+                        return FrmMain.ReferLinkRoot;
+                    }
+                    else if (!string.IsNullOrEmpty(FrmMain.ReferLinkFirst))
+                    {
+                        if (!string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                        {
+                            return FrmMain.ReferLinkSecond;
+                        }
+                        else
+                        {
+                            return FrmMain.ReferLinkFirst;
+                        }
                     }
                     else
                     {
-                        return FrmMain.ReferLinkFirst;
+                        return FrmMain.ReferLinkRoot;
                     }
                 }
                 else
                 {
-                    return FrmMain.ReferLinkRoot;
+                    return string.Empty;
                 }
-            }
-            else
-            {
-                return string.Empty;
             }
         }
     }

@@ -7,6 +7,8 @@ namespace AddonMoney.Register.Services
     {
         private static readonly string _logPrefix = "[DataService]";
         private static readonly object _outputLocker = new();
+        private static readonly object _lockSuccess = new();
+        private static readonly object _lockErr = new();
 
         private static string GetOutputFolder()
         {
@@ -52,35 +54,42 @@ namespace AddonMoney.Register.Services
 
         public static void WriteSuccess(Account account, DateTime startTime)
         {
-            try
+            lock (_lockSuccess)
             {
-                var folder = GetOutputFolder();
-                var filePath = Path.Combine(folder, $"success{startTime:ddMMyyyyHHmmss}.txt");
-                using var writer = new StreamWriter(filePath, true);
-                writer.WriteLine(account.ToStringSuccess());
-                writer.Flush();
-                writer.Close();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"{_logPrefix} Got exception while writing success account. Error: {ex}");
+                RegisterService.RegistedAccount++;
+                try
+                {
+                    var folder = GetOutputFolder();
+                    var filePath = Path.Combine(folder, $"success{startTime:ddMMyyyyHHmmss}.txt");
+                    using var writer = new StreamWriter(filePath, true);
+                    writer.WriteLine(account.ToStringSuccess());
+                    writer.Flush();
+                    writer.Close();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"{_logPrefix} Got exception while writing success account. Error: {ex}");
+                }
             }
         }
 
         public static void WriteError(Account account, DateTime startTime)
         {
-            try
+            lock (_lockErr)
             {
-                var folder = GetOutputFolder();
-                var filePath = Path.Combine(folder, $"error{startTime:ddMMyyyyHHmmss}.txt");
-                using var writer = new StreamWriter(filePath, true);
-                writer.WriteLine(account.ToStringError());
-                writer.Flush();
-                writer.Close();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"{_logPrefix} Got exception while writing error account. Error: {ex}");
+                try
+                {
+                    var folder = GetOutputFolder();
+                    var filePath = Path.Combine(folder, $"error{startTime:ddMMyyyyHHmmss}.txt");
+                    using var writer = new StreamWriter(filePath, true);
+                    writer.WriteLine(account.ToStringError());
+                    writer.Flush();
+                    writer.Close();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"{_logPrefix} Got exception while writing error account. Error: {ex}");
+                }
             }
         }
     }
