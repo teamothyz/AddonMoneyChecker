@@ -53,7 +53,7 @@ namespace AddonMoney.Data.Repositories
             using var transaction = await _dbcontext.Database.BeginTransactionAsync();
             try
             {
-                DateTime utcNow = DateTime.UtcNow;
+                DateTime utcNow = DateTime.Now;
                 TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
 
@@ -112,7 +112,7 @@ namespace AddonMoney.Data.Repositories
 
         public async Task<int> TotalToday()
         {
-            DateTime utcNow = DateTime.UtcNow;
+            DateTime utcNow = DateTime.Now;
             TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
 

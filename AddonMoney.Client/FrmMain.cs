@@ -22,6 +22,15 @@ namespace AddonMoney.Client
             HostService.ReadProfileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile.data"));
             ProfileCountTextBox.Text = ProfileInfo.Profiles.Count.ToString();
             ProxyTypeComboBox.SelectedIndex = 0;
+
+            var config = HostService.GetConfig();
+            Timeout = config.Item1;
+            TimeSleep = config.Item2;
+            TimeoutUpDown.Value = Timeout;
+            TimeScanUpDown.Value = TimeSleep;
+            Group1TimeUpdown.Value = config.Item3;
+            Group2TimeUpdown.Value = config.Item4;
+
             ActiveControl = kryptonLabel5;
         }
 
@@ -33,36 +42,45 @@ namespace AddonMoney.Client
                 var lines = new HashSet<string>();
                 _services.Clear();
                 var index = 1;
-                foreach (var profile in  ProfileInfo.Profiles)
+                foreach (var profile in ProfileInfo.Profiles)
                 {
                     _services.Add(new AddonMoneyService(profile, index));
                     index++;
                 }
                 CancellationToken = new();
                 EnableBtn(false);
-                await Task.Run(() => HostService.SaveProfileInfo());
+                if (Group1TimeUpdown.Value >= Group2TimeUpdown.Value)
+                {
+                    Invoke(() => MessageBox.Show(this, "Thời gian 1 phải bé hơn thời gian 2", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning));
+                    return;
+                }
+                await Task.Run(() =>
+                {
+                    HostService.SaveProfileInfo();
+                    HostService.WriteConfig(Timeout, TimeSleep, (int)Group1TimeUpdown.Value, (int)Group2TimeUpdown.Value);
+                });
                 if (!_services.Any()) return;
                 _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
 
                 #region Check And Enable Extension Each 15 Minutes
-                var nextScan = DateTime.UtcNow;
-                var nextEnable = DateTime.UtcNow;
+                var nextScan = DateTime.Now;
+                var nextEnable = DateTime.Now;
                 var oldStart = -1;
                 while (!CancellationToken.IsCancellationRequested)
                 {
-                    var needToScan = nextScan <= DateTime.UtcNow;
-                    var needEnable = nextEnable <= DateTime.UtcNow;
+                    var needToScan = nextScan <= DateTime.Now;
+                    var needEnable = nextEnable <= DateTime.Now;
                     if (needToScan || needEnable)
                     {
-                        nextEnable = DateTime.UtcNow.AddMinutes(15);
+                        nextEnable = DateTime.Now.AddMinutes(15);
                         if (needToScan)
                         {
-                            nextScan = DateTime.UtcNow.AddMinutes(TimeSleep);
+                            nextScan = DateTime.Now.AddMinutes(TimeSleep);
                         }
 
-                        var now = GetGMT7Now();
-                        var start = now.Hour >= 4 && now.Hour < 16 ? 0 : _services.Count / 2;
-                        var end = now.Hour >= 4 && now.Hour < 16 ? _services.Count / 2 : _services.Count;
+                        var now = DateTime.Now;
+                        var start = now.Hour >= (int)Group1TimeUpdown.Value && now.Hour < (int)Group2TimeUpdown.Value ? 0 : _services.Count / 2;
+                        var end = now.Hour >= (int)Group1TimeUpdown.Value && now.Hour < (int)Group2TimeUpdown.Value ? _services.Count / 2 : _services.Count;
 
                         if (oldStart != start)
                         {
@@ -77,7 +95,7 @@ namespace AddonMoney.Client
                                 }
                             }
                         }
-                        
+
                         for (int i = 0; i < _services.Count; i++)
                         {
                             if (start <= i && i < end)
@@ -151,6 +169,9 @@ namespace AddonMoney.Client
                 ProxyTypeComboBox.Enabled = enable;
                 StopBtn.Enabled = !enable;
 
+                TimeoutUpDown.Enabled = enable;
+                Group1TimeUpdown.Enabled = enable;
+                Group2TimeUpdown.Enabled = enable;
                 TimeScanUpDown.Enabled = enable;
                 DataInputBtn.Enabled = enable;
 
@@ -162,13 +183,6 @@ namespace AddonMoney.Client
         private void TimeoutUpDown_ValueChanged(object sender, EventArgs e)
         {
             Timeout = (int)TimeoutUpDown.Value;
-        }
-
-        public static DateTime GetGMT7Now()
-        {
-            DateTime utcNow = DateTime.UtcNow;
-            TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
         }
 
         private void SleepTimeUpDown_ValueChanged(object sender, EventArgs e)

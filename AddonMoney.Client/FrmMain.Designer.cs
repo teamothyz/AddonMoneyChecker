@@ -44,6 +44,11 @@
             VPSNameTextBox = new Krypton.Toolkit.KryptonTextBox();
             ProxyTypeComboBox = new Krypton.Toolkit.KryptonComboBox();
             DataInputBtn = new Krypton.Toolkit.KryptonButton();
+            kryptonLabel2 = new Krypton.Toolkit.KryptonLabel();
+            kryptonLabel3 = new Krypton.Toolkit.KryptonLabel();
+            kryptonLabel4 = new Krypton.Toolkit.KryptonLabel();
+            Group1TimeUpdown = new Krypton.Toolkit.KryptonNumericUpDown();
+            Group2TimeUpdown = new Krypton.Toolkit.KryptonNumericUpDown();
             ((System.ComponentModel.ISupportInitialize)ProxyTypeComboBox).BeginInit();
             SuspendLayout();
             // 
@@ -64,7 +69,7 @@
             // 
             TopMostCheckBtn.Checked = true;
             TopMostCheckBtn.CheckState = CheckState.Checked;
-            TopMostCheckBtn.Location = new Point(140, 161);
+            TopMostCheckBtn.Location = new Point(241, 158);
             TopMostCheckBtn.Name = "TopMostCheckBtn";
             TopMostCheckBtn.Size = new Size(82, 20);
             TopMostCheckBtn.StateCommon.ShortText.Color1 = Color.Black;
@@ -106,7 +111,7 @@
             // StartBtn
             // 
             StartBtn.CornerRoundingRadius = -1F;
-            StartBtn.Location = new Point(241, 53);
+            StartBtn.Location = new Point(241, 45);
             StartBtn.Name = "StartBtn";
             StartBtn.Size = new Size(90, 25);
             StartBtn.StateCommon.Back.Color1 = Color.GreenYellow;
@@ -122,7 +127,7 @@
             // 
             StopBtn.CornerRoundingRadius = -1F;
             StopBtn.Enabled = false;
-            StopBtn.Location = new Point(241, 105);
+            StopBtn.Location = new Point(241, 80);
             StopBtn.Name = "StopBtn";
             StopBtn.Size = new Size(90, 25);
             StopBtn.StateCommon.Back.Color1 = Color.FromArgb(255, 128, 128);
@@ -146,10 +151,10 @@
             // 
             // RunStatusTextBox
             // 
-            RunStatusTextBox.Location = new Point(241, 158);
+            RunStatusTextBox.Location = new Point(241, 119);
             RunStatusTextBox.Name = "RunStatusTextBox";
             RunStatusTextBox.ReadOnly = true;
-            RunStatusTextBox.Size = new Size(93, 23);
+            RunStatusTextBox.Size = new Size(90, 23);
             RunStatusTextBox.StateCommon.Back.Color1 = Color.FromArgb(255, 255, 128);
             RunStatusTextBox.StateCommon.Content.Color1 = Color.Black;
             RunStatusTextBox.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
@@ -171,11 +176,11 @@
             // 
             // TimeScanUpDown
             // 
-            TimeScanUpDown.Location = new Point(131, 119);
+            TimeScanUpDown.Location = new Point(121, 119);
             TimeScanUpDown.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
             TimeScanUpDown.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
             TimeScanUpDown.Name = "TimeScanUpDown";
-            TimeScanUpDown.Size = new Size(81, 22);
+            TimeScanUpDown.Size = new Size(91, 22);
             TimeScanUpDown.StateCommon.Content.Color1 = Color.Black;
             TimeScanUpDown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             TimeScanUpDown.TabIndex = 24;
@@ -210,7 +215,7 @@
             ProxyTypeComboBox.DropDownWidth = 130;
             ProxyTypeComboBox.IntegralHeight = false;
             ProxyTypeComboBox.Items.AddRange(new object[] { "HTTP", "Socks5" });
-            ProxyTypeComboBox.Location = new Point(12, 160);
+            ProxyTypeComboBox.Location = new Point(105, 226);
             ProxyTypeComboBox.Name = "ProxyTypeComboBox";
             ProxyTypeComboBox.Size = new Size(106, 21);
             ProxyTypeComboBox.StateCommon.ComboBox.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
@@ -234,11 +239,68 @@
             DataInputBtn.Values.Text = "Nhập dữ liệu";
             DataInputBtn.Click += DataInputBtn_Click;
             // 
+            // kryptonLabel2
+            // 
+            kryptonLabel2.Location = new Point(11, 227);
+            kryptonLabel2.Name = "kryptonLabel2";
+            kryptonLabel2.Size = new Size(75, 20);
+            kryptonLabel2.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel2.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel2.TabIndex = 33;
+            kryptonLabel2.Values.Text = "Loại proxy:";
+            // 
+            // kryptonLabel3
+            // 
+            kryptonLabel3.Location = new Point(12, 158);
+            kryptonLabel3.Name = "kryptonLabel3";
+            kryptonLabel3.Size = new Size(81, 20);
+            kryptonLabel3.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel3.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel3.TabIndex = 34;
+            kryptonLabel3.Values.Text = "Time lượt 1:";
+            // 
+            // kryptonLabel4
+            // 
+            kryptonLabel4.Location = new Point(12, 194);
+            kryptonLabel4.Name = "kryptonLabel4";
+            kryptonLabel4.Size = new Size(81, 20);
+            kryptonLabel4.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel4.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel4.TabIndex = 35;
+            kryptonLabel4.Values.Text = "Time lượt 2:";
+            // 
+            // Group1TimeUpdown
+            // 
+            Group1TimeUpdown.Location = new Point(105, 156);
+            Group1TimeUpdown.Maximum = new decimal(new int[] { 23, 0, 0, 0 });
+            Group1TimeUpdown.Name = "Group1TimeUpdown";
+            Group1TimeUpdown.Size = new Size(107, 22);
+            Group1TimeUpdown.StateCommon.Content.Color1 = Color.Black;
+            Group1TimeUpdown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            Group1TimeUpdown.TabIndex = 36;
+            Group1TimeUpdown.Value = new decimal(new int[] { 4, 0, 0, 0 });
+            // 
+            // Group2TimeUpdown
+            // 
+            Group2TimeUpdown.Location = new Point(104, 192);
+            Group2TimeUpdown.Maximum = new decimal(new int[] { 23, 0, 0, 0 });
+            Group2TimeUpdown.Name = "Group2TimeUpdown";
+            Group2TimeUpdown.Size = new Size(107, 22);
+            Group2TimeUpdown.StateCommon.Content.Color1 = Color.Black;
+            Group2TimeUpdown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            Group2TimeUpdown.TabIndex = 37;
+            Group2TimeUpdown.Value = new decimal(new int[] { 16, 0, 0, 0 });
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(361, 201);
+            ClientSize = new Size(358, 259);
+            Controls.Add(Group2TimeUpdown);
+            Controls.Add(Group1TimeUpdown);
+            Controls.Add(kryptonLabel4);
+            Controls.Add(kryptonLabel3);
+            Controls.Add(kryptonLabel2);
             Controls.Add(DataInputBtn);
             Controls.Add(ProxyTypeComboBox);
             Controls.Add(VPSNameTextBox);
@@ -256,8 +318,8 @@
             Controls.Add(TimeoutUpDown);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
-            MaximumSize = new Size(377, 240);
-            MinimumSize = new Size(377, 240);
+            MaximumSize = new Size(374, 298);
+            MinimumSize = new Size(374, 298);
             Name = "FrmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
@@ -283,5 +345,10 @@
         private Krypton.Toolkit.KryptonTextBox VPSNameTextBox;
         private Krypton.Toolkit.KryptonComboBox ProxyTypeComboBox;
         private Krypton.Toolkit.KryptonButton DataInputBtn;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel2;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel3;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel4;
+        private Krypton.Toolkit.KryptonNumericUpDown Group1TimeUpdown;
+        private Krypton.Toolkit.KryptonNumericUpDown Group2TimeUpdown;
     }
 }

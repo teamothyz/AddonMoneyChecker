@@ -18,6 +18,36 @@ namespace AddonMoney.Client.Services
             }
         }
 
+        public static void WriteConfig(int timeout, int timeSleep, int start, int end)
+        {
+            try
+            {
+                using var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.data"), false);
+                writer.WriteLine($"{timeout}|{timeSleep}|{start}|{end}");
+                writer.Flush();
+                writer.Close();
+            }
+            catch { }
+        }
+
+        public static Tuple<int, int, int, int> GetConfig()
+        {
+            try
+            {
+                using var reader = new StreamReader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.data"));
+                var data = reader.ReadToEnd();
+                var timeout = data.Split('|')[0].Trim();
+                var timeSleep = data.Split('|')[1].Trim();
+                var start = data.Split('|')[2].Trim();
+                var end = data.Split('|')[3].Trim();
+                return Tuple.Create(int.Parse(timeout), int.Parse(timeSleep), int.Parse(start), int.Parse(end));
+            }
+            catch 
+            {
+                return Tuple.Create(30, 30, 4, 16);
+            }
+        }
+
         public static string GetHostName()
         {
             lock (_lock)
