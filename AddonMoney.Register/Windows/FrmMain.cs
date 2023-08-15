@@ -85,14 +85,14 @@ namespace AddonMoney.Register.Windows
                 while (true)
                 {
                     if (_cancelSource.IsCancellationRequested || _dataCount.Processed == _dataCount.Total) break;
-                    if (tasks.Count(t => !t.IsCompleted) == Convert.ToInt32(ThreadNumberUpDown.Value))
+                    if (tasks.Count(t => !t.IsCompleted) >= Convert.ToInt32(ThreadNumberUpDown.Value))
                     {
                         await Task.WhenAny(tasks);
                         tasks.RemoveAll(t => t.IsCompleted);
                     }
-                    tasks.Add(Task.Run(async () =>
+                    tasks.Add(Task.Run(() =>
                     {
-                        var success = await RegisterService.StartRegister(_cancelSource.Token);
+                        var success = RegisterService.StartRegister(_cancelSource.Token).Result;
                         if (success == true)
                         {
                             Invoke(() =>

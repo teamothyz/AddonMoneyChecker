@@ -158,13 +158,13 @@ namespace AddonMoney.Register.Services
             try
             {
                 var emailElm = driver.FindElement("#identifierId", Timeout, token);
-                driver.Sendkeys(emailElm, account.Email, true, Timeout, token);
-                emailElm.SendKeys(OpenQA.Selenium.Keys.Enter);
+                driver.Sendkeys(emailElm, account.Email, true, Timeout, token); 
+                driver.ClickByJS("#identifierNext button", Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 var passwordElm = driver.FindElement(@"[autocomplete=""current-password""]", Timeout, token);
                 driver.Sendkeys(passwordElm, account.Password, true, Timeout, token);
-                passwordElm.SendKeys(OpenQA.Selenium.Keys.Enter);
+                driver.ClickByJS("#passwordNext button", Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
                 var endTime = DateTime.Now.AddSeconds(Timeout);
