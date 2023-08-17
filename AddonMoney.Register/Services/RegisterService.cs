@@ -14,142 +14,161 @@ namespace AddonMoney.Register.Services
         public static DateTime StartTime { get; set; }
         public static int RegistedAccount { get; set; } = 0;
         private static readonly object _lockRef = new();
+        private static readonly object _lockIndex = new();
 
-        public static async Task<bool?> StartRegister(CancellationToken token)
+        public static int Index { get; set; } = 0;
+
+        public static async Task StartRegister(Action successCallback, Action failedCallback, CancellationToken token)
         {
-            Account account = null!;
-            MyChromeDriver myDriver = null!;
-            try
+            var x = 0;
+            var y = 0;
+            lock (_lockIndex)
             {
+                x = Index % 4;
+                y = Index / 4;
+                Index++;
+            }
+
+            while (!token.IsCancellationRequested)
+            {
+                Account account = null!;
+                MyChromeDriver myDriver = null!;
                 lock (Account.Accounts)
                 {
-                    if (Account.Accounts.Count == 0) return null;
+                    if (Account.Accounts.Count == 0) return;
                     account = Account.Accounts.Dequeue();
-                    if (account == null) return null;
+                    if (account == null) return;
                 }
+
                 try
-                {
-                    myDriver = await Task.Run(() => ChromeDriverInstance.GetInstance(0, 0, isMaximize: true,
-                        privateMode: false, isHeadless: false, disableImg: true,
-                        token: token, isDeleteProfile: true, keepOneWindow: true,
-                        proxy: account.Proxy.ToString())).ConfigureAwait(false);
-                    if (myDriver.Driver == null) throw new Exception("null driver");
-
-                    var referalLink = GetReferalLink();
-                    if (!string.IsNullOrEmpty(referalLink))
-                    {
-                        myDriver.Driver.GoToUrl(referalLink);
-                        var success = false;
-                        var endTime = DateTime.Now.AddSeconds(Timeout);
-                        while (DateTime.Now < endTime)
-                        {
-                            try
-                            {
-                                success = (bool)myDriver.Driver.ExecuteScript("return document.cookie.includes('partner=');");
-                                if (success) break;
-                            }
-                            catch { }
-                            finally
-                            {
-                                await Task.Delay(1000, token).ConfigureAwait(false);
-                            }
-                        }
-                        if (!success) throw new Exception("can not go to referal link");
-                    }
-                    myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
-                }
-                catch
-                {
-                    lock (Account.Accounts)
-                    {
-                        Account.Accounts.Enqueue(account);
-                    }
-                    return null;
-                }
-
-                var googleLinkSuccess = await LinkGoogle(myDriver.Driver, account, token).ConfigureAwait(false);
-                if (!googleLinkSuccess)
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        lock (Account.Accounts)
-                        {
-                            Account.Accounts.Enqueue(account);
-                        }
-                        return null;
-                    }
-                    DataService.WriteError(account, StartTime);
-                    return false;
-                }
-
-                myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
-                var endGetCookieTime = DateTime.Now.AddSeconds(Timeout);
-                while (DateTime.Now < endGetCookieTime)
                 {
                     try
                     {
-                        account.Cookie = (string)myDriver.Driver.ExecuteScript("return document.cookie;");
-                        break;
+                        myDriver = await Task.Run(() => ChromeDriverInstance.GetInstance(500 * x, 300 * y, isMaximize: false,
+                            privateMode: false, isHeadless: false, disableImg: true,
+                            token: token, isDeleteProfile: true, keepOneWindow: true,
+                            proxy: account.Proxy.ToString())).ConfigureAwait(false);
+                        if (myDriver.Driver == null) throw new Exception("null driver");
+
+                        var referalLink = GetReferalLink();
+                        if (!string.IsNullOrEmpty(referalLink))
+                        {
+                            myDriver.Driver.GoToUrl(referalLink);
+                            var success = false;
+                            var endTime = DateTime.Now.AddSeconds(Timeout);
+                            while (DateTime.Now < endTime)
+                            {
+                                try
+                                {
+                                    success = (bool)myDriver.Driver.ExecuteScript("return document.cookie.includes('partner=');");
+                                    if (success) break;
+                                }
+                                catch { }
+                                finally
+                                {
+                                    await Task.Delay(1000, token).ConfigureAwait(false);
+                                }
+                            }
+                            if (!success) throw new Exception("can not go to referal link");
+                        }
+                        myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
                     }
                     catch
                     {
-                        await Task.Delay(1000, token).ConfigureAwait(false);
+                        lock (Account.Accounts)
+                        {
+                            Account.Accounts.Enqueue(account);
+                        }
+                        continue;
                     }
+
+                    var googleLinkSuccess = await LinkGoogle(myDriver.Driver, account, token).ConfigureAwait(false);
+                    if (!googleLinkSuccess)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            lock (Account.Accounts)
+                            {
+                                Account.Accounts.Enqueue(account);
+                            }
+                            continue;
+                        }
+                        DataService.WriteError(account, StartTime);
+                        failedCallback();
+                        continue;
+                    }
+
+                    myDriver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
+                    var endGetCookieTime = DateTime.Now.AddSeconds(Timeout);
+                    while (DateTime.Now < endGetCookieTime)
+                    {
+                        try
+                        {
+                            account.Cookie = (string)myDriver.Driver.ExecuteScript("return document.cookie;");
+                            break;
+                        }
+                        catch
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                        }
+                    }
+                    if (string.IsNullOrEmpty(account.Cookie))
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            lock (Account.Accounts)
+                            {
+                                Account.Accounts.Enqueue(account);
+                            }
+                            continue;
+                        }
+                        account.Error = "Get cookie failed";
+                        DataService.WriteError(account, StartTime);
+                        failedCallback();
+                        continue;
+                    }
+
+                    DataService.WriteSuccess(account, StartTime);
+                    if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst) || string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
+                    {
+                        try
+                        {
+
+                            var refLink = myDriver.Driver.FindElement("#reflink", Timeout, token).GetAttribute("value");
+                            if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
+                            else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"{_logPrefix} Got exception while getting refer link. Error: {ex}");
+                        }
+                    }
+                    successCallback();
+                    continue;
                 }
-                if (string.IsNullOrEmpty(account.Cookie))
+                catch (Exception ex)
                 {
-                    if (token.IsCancellationRequested)
+                    if (token.IsCancellationRequested && account != null)
                     {
                         lock (Account.Accounts)
                         {
                             Account.Accounts.Enqueue(account);
                         }
-                        return null;
+                        continue;
                     }
-                    account.Error = "Get cookie failed";
-                    DataService.WriteError(account, StartTime);
-                    return false;
-                }
-
-                DataService.WriteSuccess(account, StartTime);
-                if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst) || string.IsNullOrEmpty(FrmMain.ReferLinkSecond))
-                {
-                    try
+                    Log.Error($"{_logPrefix} Got exception while creating account. Error: {ex}");
+                    if (account != null)
                     {
-
-                        var refLink = myDriver.Driver.FindElement("#reflink", Timeout, token).GetAttribute("value");
-                        if (string.IsNullOrEmpty(FrmMain.ReferLinkFirst)) FrmMain.ReferLinkFirst = refLink;
-                        else if (string.IsNullOrEmpty(FrmMain.ReferLinkSecond)) FrmMain.ReferLinkSecond = refLink;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"{_logPrefix} Got exception while getting refer link. Error: {ex}");
+                        account.Error = ex.Message;
+                        DataService.WriteError(account, StartTime);
+                        failedCallback();
+                        continue;
                     }
                 }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                if (token.IsCancellationRequested && account != null)
+                finally
                 {
-                    lock (Account.Accounts)
-                    {
-                        Account.Accounts.Enqueue(account);
-                    }
-                    return null;
+                    await ChromeDriverInstance.Close(myDriver);
                 }
-                Log.Error($"{_logPrefix} Got exception while creating account. Error: {ex}");
-                if (account != null)
-                {
-                    account.Error = ex.Message;
-                    DataService.WriteError(account, StartTime);
-                    return false;
-                }
-                return null;
-            }
-            finally
-            {
-                await ChromeDriverInstance.Close(myDriver);
             }
         }
 
@@ -158,7 +177,7 @@ namespace AddonMoney.Register.Services
             try
             {
                 var emailElm = driver.FindElement("#identifierId", Timeout, token);
-                driver.Sendkeys(emailElm, account.Email, true, Timeout, token); 
+                driver.Sendkeys(emailElm, account.Email, true, Timeout, token);
                 driver.ClickByJS("#identifierNext button", Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 

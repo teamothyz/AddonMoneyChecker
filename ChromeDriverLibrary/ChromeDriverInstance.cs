@@ -81,7 +81,7 @@ namespace ChromeDriverLibrary
                 if (!isMaximize)
                 {
                     myDriver.Driver.Manage().Window.Position = new System.Drawing.Point(positionX, positionY);
-                    myDriver.Driver.Manage().Window.Size = new System.Drawing.Size(375, 500);
+                    myDriver.Driver.Manage().Window.Size = new System.Drawing.Size(300, 300);
                 }
                 else
                 {

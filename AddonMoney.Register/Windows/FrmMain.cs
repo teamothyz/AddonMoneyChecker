@@ -72,47 +72,46 @@ namespace AddonMoney.Register.Windows
             }
         }
 
+        public void SuccessCallBack()
+        {
+            Invoke(() =>
+            {
+                _dataCount.Success++;
+                _dataCount.Processed++;
+            });
+        }
+
+        public void FailedCallBack()
+        {
+            Invoke(() =>
+            {
+                _dataCount.Failed++;
+                _dataCount.Processed++;
+            });
+        }
+
         private async void StartBtn_Click(object sender, EventArgs e)
         {
             ActiveControl = kryptonLabel1;
             EnableBtn(false);
             try
             {
-                _cancelSource = new();
-                RegisterService.StartTime = DateTime.Now;
-                RegisterService.RegistedAccount = 0;
-                var tasks = new List<Task>();
-                while (true)
+                await Task.Run(async () =>
                 {
-                    if (_cancelSource.IsCancellationRequested || _dataCount.Processed == _dataCount.Total) break;
-                    if (tasks.Count(t => !t.IsCompleted) >= Convert.ToInt32(ThreadNumberUpDown.Value))
+                    _cancelSource = new();
+                    RegisterService.StartTime = DateTime.Now;
+                    RegisterService.RegistedAccount = 0;
+                    RegisterService.Index = 0;
+                    var tasks = new List<Task>();
+                    for (var i = 0; i < (int)ThreadNumberUpDown.Value; i++)
                     {
-                        await Task.WhenAny(tasks);
-                        tasks.RemoveAll(t => t.IsCompleted);
+                        tasks.Add(Task.Run(async () =>
+                        {
+                            await RegisterService.StartRegister(SuccessCallBack, FailedCallBack, _cancelSource.Token);
+                        }));
                     }
-                    tasks.Add(Task.Run(() =>
-                    {
-                        var success = RegisterService.StartRegister(_cancelSource.Token).Result;
-                        if (success == true)
-                        {
-                            Invoke(() =>
-                            {
-                                _dataCount.Success++;
-                                _dataCount.Processed++;
-                            });
-                        }
-                        else if (success == false)
-                        {
-                            Invoke(() =>
-                            {
-                                _dataCount.Failed++;
-                                _dataCount.Processed++;
-                            });
-                        }
-                    }));
-                    await Task.Delay(500, CancellationToken.None);
-                }
-                await Task.WhenAll(tasks);
+                    await Task.WhenAll(tasks);
+                });
             }
             catch (Exception ex)
             {
@@ -148,8 +147,8 @@ namespace AddonMoney.Register.Windows
         private void StopBtn_Click(object sender, EventArgs e)
         {
             ActiveControl = kryptonLabel1;
-            ChromeDriverInstance.KillAllChromes();
             _cancelSource.Cancel();
+            ChromeDriverInstance.KillAllChromes();
         }
 
         private void OnlyRootLinkCheckBox_CheckedChanged(object sender, EventArgs e)
