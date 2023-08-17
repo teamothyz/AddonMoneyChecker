@@ -38,7 +38,7 @@ namespace AddonMoney.Data.Repositories
 
         public async Task AddError(string host, string message)
         {
-            DateTime utcNow = DateTime.Now;
+            DateTime utcNow = DateTime.UtcNow;
             TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
             var error = new ErrorInfo

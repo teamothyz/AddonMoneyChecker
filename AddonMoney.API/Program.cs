@@ -24,6 +24,7 @@ builder.Services.AddTransient<MQProducer>();
 builder.Services.AddHostedService<ConsumerHostedService>();
 
 var app = builder.Build();
+app.MapGet("/", () => "Hello World");
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

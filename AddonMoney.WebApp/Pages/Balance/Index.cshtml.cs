@@ -58,7 +58,7 @@ namespace AddonMoney.WebApp.Pages.Balance
                 TotalEarn = await _balanceInfoRepository.TotalToday();
                 TotalBalance = await _balanceInfoRepository.TotalBalance();
 
-                DateTime utcNow = DateTime.Now;
+                DateTime utcNow = DateTime.UtcNow;
                 TimeZoneInfo gmt7TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 DateTime gmt7Time = TimeZoneInfo.ConvertTimeFromUtc(utcNow, gmt7TimeZone);
                 PageTotalEarn = BalanceInfos.Items
