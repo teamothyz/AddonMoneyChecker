@@ -40,26 +40,28 @@ namespace AddonMoney.Client.Services
                         var rs = await client.GetStringAsync("http://ip-api.com/json", token);
                         success = rs.Contains(details[0]);
                     }
-                    catch (Exception ex)
-                    {
-                        if (ex is not OperationCanceledException) success = false;
-                    }
+                    catch { }
                     finally
                     {
                         if (!token.IsCancellationRequested)
                         {
-                            await ApiService.SendProxyStatus(new Data.API.UpdateProxyStatusRequest
+                            var isDead = !success;
+                            if (profile.ProxyDie == null || profile.ProxyDie.Value != isDead)
                             {
-                                Email = profile.Email,
-                                ProxyDie = !success
-                            });
-                            await Task.Delay(1000, CancellationToken.None);
+                                profile.ProxyDie = isDead;
+                                await ApiService.SendProxyStatus(new Data.API.UpdateProxyStatusRequest
+                                {
+                                    Email = profile.Email,
+                                    ProxyDie = isDead
+                                });
+                                await Task.Delay(1000, CancellationToken.None);
+                            }
                         }
                     }
                 }
                 try
                 {
-                    await Task.Delay(60 * 1000, token);
+                    await Task.Delay(5 * 60 * 1000, token);
                 }
                 catch { }
             }

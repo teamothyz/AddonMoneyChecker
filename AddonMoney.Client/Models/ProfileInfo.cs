@@ -18,6 +18,8 @@ namespace AddonMoney.Client.Models
 
         public string Raw { get; set; } = null!;
 
+        public bool? ProxyDie { get; set; } = null;
+
         public ProfileInfo(string line)
         {
             Raw = line;
