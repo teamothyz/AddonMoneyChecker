@@ -8,8 +8,8 @@ namespace PayeerTransfer
         [STAThread]
         static void Main()
         {
-            PayeerService.Login("P1100737635", "Tuan552001", CancellationToken.None).Wait();
             ChromeDriverInstance.KillAllChromes();
+            ChromeServiceClient.Login(60, CancellationToken.None).Wait();
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1());
         }

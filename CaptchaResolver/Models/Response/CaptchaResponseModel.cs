@@ -8,6 +8,6 @@ namespace CaptchaResolver.Models
         public int Status { get; set; }
 
         [JsonProperty("request")]
-        public string Request { get; set; }
+        public string Request { get; set; } = null!;
     }
 }
