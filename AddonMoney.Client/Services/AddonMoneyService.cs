@@ -85,6 +85,7 @@ namespace AddonMoney.Client.Services
                         }
                     }
 
+                    ClearTab(token).Wait(token);
                     var timeout = FrmMain.Timeout;
                     if (needToScan)
                     {
@@ -100,9 +101,48 @@ namespace AddonMoney.Client.Services
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Got exception while scanning info for {ProfileName}.", ex);
+                    Log.Error($"Got exception while scanning info for {ProfileName}: {ex}");
                     return account;
                 }
+            }
+        }
+
+        private async Task ClearTab(CancellationToken token)
+        {
+            try
+            {
+                var currentHandler = _driver.Driver.CurrentWindowHandle;
+                try
+                {
+                    if (_driver.Driver.WindowHandles.Count > 2)
+                    {
+                        foreach (var handler in _driver.Driver.WindowHandles)
+                        {
+                            _driver.Driver.SwitchTo().Window(handler);
+                            await Task.Delay(1000, token);
+
+                            var title = (string)_driver.Driver.ExecuteScript("return document.title");
+                            if (string.IsNullOrEmpty(title) || _driver.Driver.Url.Contains("about:blank", StringComparison.OrdinalIgnoreCase))
+                            {
+                                currentHandler = handler;
+                                continue;
+                            }
+                            if (_driver.Driver.Url.Contains("addon.money/install", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _driver.Driver.Close();
+                                continue;
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    _driver.Driver.SwitchTo().Window(currentHandler);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Clear tab error [{ProfileName}]: {ex}");
             }
         }
 
@@ -129,7 +169,7 @@ namespace AddonMoney.Client.Services
                     {
                         if (token.IsCancellationRequested) return;
 
-                        Log.Error($"Got exception while creating driver for {ProfileName}.", ex);
+                        Log.Error($"Got exception while creating driver for {ProfileName}: {ex}");
                         createInstanceTimes++;
                         if (createInstanceTimes == 2) throw;
                         await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
@@ -138,7 +178,7 @@ namespace AddonMoney.Client.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception while creating web driver for {ProfileName}.", ex);
+                Log.Error($"Got exception while creating web driver for {ProfileName}: {ex}");
                 await ApiService.SendError($"Create chrome driver failed for {ProfileName}. Error: {ex.Message}.").ConfigureAwait(false);
                 _driver = null!;
             }
@@ -201,7 +241,7 @@ namespace AddonMoney.Client.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception while getting account info for {ProfileName}.", ex);
+                Log.Error($"Got exception while getting account info for {ProfileName}: {ex}");
                 await ApiService.SendError($"Got exception while getting account info for {ProfileName}. Error: {ex.Message}.").ConfigureAwait(false);
             }
         }
@@ -252,7 +292,7 @@ namespace AddonMoney.Client.Services
                     catch (Exception ex)
                     {
                         if (token.IsCancellationRequested) return;
-                        Log.Error($"Got exception while checking active extension for {ProfileName}.", ex);
+                        Log.Error($"Got exception while checking active extension for {ProfileName}: {ex}");
                         activeTimes++;
                         if (activeTimes == 2) throw;
                         _driver.Driver.GoToUrl("https://addon.money/auth/index.php?social=yt");
@@ -265,7 +305,7 @@ namespace AddonMoney.Client.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception while activating extension for {ProfileName}.", ex);
+                Log.Error($"Got exception while activating extension for {ProfileName}: {ex}");
                 await ApiService.SendError($"Got exception while activating extension for {ProfileName}. Error: {ex.Message}.").ConfigureAwait(false);
             }
         }
@@ -278,7 +318,7 @@ namespace AddonMoney.Client.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"Got exception while closing profile {ProfileName}.", ex);
+                Log.Error($"Got exception while closing profile {ProfileName}: {ex}");
             }
             finally
             {

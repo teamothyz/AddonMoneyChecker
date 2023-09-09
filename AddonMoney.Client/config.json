@@ -10,13 +10,11 @@
         "Args": {
           "path": "./logs/client.log",
           "rollingInterval": "Day",
-          "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+          "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}"
         }
       }
     ]
   },
 
-  //"BaseUrl": "http://103.30.11.5:5050",
-  //"BaseUrl": "http://103.183.114.254:5050",
   "BaseUrl": "http://103.169.34.199:5050"
 }
