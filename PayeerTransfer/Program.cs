@@ -9,7 +9,7 @@ namespace PayeerTransfer
         static void Main()
         {
             ChromeDriverInstance.KillAllChromes();
-            ChromeServiceClient.Login(60, CancellationToken.None).Wait();
+            ChromeServiceClient.StartSending(60, CancellationToken.None).Wait();
             ApplicationConfiguration.Initialize();
             Application.Run(new Form1());
         }
