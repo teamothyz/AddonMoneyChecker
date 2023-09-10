@@ -7,6 +7,7 @@ namespace ChromeDriverLibrary
     public class ChromeDriverInstance
     {
         private static readonly object _lockUserDir = new();
+        private static readonly object _lockChrome = new();
 
         public static MyChromeDriver GetInstance(int positionX,
             int positionY,
@@ -20,6 +21,8 @@ namespace ChromeDriverLibrary
             string? profile = null,
             bool isDeleteProfile = true,
             bool keepOneWindow = false,
+            int? height = null,
+            int? width = null,
             CancellationToken? token = null)
         {
             MyChromeDriver myDriver = new();
@@ -73,15 +76,19 @@ namespace ChromeDriverLibrary
                 if (!string.IsNullOrWhiteSpace(profile)) options.AddArgument($"--profile-directory={profile}");
 
                 var chromeDriverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "chromedriver", "chromedriver.exe");
-                myDriver.Driver = UndetectedChromeDriver.Create(driverExecutablePath: chromeDriverPath,
-                    userDataDir: userDataDir,
+                lock(_lockChrome)
+                {
+                    myDriver.Driver = UndetectedChromeDriver.Create(userDataDir: userDataDir,
+                    driverExecutablePath: chromeDriverPath,
                     headless: isHeadless,
                     hideCommandPromptWindow: true,
                     options: options);
+                }
+                
                 if (!isMaximize)
                 {
                     myDriver.Driver.Manage().Window.Position = new System.Drawing.Point(positionX, positionY);
-                    myDriver.Driver.Manage().Window.Size = new System.Drawing.Size(300, 300);
+                    myDriver.Driver.Manage().Window.Size = new System.Drawing.Size(width ?? 300, height ?? 300);
                 }
                 else
                 {
