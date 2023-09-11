@@ -62,12 +62,12 @@ namespace AddonMoney.Client
                 if (!_services.Any()) return;
                 _ = ProxyService.Check(_services.Select(s => s.ProfileInfo).ToList(), CancellationToken.Token);
 
-                #region Check And Enable Extension Each 15 Minutes
                 var nextScan = DateTime.Now;
                 var nextEnable = DateTime.Now;
                 var oldStart = -1;
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    var tasks = new List<Task>();
                     var needToScan = nextScan <= DateTime.Now;
                     var needEnable = nextEnable <= DateTime.Now;
                     if (needToScan || needEnable)
@@ -90,8 +90,16 @@ namespace AddonMoney.Client
                             {
                                 if (!(start <= i && i < end))
                                 {
-                                    await _services[i].Close();
-                                    await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                    tasks.Add(Task.Run(async () =>
+                                    {
+                                        await _services[i].Close();
+                                        await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                    }));
+                                }
+                                if (tasks.Count(t => t.IsCompleted) == (int)ThreadNumericUpDown.Value)
+                                {
+                                    await Task.Run(() => Task.WaitAny(tasks.ToArray(), CancellationToken.Token));
+                                    tasks.RemoveAll(t => t.IsCompleted);
                                 }
                             }
                         }
@@ -100,14 +108,26 @@ namespace AddonMoney.Client
                         {
                             if (start <= i && i < end)
                             {
-                                await Run(needToScan, _services[i]).ConfigureAwait(false);
-                                await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                tasks.Add(Task.Run(async () =>
+                                {
+                                    await Run(needToScan, _services[i]).ConfigureAwait(false);
+                                    await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
+                                }));
+                            }
+                            if (tasks.Count(t => t.IsCompleted) == (int)ThreadNumericUpDown.Value)
+                            {
+                                await Task.Run(() => Task.WaitAny(tasks.ToArray(), CancellationToken.Token));
+                                tasks.RemoveAll(t => t.IsCompleted);
                             }
                         }
                     }
+                    if (tasks.Any())
+                    {
+                        await Task.WhenAll(tasks);
+                        tasks.Clear();
+                    }
                     await Task.Delay(3000, CancellationToken.Token).ConfigureAwait(false);
                 }
-                #endregion
             }
             catch (Exception ex)
             {
@@ -174,6 +194,8 @@ namespace AddonMoney.Client
                 Group2TimeUpdown.Enabled = enable;
                 TimeScanUpDown.Enabled = enable;
                 DataInputBtn.Enabled = enable;
+
+                ThreadNumericUpDown.Enabled = enable;
 
                 RunStatusTextBox.Text = enable ? "Đã dừng" : "Đang chạy";
                 RunStatusTextBox.StateCommon.Back.Color1 = enable ? Color.FromArgb(255, 128, 128) : Color.GreenYellow;

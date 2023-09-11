@@ -49,6 +49,8 @@
             kryptonLabel4 = new Krypton.Toolkit.KryptonLabel();
             Group1TimeUpdown = new Krypton.Toolkit.KryptonNumericUpDown();
             Group2TimeUpdown = new Krypton.Toolkit.KryptonNumericUpDown();
+            ThreadNumericUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            kryptonLabel9 = new Krypton.Toolkit.KryptonLabel();
             ((System.ComponentModel.ISupportInitialize)ProxyTypeComboBox).BeginInit();
             SuspendLayout();
             // 
@@ -241,7 +243,7 @@
             // 
             // kryptonLabel2
             // 
-            kryptonLabel2.Location = new Point(11, 227);
+            kryptonLabel2.Location = new Point(12, 227);
             kryptonLabel2.Name = "kryptonLabel2";
             kryptonLabel2.Size = new Size(75, 20);
             kryptonLabel2.StateCommon.ShortText.Color1 = Color.Black;
@@ -291,11 +293,35 @@
             Group2TimeUpdown.TabIndex = 37;
             Group2TimeUpdown.Value = new decimal(new int[] { 16, 0, 0, 0 });
             // 
+            // ThreadNumericUpDown
+            // 
+            ThreadNumericUpDown.Location = new Point(105, 258);
+            ThreadNumericUpDown.Maximum = new decimal(new int[] { 30, 0, 0, 0 });
+            ThreadNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            ThreadNumericUpDown.Name = "ThreadNumericUpDown";
+            ThreadNumericUpDown.Size = new Size(107, 22);
+            ThreadNumericUpDown.StateCommon.Content.Color1 = Color.Black;
+            ThreadNumericUpDown.StateCommon.Content.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            ThreadNumericUpDown.TabIndex = 39;
+            ThreadNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // kryptonLabel9
+            // 
+            kryptonLabel9.Location = new Point(12, 260);
+            kryptonLabel9.Name = "kryptonLabel9";
+            kryptonLabel9.Size = new Size(65, 20);
+            kryptonLabel9.StateCommon.ShortText.Color1 = Color.Black;
+            kryptonLabel9.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel9.TabIndex = 38;
+            kryptonLabel9.Values.Text = "Số luồng:";
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(358, 259);
+            ClientSize = new Size(358, 290);
+            Controls.Add(ThreadNumericUpDown);
+            Controls.Add(kryptonLabel9);
             Controls.Add(Group2TimeUpdown);
             Controls.Add(Group1TimeUpdown);
             Controls.Add(kryptonLabel4);
@@ -318,8 +344,8 @@
             Controls.Add(TimeoutUpDown);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
-            MaximumSize = new Size(374, 298);
-            MinimumSize = new Size(374, 298);
+            MaximumSize = new Size(374, 329);
+            MinimumSize = new Size(374, 329);
             Name = "FrmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "AddonMoneyChecker Client - Tele: @lukaxsx";
@@ -350,5 +376,7 @@
         private Krypton.Toolkit.KryptonLabel kryptonLabel4;
         private Krypton.Toolkit.KryptonNumericUpDown Group1TimeUpdown;
         private Krypton.Toolkit.KryptonNumericUpDown Group2TimeUpdown;
+        private Krypton.Toolkit.KryptonNumericUpDown ThreadNumericUpDown;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel9;
     }
 }
