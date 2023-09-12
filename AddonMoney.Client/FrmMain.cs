@@ -90,13 +90,14 @@ namespace AddonMoney.Client
                             {
                                 if (!(start <= i && i < end))
                                 {
+                                    var service = _services[i];
                                     tasks.Add(Task.Run(async () =>
                                     {
-                                        await _services[i].Close();
+                                        await service.Close();
                                         await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
                                     }));
                                 }
-                                if (tasks.Count(t => t.IsCompleted) == (int)ThreadNumericUpDown.Value)
+                                if (tasks.Count(t => !t.IsCompleted) == (int)ThreadNumericUpDown.Value)
                                 {
                                     await Task.Run(() => Task.WaitAny(tasks.ToArray(), CancellationToken.Token));
                                     tasks.RemoveAll(t => t.IsCompleted);
@@ -108,13 +109,14 @@ namespace AddonMoney.Client
                         {
                             if (start <= i && i < end)
                             {
+                                var service = _services[i];
                                 tasks.Add(Task.Run(async () =>
                                 {
-                                    await Run(needToScan, _services[i]).ConfigureAwait(false);
+                                    await Run(needToScan, service).ConfigureAwait(false);
                                     await Task.Delay(1000, CancellationToken.Token).ConfigureAwait(false);
                                 }));
                             }
-                            if (tasks.Count(t => t.IsCompleted) == (int)ThreadNumericUpDown.Value)
+                            if (tasks.Count(t => !t.IsCompleted) == (int)ThreadNumericUpDown.Value)
                             {
                                 await Task.Run(() => Task.WaitAny(tasks.ToArray(), CancellationToken.Token));
                                 tasks.RemoveAll(t => t.IsCompleted);
