@@ -92,7 +92,7 @@ namespace AddonMoney.Transfer.Windows
                     {
                         tasks.Add(Task.Run(async () =>
                         {
-                            var result = await TransferService.Transfer(account, _tokenSource.Token);
+                            var result = await TransferService.Transfer(account, (int)MinNumericUpDown.Value, _tokenSource.Token);
                             if (result.Item1)
                             {
                                 _successCount++;
@@ -162,6 +162,7 @@ namespace AddonMoney.Transfer.Windows
                 NoneProxyRadioBtn.Enabled = !isRun;
                 HTTPProxyRadioBtn.Enabled = !isRun;
                 Socks5ProxyRadioBtn.Enabled = !isRun;
+                MinNumericUpDown.Enabled = !isRun;
             });
         }
 

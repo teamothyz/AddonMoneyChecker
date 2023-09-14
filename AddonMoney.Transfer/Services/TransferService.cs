@@ -11,7 +11,7 @@ namespace AddonMoney.Transfer.Services
         private static readonly string _logPrefix = "[TransferService]";
         public static int Timeout { get; set; } = 30;
 
-        public static async Task<Tuple<bool, string?>> Transfer(Account account, CancellationToken token)
+        public static async Task<Tuple<bool, string?>> Transfer(Account account, int min, CancellationToken token)
         {
             var myDriver = await CreateDriver(account.Proxy?.ToString(), token).ConfigureAwait(false);
             if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
@@ -49,12 +49,14 @@ namespace AddonMoney.Transfer.Services
 
                 var limit = int.Parse(myDriver.Driver.FindElement(".my-payout-limit b", Timeout, token).Text);
                 var balance = int.Parse(myDriver.Driver.FindElement("#balance", Timeout, token).Text);
-                var withdrawAmount = (balance > limit ? limit : balance) / 100 * 100;
-                if (withdrawAmount < 100)
+                if (balance < min)
                 {
                     Log.Error($"{_logPrefix} Not enough balance of {accountId}.");
                     return new Tuple<bool, string?>(false, $"Not enough balance: {balance}");
                 }
+                var withdrawAmount = (balance > limit ? limit : balance) / 100 * 100;
+                withdrawAmount = withdrawAmount < 5000 ? withdrawAmount : 5000;
+
                 myDriver.Driver.Click(@".payeer[for=""payout6""]", Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
