@@ -78,7 +78,7 @@ namespace AddonMoney.Transfer.Services
                 myDriver.Driver.SetInnerHtml(captchaResElm, captchaToken, true, Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
-                var sendTime = DateTime.Now;
+                var sendTime = DateTime.Now.AddSeconds(-30);
                 myDriver.Driver.Click("#payout-action", Timeout, token);
 
                 var messageStatusElm = myDriver.Driver.FindElement(".payout-form-error.active", Timeout, token);

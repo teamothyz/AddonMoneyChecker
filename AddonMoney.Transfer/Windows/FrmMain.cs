@@ -95,11 +95,18 @@ namespace AddonMoney.Transfer.Windows
                             var result = await TransferService.Transfer(account, (int)MinNumericUpDown.Value, _tokenSource.Token);
                             if (result.Item1)
                             {
-                                _successCount++;
+                                lock (Account.Accounts)
+                                {
+                                    Account.Accounts.Remove(account);
+                                    _successCount++;
+                                }
                             }
                             else
                             {
-                                _failedCount++;
+                                lock (Account.Accounts)
+                                {
+                                    _failedCount++;
+                                }
                             }
                             UpdateProcessedCount();
                             DataService.WriteResult(sessionName, account, result.Item1, result.Item2);
@@ -115,9 +122,14 @@ namespace AddonMoney.Transfer.Windows
                 }
                 finally
                 {
-                    Invoke(() => MessageBox.Show(this, "Chương trình đã kết thúc", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information));
-                    EnableBtn(false);
                     ChromeDriverInstance.KillAllChromes();
+                    EnableBtn(false);
+                    Invoke(() =>
+                    {
+                        AccCountTextBox.Text = Account.Accounts.Count.ToString();
+                        ProxyCountTextBox.Text = Account.Accounts.Count(acc => acc.Proxy != null).ToString();
+                        MessageBox.Show(this, "Chương trình đã kết thúc", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    });
                 }
             });
         }

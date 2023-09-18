@@ -117,6 +117,7 @@ namespace AddonMoney.Transfer.Services
         //session-appId-appHash-timeStampUTC-timeout-proxy?
         public static async Task<Tuple<bool, string>> GetOTPByPy(Account account, DateTime offsetDate, CancellationToken token)
         {
+            string input = string.Empty;
             try
             {
                 var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -132,7 +133,6 @@ namespace AddonMoney.Transfer.Services
                 string? proxy = account.Proxy?.ToString();
                 var offset = ((DateTimeOffset)offsetDate.ToUniversalTime()).ToUnixTimeSeconds();
                 var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "helpers", "ReadOTPCode.exe");
-                var input = string.Empty;
                 if (proxy == null)
                 {
                     input = $"{sessionPath} {account.ApiId} {account.ApiHash} {offset} {TransferService.Timeout}";
@@ -141,7 +141,6 @@ namespace AddonMoney.Transfer.Services
                 {
                     input = $"{sessionPath} {account.ApiId} {account.ApiHash} {offset} {TransferService.Timeout} {proxy}";
                 }
-
                 using var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -158,23 +157,24 @@ namespace AddonMoney.Transfer.Services
                 var success = process.WaitForExit((TransferService.Timeout + 3) * 1000);
                 if (!success)
                 {
-                    Log.Error($"{_logPrefix} Timeout while waiting otp for {account.Phone}.");
+                    Log.Error($"{_logPrefix} [{input}] Timeout while waiting otp for {account.Phone}.");
                     return new Tuple<bool, string>(false, $"Not found code.");
                 }
 
                 var output = await process.StandardOutput.ReadToEndAsync();
                 var error = await process.StandardError.ReadToEndAsync();
+                Log.Information($"{_logPrefix} [{input}] {output} {error}");
                 var matched = Regex.Match(output, "(\\d{6})");
                 if (matched.Success && output.ToLower().Contains("code"))
                 {
                     return new Tuple<bool, string>(true, matched.Value);
                 }
-                Log.Error($"{_logPrefix} Not found otp for {account.Phone}. Result message: {output}");
+                Log.Error($"{_logPrefix} [{input}] Not found otp for {account.Phone}. Message: {output}");
                 return new Tuple<bool, string>(false, output + " " + error);
             }
             catch (Exception ex)
             {
-                Log.Error($"{_logPrefix} Got exception while waiting otp for {account.Phone}. Error: {ex}");
+                Log.Error($"{_logPrefix} [{input}] Waiting otp for {account.Phone} error: {ex}");
                 return new Tuple<bool, string>(false, ex.Message);
             }
         }
@@ -182,6 +182,7 @@ namespace AddonMoney.Transfer.Services
         //session-appId-appHash-token-proxy?
         public static async Task<Tuple<bool, string>> LinkAccount(Account account, string token)
         {
+            var input = string.Empty;
             try
             {
                 var sessionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -196,7 +197,6 @@ namespace AddonMoney.Transfer.Services
                 }
                 string? proxy = account.Proxy?.ToString();
                 var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "helpers", "LinkAccount.exe");
-                var input = string.Empty;
                 if (proxy == null)
                 {
                     input = $"{sessionPath} {account.ApiId} {account.ApiHash} {token}";
@@ -205,7 +205,6 @@ namespace AddonMoney.Transfer.Services
                 {
                     input = $"{sessionPath} {account.ApiId} {account.ApiHash} {token} {proxy}";
                 }
-
                 using var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -222,22 +221,22 @@ namespace AddonMoney.Transfer.Services
                 var success = process.WaitForExit(60 * 1000);
                 if (!success)
                 {
-                    Log.Error($"{_logPrefix} Timeout while linking account for {account.Phone}.");
+                    Log.Error($"{_logPrefix} [{input}] Timeout while linking account for {account.Phone}.");
                     return new Tuple<bool, string>(false, $"Timeout while linking account for {account.Phone}.");
                 }
 
                 var output = await process.StandardOutput.ReadToEndAsync();
                 var error = await process.StandardError.ReadToEndAsync();
+                Log.Information($"{_logPrefix} [{input}] {output} {error}");
                 if (output.ToLower().Contains("error") || !string.IsNullOrEmpty(error))
                 {
-                    Log.Error($"{_logPrefix} {output} {error}");
                     return new Tuple<bool, string>(false, output + " " + error);
                 }
                 return new Tuple<bool, string>(true, string.Empty);
             }
             catch (Exception ex)
             {
-                Log.Error($"{_logPrefix} Got exception while linking account for {account.Phone}. Error: {ex}");
+                Log.Error($"{_logPrefix} [{input}] Link account {account.Phone} error: {ex}");
                 return new Tuple<bool, string>(false, ex.Message);
             }
         }
