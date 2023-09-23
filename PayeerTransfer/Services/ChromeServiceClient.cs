@@ -1,4 +1,5 @@
 ﻿using ChromeDriverLibrary;
+using OpenQA.Selenium.Interactions;
 using PayeerTransfer.Models;
 using Serilog;
 using System.Text.RegularExpressions;
@@ -50,7 +51,7 @@ namespace PayeerTransfer.Services
                 }
 
                 account.Progress = "Đang chuyển";
-                var sendSuccess = await Send(myDriver, receiver, code, timeout, token);
+                var sendSuccess = await Send(myDriver, receiver, code, account.MasterKey, timeout, token);
                 if (sendSuccess == false)
                 {
                     account.Progress = "Chuyển tiền thất bại";
@@ -122,7 +123,7 @@ namespace PayeerTransfer.Services
             }
         }
 
-        private static async Task<bool?> Send(MyChromeDriver myDriver, string receiver, string code, int timeout, CancellationToken token)
+        private static async Task<bool?> Send(MyChromeDriver myDriver, string receiver, string code, string masterKey, int timeout, CancellationToken token)
         {
             try
             {
@@ -172,7 +173,20 @@ namespace PayeerTransfer.Services
                     }
                     catch
                     {
-                        await Task.Delay(1000, token);
+                        try
+                        {
+                            var secretElm = myDriver.Driver.FindElement(@"[name=""master_key""]", 3, token);
+                            if (string.IsNullOrWhiteSpace(masterKey)) return false;
+                            await Task.Delay(500, token);
+                            myDriver.Driver.ExecuteScript($"inputAppend('.masterkey input[name=master_key]', '{masterKey}');");
+                            await Task.Delay(500, token);
+                            myDriver.Driver.ExecuteScript("masterKeySubmit();");
+                            await Task.Delay(500, token);
+                        }
+                        catch
+                        {
+                            await Task.Delay(1000, token);
+                        }
                     }
                 }
                 return false;
@@ -183,8 +197,6 @@ namespace PayeerTransfer.Services
                 return false;
             }
         }
-
-        private static readonly object _startLocker = new();
 
         private static async Task<MyChromeDriver> CreateDriver(int browserIndex, CancellationToken token)
         {

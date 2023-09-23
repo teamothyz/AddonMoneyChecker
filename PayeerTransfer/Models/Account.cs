@@ -13,6 +13,8 @@ namespace PayeerTransfer.Models
 
         public string Password { get; set; } = null!;
 
+        public string MasterKey { get; set; } = string.Empty;
+
         private Status _status = Status.None;
         public Status Status
         {

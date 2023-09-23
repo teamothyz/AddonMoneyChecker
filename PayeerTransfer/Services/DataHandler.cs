@@ -31,6 +31,7 @@ namespace PayeerTransfer.Services
                             Username = details[0],
                             Password = details[1]
                         };
+                        if (details.Length >= 3) account.MasterKey = details[2];
                         accounts.Add(account);
                         line = reader.ReadLine();
                     }
