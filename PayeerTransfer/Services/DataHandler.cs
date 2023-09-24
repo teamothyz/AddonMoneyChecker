@@ -31,7 +31,7 @@ namespace PayeerTransfer.Services
                             Username = details[0],
                             Password = details[1]
                         };
-                        if (details.Length >= 3) account.MasterKey = details[2];
+                        if (details.Length >= 3) account.MasterKey = details[2].Trim();
                         accounts.Add(account);
                         line = reader.ReadLine();
                     }
@@ -63,7 +63,7 @@ namespace PayeerTransfer.Services
                     if (!Directory.Exists(subFolder)) Directory.CreateDirectory(subFolder);
 
                     using var writer = new StreamWriter(Path.Combine(subFolder, $"{fileName}.{session:yyyy.MM.dd.HH.mm.ss}.txt"), true);
-                    writer.WriteLine($"{account.Username}|{account.Password}|{account.Status}|{account.Progress}");
+                    writer.WriteLine($"{account.Username}|{account.Password}|{account.MasterKey}|{account.Status}|{account.Progress}");
                     writer.Flush();
                     writer.Close();
                 }
