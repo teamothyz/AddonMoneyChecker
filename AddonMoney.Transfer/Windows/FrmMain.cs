@@ -65,6 +65,7 @@ namespace AddonMoney.Transfer.Windows
         private async void StartBtn_Click(object sender, EventArgs e)
         {
             ActiveControl = kryptonLabel1;
+            var successAccounts = new List<Account>();
             await Task.Run(async () =>
             {
                 try
@@ -97,7 +98,7 @@ namespace AddonMoney.Transfer.Windows
                             {
                                 lock (Account.Accounts)
                                 {
-                                    Account.Accounts.Remove(account);
+                                    successAccounts.Add(account);
                                     _successCount++;
                                 }
                             }
@@ -122,7 +123,8 @@ namespace AddonMoney.Transfer.Windows
                 }
                 finally
                 {
-                    ChromeDriverInstance.KillAllChromes();
+                    await Task.Run(() => ChromeDriverInstance.KillAllChromes());
+                    successAccounts.ForEach(a => Account.Accounts.Remove(a));
                     EnableBtn(false);
                     Invoke(() =>
                     {
