@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>teleicon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="teleicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="helper\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krypton.Toolkit" Version="70.22.11.312" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="helper\CheckSession.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

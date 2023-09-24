@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptchaResolver", "CaptchaR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddonMoney.Register", "AddonMoney.Register\AddonMoney.Register.csproj", "{16F7A36F-D39D-4E82-8177-23258A72F3F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayeerTransfer", "PayeerTransfer\PayeerTransfer.csproj", "{AA59DEA5-F554-43A3-8B9B-0014A672ADE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PayeerTransfer", "PayeerTransfer\PayeerTransfer.csproj", "{AA59DEA5-F554-43A3-8B9B-0014A672ADE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramSessionChecking", "TelegramSessionChecking\TelegramSessionChecking.csproj", "{9BB95F28-436A-4E8F-9855-6A09C6F21ACC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{AA59DEA5-F554-43A3-8B9B-0014A672ADE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA59DEA5-F554-43A3-8B9B-0014A672ADE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA59DEA5-F554-43A3-8B9B-0014A672ADE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB95F28-436A-4E8F-9855-6A09C6F21ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB95F28-436A-4E8F-9855-6A09C6F21ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB95F28-436A-4E8F-9855-6A09C6F21ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB95F28-436A-4E8F-9855-6A09C6F21ACC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
