@@ -19,6 +19,7 @@ namespace AddonMoney.Transfer.Windows
             InitializeComponent();
             _2captchaTextBox.Text = KeyHandler.GetKey() ?? string.Empty;
             ActiveControl = kryptonLabel1;
+            CaptchaComboBox.SelectedIndex = 0;
             TopMost = true;
         }
 
@@ -85,6 +86,10 @@ namespace AddonMoney.Transfer.Windows
                     }
                     KeyHandler.SaveKey(_2captchaKey);
                     CaptchaV2Client.InitKey(_2captchaKey, "https://addon.money", "6LeuIL4UAAAAAHgT1ir2kCjOaU6F1UAcTmWiFr5M");
+                    AnyCaptchaV2Client.InitKey(_2captchaKey, "https://addon.money", "6LeuIL4UAAAAAHgT1ir2kCjOaU6F1UAcTmWiFr5M");
+
+                    Func<CancellationToken, Task<string>> captchaFunc = CaptchaComboBox.SelectedIndex == 0 
+                    ? (token) => CaptchaV2Client.GetToken(token) : (token) => AnyCaptchaV2Client.GetToken(token);
 
                     _tokenSource = new();
                     var sessionName = $"{DateTime.Now:yyyyMMdd.HHmmss}";
@@ -93,7 +98,7 @@ namespace AddonMoney.Transfer.Windows
                     {
                         tasks.Add(Task.Run(async () =>
                         {
-                            var result = await TransferService.Transfer(account, (int)MinNumericUpDown.Value, _tokenSource.Token);
+                            var result = await TransferService.Transfer(account, (int)MinNumericUpDown.Value, captchaFunc, _tokenSource.Token);
                             if (result.Item1)
                             {
                                 lock (Account.Accounts)
@@ -167,6 +172,7 @@ namespace AddonMoney.Transfer.Windows
                     StatusTextBox.StateCommon.Back.Color1 = Color.Tomato;
                 }
 
+                CaptchaComboBox.Enabled = !isRun;
                 ThreadUpDown.Enabled = !isRun;
                 TimeoutUpDown.Enabled = !isRun;
                 AccountsInputBtn.Enabled = !isRun;

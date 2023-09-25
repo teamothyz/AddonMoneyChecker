@@ -11,7 +11,7 @@ namespace AddonMoney.Transfer.Services
         private static readonly string _logPrefix = "[TransferService]";
         public static int Timeout { get; set; } = 30;
 
-        public static async Task<Tuple<bool, string?>> Transfer(Account account, int min, CancellationToken token)
+        public static async Task<Tuple<bool, string?>> Transfer(Account account, int min, Func<CancellationToken, Task<string>> captchaFunc, CancellationToken token)
         {
             var myDriver = await CreateDriver(account.Proxy?.ToString(), token).ConfigureAwait(false);
             if (myDriver?.Driver == null) return new Tuple<bool, string?>(false, "Cant create chrome driver");
@@ -73,7 +73,7 @@ namespace AddonMoney.Transfer.Services
                 await Task.Delay(1000, token).ConfigureAwait(false);
 
             SUBMIT_CAPTCHA:
-                var captchaToken = await GetCaptchaResponse(token);
+                var captchaToken = await GetCaptchaResponse(captchaFunc, token);
                 var captchaResElm = myDriver.Driver.FindElement("#g-recaptcha-response", Timeout, token);
                 myDriver.Driver.SetInnerHtml(captchaResElm, captchaToken, true, Timeout, token);
                 await Task.Delay(1000, token).ConfigureAwait(false);
@@ -201,14 +201,14 @@ namespace AddonMoney.Transfer.Services
             }
         }
 
-        private static async Task<string> GetCaptchaResponse(CancellationToken token)
+        private static async Task<string> GetCaptchaResponse(Func<CancellationToken, Task<string>> captchaFunc, CancellationToken token)
         {
             var resolveTimes = 0;
             while (true)
             {
                 try
                 {
-                    return await CaptchaV2Client.GetToken(token);
+                    return await captchaFunc(token);
                 }
                 catch
                 {

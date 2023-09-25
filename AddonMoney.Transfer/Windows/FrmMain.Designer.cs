@@ -56,6 +56,9 @@
             kryptonLabel9 = new Krypton.Toolkit.KryptonLabel();
             kryptonLabel10 = new Krypton.Toolkit.KryptonLabel();
             MinNumericUpDown = new Krypton.Toolkit.KryptonNumericUpDown();
+            kryptonLabel11 = new Krypton.Toolkit.KryptonLabel();
+            CaptchaComboBox = new Krypton.Toolkit.KryptonComboBox();
+            ((System.ComponentModel.ISupportInitialize)CaptchaComboBox).BeginInit();
             SuspendLayout();
             // 
             // kryptonLabel1
@@ -80,10 +83,10 @@
             // 
             kryptonLabel3.Location = new Point(12, 192);
             kryptonLabel3.Name = "kryptonLabel3";
-            kryptonLabel3.Size = new Size(90, 20);
+            kryptonLabel3.Size = new Size(84, 20);
             kryptonLabel3.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             kryptonLabel3.TabIndex = 3;
-            kryptonLabel3.Values.Text = "2captcha API:";
+            kryptonLabel3.Values.Text = "Captcha API:";
             // 
             // _2captchaTextBox
             // 
@@ -326,7 +329,7 @@
             // 
             // kryptonLabel10
             // 
-            kryptonLabel10.Location = new Point(12, 229);
+            kryptonLabel10.Location = new Point(12, 264);
             kryptonLabel10.Name = "kryptonLabel10";
             kryptonLabel10.Size = new Size(57, 20);
             kryptonLabel10.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
@@ -335,7 +338,7 @@
             // 
             // MinNumericUpDown
             // 
-            MinNumericUpDown.Location = new Point(104, 227);
+            MinNumericUpDown.Location = new Point(104, 262);
             MinNumericUpDown.Maximum = new decimal(new int[] { 999999999, 0, 0, 0 });
             MinNumericUpDown.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
             MinNumericUpDown.Name = "MinNumericUpDown";
@@ -344,11 +347,35 @@
             MinNumericUpDown.TabIndex = 28;
             MinNumericUpDown.Value = new decimal(new int[] { 100, 0, 0, 0 });
             // 
+            // kryptonLabel11
+            // 
+            kryptonLabel11.Location = new Point(12, 229);
+            kryptonLabel11.Name = "kryptonLabel11";
+            kryptonLabel11.Size = new Size(76, 20);
+            kryptonLabel11.StateCommon.ShortText.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            kryptonLabel11.TabIndex = 29;
+            kryptonLabel11.Values.Text = "Resolve by:";
+            // 
+            // CaptchaComboBox
+            // 
+            CaptchaComboBox.CornerRoundingRadius = -1F;
+            CaptchaComboBox.DropDownWidth = 120;
+            CaptchaComboBox.IntegralHeight = false;
+            CaptchaComboBox.Items.AddRange(new object[] { "2CAPTCHA", "ANYCAPTCHA" });
+            CaptchaComboBox.Location = new Point(104, 228);
+            CaptchaComboBox.Name = "CaptchaComboBox";
+            CaptchaComboBox.Size = new Size(120, 21);
+            CaptchaComboBox.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
+            CaptchaComboBox.TabIndex = 30;
+            CaptchaComboBox.Text = "---Chọn---";
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(474, 361);
+            Controls.Add(CaptchaComboBox);
+            Controls.Add(kryptonLabel11);
             Controls.Add(MinNumericUpDown);
             Controls.Add(kryptonLabel10);
             Controls.Add(kryptonLabel9);
@@ -382,6 +409,7 @@
             MinimumSize = new Size(490, 400);
             Name = "FrmMain";
             Text = "AddonMoney Transfer - Telegram: @lukaxsx";
+            ((System.ComponentModel.ISupportInitialize)CaptchaComboBox).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -414,5 +442,7 @@
         private Krypton.Toolkit.KryptonLabel kryptonLabel9;
         private Krypton.Toolkit.KryptonLabel kryptonLabel10;
         private Krypton.Toolkit.KryptonNumericUpDown MinNumericUpDown;
+        private Krypton.Toolkit.KryptonLabel kryptonLabel11;
+        private Krypton.Toolkit.KryptonComboBox CaptchaComboBox;
     }
 }

@@ -41,7 +41,7 @@ namespace CaptchaResolver.Clients
 
         private static async Task<CaptchaResponseModel?> Request(HttpClient client, CancellationToken token)
         {
-            var url = $"http://2captcha.com/in.php?key={_apiKey}&method={_method}&googlekey={_siteKey}&pageurl={_siteUrl}&json=1&invisible=1";
+            var url = $"http://2captcha.com/in.php?key={_apiKey}&method={_method}&googlekey={_siteKey}&pageurl={_siteUrl}&json=1&invisible=0";
             var response = await client.GetAsync(url, token);
             var content = await response.Content.ReadAsStringAsync(token);
             return JsonConvert.DeserializeObject<CaptchaResponseModel>(content);
