@@ -18,8 +18,11 @@
 
         public MyProxy? Proxy { get; set; } = null!;
 
-        public Account(string cookies, string payeerId, string phone, int apiId, string apiHash, MyProxy? proxy = null)
+        public string Raw { get; set; } = string.Empty;
+
+        public Account(string raw, string cookies, string payeerId, string phone, int apiId, string apiHash, MyProxy? proxy = null)
         {
+            Raw = raw;
             Cookies = cookies;
             PayeerId = payeerId;
             Phone = phone.StartsWith('0') ? "+84" + phone[1..] : phone;

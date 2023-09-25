@@ -47,13 +47,13 @@ namespace AddonMoney.Transfer.Services
 
                         if (details.Length == 5)
                         {
-                            var account = new Account(cookies, payeerId, phone, appId, appHash);
+                            var account = new Account(line, cookies, payeerId, phone, appId, appHash);
                             accounts.Add(account);
                         }
                         else
                         {
                             var myProxy = GetProxy(details[5].Trim());
-                            var account = new Account(cookies, payeerId, phone, appId, appHash, myProxy);
+                            var account = new Account(line, cookies, payeerId, phone, appId, appHash, myProxy);
                             accounts.Add(account);
                         }
                         line = streamReader.ReadLine();
@@ -120,9 +120,28 @@ namespace AddonMoney.Transfer.Services
                     writer.WriteLine(line);
                     writer.Flush();
                     writer.Close();
+                    var raw = account.Raw;
+                    if (!success) raw = $"{account.Raw}|{reason}";
+                    WriteSuccessFailed(name, raw, success);
                 }
                 catch { }
             }
+        }
+
+        private static void WriteSuccessFailed(string name, string raw, bool success)
+        {
+            try
+            {
+                var folder = success ? "success" : "failed";
+                var folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, folder);
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+                var file = Path.Combine(folderPath, $"{name}.txt");
+                using var writer = new StreamWriter(file, true);
+                writer.WriteLine(raw);
+                writer.Flush();
+                writer.Close();
+            }
+            catch { }
         }
     }
 }
