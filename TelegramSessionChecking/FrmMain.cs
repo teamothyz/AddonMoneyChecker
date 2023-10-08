@@ -27,12 +27,13 @@ namespace TelegramSessionChecking
             try
             {
                 var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions");
-                var files = Directory.GetFiles(folder);
-                foreach (var file in files)
+                var folders = Directory.GetDirectories(folder);
+                foreach (var subFolder in folders)
                 {
+                    var fileName = $"{Path.GetFileName(subFolder)}.session";
                     _sessions.Add(new SessionFile
                     {
-                        FilePath = file
+                        FilePath = Path.Combine(folder, fileName)
                     });
                 }
             }
